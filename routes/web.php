@@ -33,7 +33,7 @@ Route::group(['prefix' => '/'], function(){
 });
 
 
-Route::group(['prefix' => '', 'middleware' => 'roleUser'], function () {
+Route::group(['prefix' => '', 'middleware' => 'userStatus'], function () {
     Route::get('/', 'HomeController@index')->name('index');
 });
 
@@ -41,24 +41,24 @@ Route::group(['prefix' => '', 'middleware' => 'roleUser'], function () {
 Route::group(['prefix' => 'pemilik-lapangan/'], function(){
     Route::post('register', 'Auth\RegisterController@login')->name('pemilikLapangan.register');
     
-    Route::group(['prefix' => '', 'middleware' => 'roleUser'], function () {
+    Route::group(['prefix' => '', 'middleware' => 'userStatus'], function () {
         Route::get('dashboard', 'HomeController@pemilikLapanganHome')->name('pemilikLapangan.dashboard');
     
-        Route::get('profil', 'HomeController@pemilikLapanganProfil')->name('pemilikLapangan.profil');
+        Route::get('profil', 'ProfilController@pemilikLapanganProfil')->name('pemilikLapangan.profil');
     
-        Route::get('riwayat-penyewaan', 'HomeController@pemilikLapanganRiwayatPenyewaan')->name('pemilikLapangan.riwayatPenyewaan');
+        Route::get('riwayat-penyewaan', 'RiwayatController@pemilikLapanganRiwayatPenyewaan')->name('pemilikLapangan.riwayatPenyewaan');
     });
 });
  
 Route::group(['prefix' => 'penyewa-lapangan/'], function(){
     Route::post('register', 'Auth\RegisterController@login')->name('penyewaLapangan.register');
     
-    Route::group(['prefix' => '', 'middleware' => 'roleUser'], function () {
+    Route::group(['prefix' => '', 'middleware' => 'userStatus'], function () {
         Route::get('dashboard', 'HomeController@pemilikLapanganHome')->name('penyewaLapangan.dashboard');
     
-        Route::get('profil', 'HomeController@pemilikLapanganProfil')->name('penyewaLapangan.profil');
+        Route::get('profil', 'ProfilController@penyewaLapanganProfil')->name('penyewaLapangan.profil');
     
-        Route::get('riwayat-penyewaan', 'HomeController@pemilikLapanganRiwayatPenyewaan')->name('penyewaLapangan.riwayatPenyewaan');
+        Route::get('riwayat-penyewaan', 'RiwayatController@penyewaLapanganRiwayatPenyewaan')->name('penyewaLapangan.riwayatPenyewaan');
     });
 });
 

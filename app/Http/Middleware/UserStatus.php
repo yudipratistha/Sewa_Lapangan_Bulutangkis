@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 
-class RoleUser
+class UserStatus
 {
     /**
      * Handle an incoming request.
@@ -16,7 +16,11 @@ class RoleUser
      */
     public function handle($request, Closure $next)
     {
-        if(auth()->user()->role == 1){
+        if(auth()->user()->user_status == 1){
+            return $next($request);
+        }else if(auth()->user()->user_status == 2){
+            return $next($request);
+        }else if(auth()->user()->user_status == 3){
             return $next($request);
         }
    

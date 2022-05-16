@@ -49,10 +49,10 @@ class LoginController extends Controller
    
         if(auth()->attempt(array('email' => $input['email'], 'password' => $input['password'])))
         {
-            if (auth()->user()->role == 1) {
+            if (auth()->user()->user_status == 2) {
                 return redirect()->route('pemilikLapangan.dashboard');
-            }else{
-                return redirect()->route('home');
+            }else if(auth()->user()->user_status == 3) {
+                return redirect()->route('penyewaLapangan.dashboard');
             }
         }else{
             return redirect()->route('login')

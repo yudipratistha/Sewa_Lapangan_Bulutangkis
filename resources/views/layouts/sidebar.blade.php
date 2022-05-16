@@ -19,7 +19,7 @@
                       <h6>Menu</h6>
                     </div>
                   </li>
-                  @if (Auth::user()->role == 1)
+                  @if (Auth::user()->user_status == 2)
                   
                     <li class="dropdown"><a class="nav-link menu-title link-nav" href="{{route('pemilikLapangan.dashboard')}}"><i data-feather="home"></i><span>Dashboard</span></a></li>
                     <li class="dropdown"><a class="nav-link menu-title link-nav" href="{{route('pemilikLapangan.profil')}}"><i data-feather="user"></i><span>Profil</span></a></li>

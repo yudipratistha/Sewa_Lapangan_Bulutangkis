@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -23,19 +24,17 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        if (auth()->user()->user_status == 2) {
+            return redirect()->route('pemilikLapangan.dashboard');
+        }else{
+            return redirect()->route('home');
+        }
+        
     }
 
     public function pemilikLapanganHome()
     {
         return view('pemilik_lapangan.pemilikLapanganDashboard');
-    }
-
-    public function pemilikLapanganProfil(){
-
-    }
-
-    public function pemilikLapanganRiwayatPenyewaan(){
 
     }
 }
