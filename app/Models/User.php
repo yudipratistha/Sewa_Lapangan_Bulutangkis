@@ -12,6 +12,15 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
   
+    protected $table = 'tb_pengguna';
+
+    public function Lapangan(){
+        return $this->hasMany('App\Models\Lapangan', 'id_pengguna');
+    }
+    
+    public function Booking(){
+        return $this->hasMany('App\Models\Booking', 'id_pengguna');
+    }
     /**
      * The attributes that are mass assignable.
      *

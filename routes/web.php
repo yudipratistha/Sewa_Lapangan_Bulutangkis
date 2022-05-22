@@ -16,12 +16,12 @@ use App\Http\Controllers\HomeController;
 */
 
 Route::group(['prefix' => '/'], function(){
-    Route::post('login', 'Auth\LoginController@login');
-    Route::get('login', 'Auth\LoginController@showLoginForm')->name('login');
-    Route::post('logout', 'Auth\LoginController@logout')->name('logout');
+    Route::post('login', 'Auth\AuthController@loginPemilikLapangan');
+    Route::get('login', 'Auth\AuthController@loginForm')->name('login');
+    Route::post('logout', 'Auth\AuthController@logout')->name('logout');
 
-    Route::get('register', 'Auth\RegisterController@showRegistrationForm')->name('register');
-    Route::post('register', 'Auth\RegisterController@register');
+    Route::get('register', 'Auth\AuthController@registrationForm')->name('register');
+    // Route::post('register', 'Auth\RegisterController@register');
     
     Route::post('password/confirm', 'Auth\ConfirmPasswordController@confirm');
     Route::get('password/confirm', 'Auth\ConfirmPasswordController@showConfirmForm')->name('password.confirm');
@@ -39,32 +39,33 @@ Route::group(['prefix' => '', 'middleware' => 'userStatus'], function () {
 
 
 Route::group(['prefix' => 'pemilik-lapangan/'], function(){
-    Route::post('register', 'Auth\RegisterController@login')->name('pemilikLapangan.register');
+    Route::post('register', 'Auth\AuthController@createPemilikLapangan')->name('pemilikLapangan.register');
     
     Route::group(['prefix' => '', 'middleware' => 'userStatus'], function () {
         Route::get('dashboard', 'HomeController@pemilikLapanganHome')->name('pemilikLapangan.dashboard');
+
+        Route::get('get-court-lapangan-status/{lapangan_id}/{court}', 'LapanganController@getStatusCourtLapangan')->name('pemilikLapangan.statusCourtLapanganStatus');
+        Route::post('update-lapangan-court-status/{id}', 'LapanganController@updateCourtLapanganStatus')->name('pemilikLapangan.updateCourtLapanganStatus');
+
+        Route::get('get-profil/{id}', 'ProfilController@getPenyewaLapanganProfil')->name('pemilikLapangan.getPenyewaProfil');
     
         Route::get('profil', 'ProfilController@pemilikLapanganProfil')->name('pemilikLapangan.profil');
-    
+        Route::post('update-profil', 'ProfilController@pemilikLapanganUpdateProfil')->name('pemilikLapangan.updateProfil');
+
         Route::get('riwayat-penyewaan', 'RiwayatController@pemilikLapanganRiwayatPenyewaan')->name('pemilikLapangan.riwayatPenyewaan');
     });
 });
  
 Route::group(['prefix' => 'penyewa-lapangan/'], function(){
-    Route::post('register', 'Auth\RegisterController@login')->name('penyewaLapangan.register');
+    Route::post('register', 'Auth\AuthController@createPenyewaLapangan')->name('penyewaLapangan.register');
     
     Route::group(['prefix' => '', 'middleware' => 'userStatus'], function () {
-        Route::get('dashboard', 'HomeController@pemilikLapanganHome')->name('penyewaLapangan.dashboard');
+        Route::get('dashboard', 'HomeController@penyewaLapanganHome')->name('penyewaLapangan.dashboard');
+        Route::get('get-all-data-lapangan', 'LapanganController@getAllDataLapangan')->name('penyewaLapangan.getAllDataLapangan');
     
         Route::get('profil', 'ProfilController@penyewaLapanganProfil')->name('penyewaLapangan.profil');
     
         Route::get('riwayat-penyewaan', 'RiwayatController@penyewaLapanganRiwayatPenyewaan')->name('penyewaLapangan.riwayatPenyewaan');
     });
 });
-
-
-
-
-
-// Route::get('admin/home', 'HomeController@adminHome')->name('admin.home')->middleware('is_admin');
 

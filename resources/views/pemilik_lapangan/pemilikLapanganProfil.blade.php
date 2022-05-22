@@ -5,6 +5,7 @@
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/date-picker.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/sweetalert2.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/jquery.timepicker.min.css')}}">
+<link rel="stylesheet" type="text/css" href="{{url('/assets/css/jquery.datetimepicker.min.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/leaflet.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/leaflet-gesture-handling.min.css')}}">
 
@@ -32,12 +33,13 @@
                                         <h5 class="pull-left">Edit Profil Pemilik Lapangan</h5>
                                     </div>
                                     <div class="card-body">
-                                        <form method="POST" action="{{ route('pemilikLapangan.register') }}">
+                                    <img src="">
+                                        <form method="POST" action="{{ route('pemilikLapangan.updateProfil') }}">
                                             @csrf
                                             <div class="form-group">
                                                 <label>Nama Lapangan</label>
                                                 <div class="input-group"><span class="input-group-text"><i class="icofont icofont-badminton-birdie"></i></span>
-                                                    <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="nama_lapangan_pemilik_lapangan" placeholder="Nama Lapangan" value="{{ old('name') }}" required autocomplete="name" autofocus>
+                                                    <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="nama_lapangan_pemilik_lapangan" placeholder="Nama Lapangan" value="{{$dataProfilPemilikLapangan[0]->nama_lapangan}}" required>
                                                 </div>
                                                 @error('name')
                                                     <span class="invalid-feedback" role="alert">
@@ -48,7 +50,7 @@
                                             <div class="form-group">
                                                 <label>Nama Lengkap</label>
                                                 <div class="input-group"><span class="input-group-text"><i class="icon-user"></i></span>
-                                                    <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="nama_pemilik_lapangan" placeholder="Name" value="{{ old('name') }}" required autocomplete="name" autofocus>
+                                                    <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="nama_pemilik_lapangan" placeholder="Name" value="{{$dataProfilPemilikLapangan[0]->user->name}}" required autocomplete="name" autofocus>
                                                 </div>
                                                 @error('name')
                                                     <span class="invalid-feedback" role="alert">
@@ -59,7 +61,7 @@
                                             <div class="form-group">
                                                 <label>Alamat Email</label>
                                                 <div class="input-group"><span class="input-group-text"><i class="icon-email"></i></span>
-                                                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email_pemilik_lapangan" placeholder="Test@gmail.com" value="{{ old('email') }}" required autocomplete="email">
+                                                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email_pemilik_lapangan" placeholder="Test@gmail.com" value="{{$dataProfilPemilikLapangan[0]->user->email}}" disabled>
                                                 </div>
                                                 @error('email')
                                                     <span class="invalid-feedback" role="alert">
@@ -67,7 +69,7 @@
                                                     </span>
                                                 @enderror
                                             </div>
-                                            <div class="form-group">
+                                            <!-- <div class="form-group">
                                                 <label>Password</label>
                                                 <div class="input-group"><span class="input-group-text"><i class="icon-lock"></i></span>
                                                     <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password_pemilik_lapangan" placeholder="*********" required autocomplete="new-password">
@@ -78,7 +80,7 @@
                                                         <strong>{{ $message }}</strong>
                                                     </span>
                                                 @enderror
-                                            </div>
+                                            </div> -->
                                             <!-- <div class="form-group">
                                                 <label>Confirm Password</label>
                                                 <div class="input-group"><span class="input-group-text"><i class="icon-lock"></i></span>
@@ -89,28 +91,28 @@
                                             <div class="form-group">
                                                 <label>Nomor Telepon</label>
                                                 <div class="input-group"><span class="input-group-text"><i class="icofont icofont-telephone"></i></span>
-                                                    <input id="nomor-telepon" type="number" class="form-control" name="nomor_telepon_pemilik_lapangan" placeholder="08xxxx" required>
+                                                    <input id="nomor-telepon" type="number" class="form-control" name="nomor_telepon_pemilik_lapangan" placeholder="08xxxx" value="{{$dataProfilPemilikLapangan[0]->user->nomor_telepon}}" required>
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <label>Upload Foto Lapangan</label>
                                                 <div class="form-space theme-form row">
-                                                    <div class="col-md-4 imgUp">
-                                                        <div class="imagePreview"></div>
+                                                    <div class="col-md-4 img-up">
+                                                        <div class="image-preview" id="image-preview-foto-lapangan-1"></div>
                                                         <label class="btn btn-primary">Upload
-                                                            <input type="file" class="uploadFile img" value="foto_lapangan_1" style="width: 0px;height: 0px;overflow: hidden;">
+                                                            <input type="file" class="upload-file img" value="foto_lapangan_1" style="width: 0px;height: 0px;overflow: hidden;">
                                                         </label>
                                                     </div>
-                                                    <div class="col-md-4 imgUp">
-                                                        <div class="imagePreview"></div>
+                                                    <div class="col-md-4 img-up">
+                                                        <div class="image-preview" id="image-preview-foto-lapangan-2"></div>
                                                         <label class="btn btn-primary">Upload
-                                                            <input type="file" class="uploadFile img" value="foto_lapangan_2" style="width: 0px;height: 0px;overflow: hidden;">
+                                                            <input type="file" class="upload-file img" value="foto_lapangan_2" style="width: 0px;height: 0px;overflow: hidden;">
                                                         </label>
                                                     </div>
-                                                    <div class="col-md-4 imgUp">
-                                                        <div class="imagePreview"></div>
+                                                    <div class="col-md-4 img-up">
+                                                        <div class="image-preview" id="image-preview-foto-lapangan-3"></div>
                                                         <label class="btn btn-primary">Upload
-                                                            <input type="file" class="uploadFile img" value="foto_lapangan_3" style="width: 0px;height: 0px;overflow: hidden;">
+                                                            <input type="file" class="upload-file img" value="foto_lapangan_3" style="width: 0px;height: 0px;overflow: hidden;">
                                                         </label>
                                                     </div>
                                                 </div>
@@ -118,7 +120,7 @@
                                             <div class="form-group">
                                                 <label>Jumlah Court</label>
                                                 <div class="input-group"><span class="input-group-text"><i class="icofont icofont-telephone"></i></span>
-                                                    <input id="nomor-telepon" type="number" class="form-control" name="nomor_telepon_pemilik_lapangan" placeholder="08xxxx" required>
+                                                    <input id="nomor-telepon" type="number" class="form-control" name="nomor_telepon_pemilik_lapangan" placeholder="08xxxx" value="{{$dataProfilPemilikLapangan[0]->jumlah_court}}" required>
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -127,14 +129,14 @@
                                                         <label class="form-label" for="validationDefault04">Lapangan Buka Dari Hari</label>
                                                         <div class="input-group"><span class="input-group-text"><i class="icofont icofont-calendar"></i></span>
                                                             <select class="form-select" id="validationDefault04" name="lapangan_buka_dari_hari" required="">
-                                                                <option selected="" disabled="" value="">Pilih Hari...</option>
-                                                                <option value="1">Senin</option>
-                                                                <option value="2">Selasa</option>
-                                                                <option value="3">Rabu</option>
-                                                                <option value="4">Kamis</option>
-                                                                <option value="5">Jumat</option>
-                                                                <option value="6">Sabtu</option>
-                                                                <option value="7">Minggu</option>
+                                                                <option disabled="" value="">Pilih Hari...</option>
+                                                                <option value="1" @if($dataProfilPemilikLapangan[0]->buka_dari_hari == 1) selected @endif>Senin</option>
+                                                                <option value="2" @if($dataProfilPemilikLapangan[0]->buka_dari_hari == 2) selected @endif>Selasa</option>
+                                                                <option value="3" @if($dataProfilPemilikLapangan[0]->buka_dari_hari == 3) selected @endif>Rabu</option>
+                                                                <option value="4" @if($dataProfilPemilikLapangan[0]->buka_dari_hari == 4) selected @endif>Kamis</option>
+                                                                <option value="5" @if($dataProfilPemilikLapangan[0]->buka_dari_hari == 5) selected @endif>Jumat</option>
+                                                                <option value="6" @if($dataProfilPemilikLapangan[0]->buka_dari_hari == 6) selected @endif>Sabtu</option>
+                                                                <option value="7" @if($dataProfilPemilikLapangan[0]->buka_dari_hari == 7) selected @endif>Minggu</option>
                                                             </select>
                                                         </div>
                                                     </div>
@@ -142,14 +144,14 @@
                                                         <label class="form-label" for="validationDefault04">Lapangan Buka Sampai Hari</label>
                                                         <div class="input-group"><span class="input-group-text"><i class="icofont icofont-calendar"></i></span>
                                                             <select class="form-select" id="validationDefault04" name="lapangan_buka_sampai_hari" required="">
-                                                                <option selected="" disabled="" value="">Pilih Hari...</option>
-                                                                <option value="1">Senin</option>
-                                                                <option value="2">Selasa</option>
-                                                                <option value="3">Rabu</option>
-                                                                <option value="4">Kamis</option>
-                                                                <option value="5">Jumat</option>
-                                                                <option value="6">Sabtu</option>
-                                                                <option value="7">Minggu</option>
+                                                                <option disabled="" value="">Pilih Hari...</option>
+                                                                <option value="1" @if($dataProfilPemilikLapangan[0]->buka_sampai_hari == 1) selected @endif>Senin</option>
+                                                                <option value="2" @if($dataProfilPemilikLapangan[0]->buka_sampai_hari == 2) selected @endif>Selasa</option>
+                                                                <option value="3" @if($dataProfilPemilikLapangan[0]->buka_sampai_hari == 3) selected @endif>Rabu</option>
+                                                                <option value="4" @if($dataProfilPemilikLapangan[0]->buka_sampai_hari == 4) selected @endif>Kamis</option>
+                                                                <option value="5" @if($dataProfilPemilikLapangan[0]->buka_sampai_hari == 5) selected @endif>Jumat</option>
+                                                                <option value="6" @if($dataProfilPemilikLapangan[0]->buka_sampai_hari == 6) selected @endif>Sabtu</option>
+                                                                <option value="7" @if($dataProfilPemilikLapangan[0]->buka_sampai_hari == 7) selected @endif>Minggu</option>
                                                             </select>
                                                         </div>
                                                     </div>
@@ -158,13 +160,13 @@
                                                     <div class="col-md-6">
                                                         <label class="form-label" for="validationDefault04">Lapangan Buka Dari Jam</label>
                                                         <div class="input-group"><span class="input-group-text"><i class="icofont icofont-clock-time"></i></span>
-                                                            <input class="form-control timepicker" id="single-input" name="lapangan_buka_dari_jam" type="text" value="" placeholder="Pilih Jam">
+                                                            <input class="form-control" id="buka-dari-jam" name="lapangan_buka_dari_jam" type="text" value="" placeholder="Pilih Jam" data-target="#buka-dari-jam" data-toggle="datetimepicker">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <label class="form-label" for="validationDefault04">Lapangan Buka Sampai Jam</label>
                                                         <div class="input-group"><span class="input-group-text"><i class="icofont icofont-clock-time"></i></span>
-                                                            <input class="form-control timepicker" id="single-input" name="lapangan_buka_sampai_jam" type="text" value="" placeholder="Pilih Jam">
+                                                            <input class="form-control timepicker" id="buka-sampai-jam" name="lapangan_buka_sampai_jam" type="text" value="" placeholder="Pilih Jam">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -174,13 +176,13 @@
                                                 <div style="height:360px;width:100%;" id="map-container">
                                                     <div style="height: 100%; width: 100%; position: relative;z-index: 0;" id="map"></div>
                                                 </div>
-                                                <input type="hidden" class="form-control" id="job-lat-location" name="lat_alamat_pemilik_lapangan">
-                                                <input type="hidden" class="form-control" id="job-lng-location" name="lng_alamat_pemilik_lapangan">
+                                                <input type="hidden" class="form-control" id="lat-location-lapangan" name="lat_alamat_pemilik_lapangan">
+                                                <input type="hidden" class="form-control" id="lng-location-lapangan" name="lng_alamat_pemilik_lapangan">
                                             </div>
                                             <div class="form-group" id="job-description-div">
                                                 <label class="form-label">Alamat Tertulis</label>
                                                 <div class="input-group"><span class="input-group-text"><i class="icofont icofont-address-book"></i></span>
-                                                    <textarea class="form-control" id="alamat-tertulis" name="alamat_tertulis_pemilik_lapangan" rows="3"></textarea>
+                                                    <textarea class="form-control" id="alamat-tertulis" name="alamat_tertulis_pemilik_lapangan" rows="3">{{$dataProfilPemilikLapangan[0]->alamat_lapangan}}</textarea>
                                                 </div>
                                             </div>
                                             <div class="form-group float-end">
@@ -203,72 +205,89 @@
 <script src="{{url('/assets/js/datepicker/date-picker/datepicker.en.js')}}"></script>
 <script src="{{url('/assets/js/sweet-alert/sweetalert.min.js')}}"></script>
 <script src="{{url('/assets/js/time-picker/jquery.timepicker.min.js')}}"></script>
+<!-- <script src="{{url('/assets/js/datepicker/date-time-picker/moment.min.js')}}"></script>
+<script src="{{url('/assets/js/datepicker/date-time-picker/tempusdominus-bootstrap-4.min.js')}}"></script> -->
+<script src="{{url('/assets/js/datepicker/date-time-picker/jquery.datetimepicker.full.min.js')}}"></script>
 <script src="{{url('/assets/js/leaflet/leaflet.js')}}"></script>
 <script src="{{url('/assets/js/leaflet/leaflet-gesture-handling.min.js')}}"></script>
 <script>
     $('#tanggal').datepicker({
         language: 'en',
         dateFormat: 'dd-mm-yyyy',
-        minDate: new Date() // Now can select only dates, which goes after today
+        minDate: new Date() 
     });
 
-    $('.timepicker').timepicker({
-        timeFormat: 'h:mm p',
-        interval: 30,
-        minTime: '6:00am',
-        maxTime: '11:00pm',
-        defaultTime: '6:00am',
-        startTime: '6:00am',
-        dynamic: true,
-        dropdown: true,
-        scrollbar: true
-    });
+    $("#buka-dari-jam").datetimepicker({
+        datepicker: false,
+        step: 30,
+        format: 'H:i',
+        minTime: '6',
+        maxTime: '23:30',
+        timepickerScrollbar: true,
+        scrollTime: true
+        // defaultTime: '{{$dataProfilPemilikLapangan[0]->buka_dari_jam}}'
+    }).val('{{date("H:i", strtotime($dataProfilPemilikLapangan[0]->buka_dari_jam))}}'); 
 
-  $(".imgAdd").click(function(){
-  $(this).closest(".row").find('.imgAdd').before('<div class="col-sm-2 imgUp"><div class="imagePreview"></div><label class="btn btn-primary">Upload<input type="file" class="uploadFile img" value="Upload Photo" style="width:0px;height:0px;overflow:hidden;"></label><i class="fa fa-times del"></i></div>');
+    $("#buka-sampai-jam").datetimepicker({
+        datepicker: false,
+        step: 30,
+        format: 'H:i',
+        minTime: '6',
+        maxTime: '23:30',
+        timepickerScrollbar: true,
+        scrollTime: true
+        // defaultTime: '{{date("H:i", strtotime($dataProfilPemilikLapangan[0]->buka_sampai_jam))}}'
+    }).val('{{date("H:i", strtotime($dataProfilPemilikLapangan[0]->buka_sampai_jam))}}');
+    var lapanganImage_1 = "{{$lapanganImage['foto_lapangan_1']}}";
+    var lapanganImage_2 = "{{$lapanganImage['foto_lapangan_2']}}";
+    var lapanganImage_3 = "{{$lapanganImage['foto_lapangan_3']}}";
+
+    if(lapanganImage_1 !== "") $('#image-preview-foto-lapangan-1').css("background-image", "url({{$lapanganImage['foto_lapangan_1']}})");
+    if(lapanganImage_2 !== "") $('#image-preview-foto-lapangan-2').css("background-image", "url({{$lapanganImage['foto_lapangan_2']}})");
+    if(lapanganImage_3 !== "") $('#image-preview-foto-lapangan-3').css("background-image", "url({{$lapanganImage['foto_lapangan_3']}})");
+
+    $(".img-add").click(function(){
+        $(this).closest(".row").find('.img-add').before('<div class="col-sm-2 imgUp"><div class="imagePreview"></div><label class="btn btn-primary">Upload<input type="file" class="uploadFile img" value="Upload Photo" style="width:0px;height:0px;overflow:hidden;"></label><i class="fa fa-times del"></i></div>');
     });
     $(document).on("click", "i.del" , function() {
-    // 	to remove card
-    $(this).parent().remove();
-    // to clear image
+        $(this).parent().remove();
     // $(this).parent().find('.imagePreview').css("background-image","url('')");
     });
-    $(function() {
-        $(document).on("change",".uploadFile", function()
-        {
-                var uploadFile = $(this);
-            var files = !!this.files ? this.files : [];
-            if (!files.length || !window.FileReader) return; // no file selected, or no FileReader support
     
+    $(document).on("change",".upload-file", function(){
+        var uploadFile = $(this);
+        var files = !!this.files ? this.files : [];
+        if (!files.length || !window.FileReader) return; // no file selected, or no FileReader support
             if (/^image/.test( files[0].type)){ // only image file
                 var reader = new FileReader(); // instance of the FileReader
                 reader.readAsDataURL(files[0]); // read the local file
     
                 reader.onloadend = function(){ // set image data as background of div
                     //alert(uploadFile.closest(".upimage").find('.imagePreview').length);
-    uploadFile.closest(".imgUp").find('.imagePreview').css("background-image", "url("+this.result+")");
-                }
+                uploadFile.closest(".img-up").find('.image-preview').css("background-image", "url("+this.result+")");
             }
-        
-        });
+        }
     });
 
+        var dataProfilPemilikLapanganLat = "{{$dataProfilPemilikLapangan[0]->titik_koordinat_lat}}";
+        var dataProfilPemilikLapanganLng = "{{$dataProfilPemilikLapangan[0]->titik_koordinat_lng}}";
 
-        var latlngview = L.latLng($('#job-lat-location').val(), $('#job-lng-location').val());
-        if(latlngview.lat == 0 && latlngview.lng == 0) latlngview = L.latLng('-8.660315332079342', '115.21636962890626');
+        var latlngview = L.latLng(dataProfilPemilikLapanganLat, dataProfilPemilikLapanganLng);
+        
+        if(latlngview.lat === 0 && latlngview.lng === 0) latlngview = L.latLng('-8.660315332079342', '115.21636962890626');
         var map = L.map('map', {
             zoomControl:true,
             gestureHandling: true
-        }).setView([latlngview.lat, latlngview.lng],12.5);
+        }).setView([latlngview.lat, latlngview.lng],17);
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-            maxZoom: 18,
+            maxZoom: 20,
             id: 'mapbox/streets-v11',
             tileSize: 512,
             zoomOffset: -1,
             accessToken: 'pk.eyJ1IjoieXVkaXByYXRpc3RoYSIsImEiOiJjbDJ6cHpsZ2owMzQ3M2JtcDQxdzFhdDd5In0.lPuxJO3S88Xy70aZfF4dLQ'
         }).addTo(map);
-        var latlng = L.latLng($('#job-lat-location').val(), $('#job-lng-location').val());
+        var latlng = L.latLng(dataProfilPemilikLapanganLat, dataProfilPemilikLapanganLng);
         if(latlng != undefined){
             currentMarker = L.marker(latlng, {
                 draggable: true

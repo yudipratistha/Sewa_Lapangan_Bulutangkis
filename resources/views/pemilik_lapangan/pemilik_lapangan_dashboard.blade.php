@@ -1,0 +1,345 @@
+@extends('layouts.app')
+
+@section('title', 'Pemilik Lapangan Dashboard')
+
+@section('plugin_css')
+<link rel="stylesheet" type="text/css" href="{{url('/assets/css/date-picker.css')}}">
+<link rel="stylesheet" type="text/css" href="{{url('/assets/css/sweetalert2.css')}}">
+<link rel="stylesheet" type="text/css" href="{{url('/assets/css/datatables.css')}}">
+
+
+@endsection
+
+@section('content')
+<!-- page-wrapper Start       -->
+<div class="page-wrapper compact-wrapper" id="pageWrapper">
+    <!-- Page Header Start-->
+    @include('layouts.header')
+    <!-- Page Header End-->
+    <!-- Page Body Start-->
+    <div class="page-body-wrapper sidebar-icon">
+        <!-- Page Sidebar Start-->
+        @include('layouts.sidebar')
+        <!-- Page Sidebar End-->
+        <div class="page-body">
+            <!-- Container-fluid starts-->
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="card" style="margin-bottom: 10px;">
+                        <div class="card-body">
+                            <div class="mb-3 row g-3">
+                                <label class="col-xl-1 col-sm-3 col-lg-1 col-form-label">Pilih Tanggal</label>
+                                <div class="col-xl-3 col-sm-5 col-lg-7">
+                                    <div class="input-group date">
+                                        <input class="form-control digits" id="tanggal" name="tanggal" type="text" data-bs-original-title="" title="">
+                                        <div class="input-group-text"><i class="fa fa-calendar"> </i></div>
+                                    </div>
+                                </div>
+                            </div>                
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="pull-left">Dashboard Pemilik Lapangan</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="tabbed-card">
+                                <ul class="pull-right nav nav-tabs border-tab nav-success" id="top-tabdanger" role="tablist">
+                                @for ($court= 1; $court <= $dataLapangan[0]->jumlah_court; $court++)
+                                    <li class="nav-item"><a class="nav-link @if($court === 1) active @endif" id="top-home-danger" data-bs-toggle="tab" href="#court-{{$court}}" role="tab" aria-controls="top-homedanger" aria-selected="true"><i class="icofont icofont-badminton-birdie"></i>Court {{$court}}</a>
+                                        <div class="material-border"></div>
+                                    </li>
+                                @endfor
+                                </ul>
+                                
+                                <div class="tab-content" id="top-tabContentdanger">
+                                    @for ($court= 1; $court <= $dataLapangan[0]->jumlah_court; $court++)
+                                        <div class="tab-pane fade @if($court === 1) active show @endif" id="court-{{$court}}" role="tabpanel" aria-labelledby="top-home-tab">
+                                            <div class="table-responsive">
+                                                <table class="display datatables" id="table-court-{{$court}}">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Jam</th>
+                                                            <th>Penyewa</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach($dataWaktuLapangan[0] as $dataWaktuLapanganKey => $dataWaktuLapanganValue)
+                                                            <tr>
+                                                                <td>{{$dataWaktuLapanganValue}}</td>
+                                                                @php 
+                                                                    $status_penyewa = false; 
+                                                                    $status_court = false; 
+                                                                @endphp
+                                                                @if(isset($dataLapanganBooking))
+                                                                    @foreach($dataLapanganBooking as $dataLapanganBookingKey => $dataLapanganBookingValue) 
+                                                                        @if($court === $dataLapanganBookingValue->court)
+                                                                            @for($i=strtotime($dataLapanganBookingValue->jam_mulai); $i < strtotime($dataLapanganBookingValue->jam_selesai); $i+=3600)
+                                                                                @if($dataWaktuLapanganValue === date('H:i', $i) . " - ". date('H:i', $i+3600))
+                                                                                    <td><a data-tooltip="tooltip" data-placement="top" title="" data-original-title="Lihat Data Profil Penyewa" href="javascript:getPenyewa({{$dataLapanganBookingValue->pengguna_id}}, {{$dataLapanganBookingValue->court}})">{{$dataLapanganBookingValue->name}}</a></td>
+                                                                                    <td><button type="button" class="btn btn-square btn-outline-blue" id="edit-data-ergonomic" onclick="getPenyewa({{$dataLapanganBookingValue->pengguna_id}}, {{$dataLapanganBookingValue->court}})" style="width: 37px; padding-top: 2px; padding-left: 0px; padding-right: 0px; padding-bottom: 2px; margin-right:5px;"><i class="icon-user" style="font-size:20px;"></i></button></td>
+                                                                                    @php $status_penyewa = true; @endphp
+                                                                                @endif
+                                                                            @endfor
+                                                                        @endif
+                                                                    @endforeach
+                                                                @endif
+                                                                @foreach($dataStatusLapangan as $dataStatusLapanganKey => $dataStatusLapanganValue)
+                                                                    @if($court === $dataStatusLapanganValue->court)
+                                                                        @if($status_penyewa !== true && $dataWaktuLapanganValue === date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_dari)) . " - ". date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_sampai)))
+                                                                            <td>
+                                                                                @if($dataStatusLapanganValue->status === 'Available') 
+                                                                                    Tersedia
+                                                                                @elseif($dataStatusLapanganValue->status === 'Unavailable') 
+                                                                                    Tidak Tersedia
+                                                                                @endif
+                                                                            </td>
+                                                                            <td><button type="button" class="btn btn-square btn-outline-blue" id="edit-data-ergonomic" onclick="editCourt({{$dataLapangan[0]->lapangan_id}}, {{$court}}, '{{$dataWaktuLapanganValue}}')" style="width: 37px; padding-top: 2px; padding-left: 0px; padding-right: 0px; padding-bottom: 2px; margin-right:5px;"><i class="icon-pencil-alt" style="font-size:20px;"></i></button></td>
+                                                                            @php $status_court = true; @endphp
+                                                                        @endif
+                                                                    @endif
+                                                                @endforeach
+                                                            </tr>
+                                                        @endforeach
+                                                    <tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    @endfor
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Container-fluid Ends-->
+        </div>
+        <!-- footer start-->
+        @include('layouts.footer')
+    </div>
+</div>
+
+<!-- Modal Edit Court-->
+<div class="modal fade" id="edit-court-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Court</h3>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form class="theme-form" id="editCourt" action="" method="POST">
+                @csrf
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-label" for="edit-court-status">Status</label>
+                                <div class="input-group"><span class="input-group-text"><i class="icofont icofont-tick-mark"></i></span>
+                                    <select class="form-select" id="edit-court-status" name="edit_court_status" required="">
+                                        <option selected="" disabled="" value="">Pilih Status...</option>
+                                        <option value="Available">Tersedia</option>
+                                        <option value="Unavailable">Tidak Tersedia</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group" id="job-description-div">
+                                <label class="form-label">Alasan</label>
+                                <div class="input-group"><span class="input-group-text"><i class="icofont icofont-pencil-alt-5"></i></span>
+                                    <textarea class="form-control" id="edit-court-alasan" name="edit_court_alasan" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-square btn-outline-light txt-dark" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="update-court-button" class="btn btn-square btn-outline-secondary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Data Profil Penyewa-->
+<div class="modal fade" id="data-profil-penyewa-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Data Profil Penyewa</h3>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Nama</label>
+                            <div class="input-group"><span class="input-group-text"><i class="icon-user"></i></span>
+                                <input type="text" disabled class="form-control" id="nama-penyewa" name="nama_penyewa" placeholder="Nama..." value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Tanggal Penyewaan</label>
+                            <div class="input-group"><span class="input-group-text"><i class="icofont icofont-calendar"></i></span>
+                                <input type="text" disabled class="form-control" id="tanggal-penyewaan" name="tanggal_penyewaan" value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Court</label>
+                            <div class="input-group"><span class="input-group-text"><i class="icofont icofont-badminton-birdie"></i></span>
+                                <input type="text" disabled class="form-control" id="pilihan-court-penyewa" name="pilihan_court_penyewa" value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Waktu</label>
+                            <div class="input-group"><span class="input-group-text"><i class="icofont icofont-clock-time"></i></span>
+                                <input type="text" disabled class="form-control" id="pilihan-waktu-penyewa" name="pilihan_waktu_penyewa" placeholder="Waktu..." value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Total</label>
+                            <div class="input-group"><span class="input-group-text"><i class="icon-receipt"></i></span>
+                                <input type="text" disabled class="form-control" id="total-penyewaan" name="total_penyewaan" placeholder="Total..." value="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-square btn-outline-light txt-dark" data-bs-dismiss="modal">Close</button>
+                <button type="button" onclick="tolakPenyewaan()" class="btn btn-square btn-outline-secondary">Tolak</button>
+                <button type="button" onclick="terimaPenyewaan()" class="btn btn-square btn-outline-secondary">Terima</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('plugin_js')
+<script src="{{url('/assets/js/datepicker/date-picker/datepicker.js')}}"></script>
+<script src="{{url('/assets/js/datepicker/date-picker/datepicker.en.js')}}"></script>
+<script src="{{url('/assets/js/sweet-alert/sweetalert.min.js')}}"></script>
+<script src="{{url('/assets/js/datatable/datatables/jquery.dataTables.min.js')}}"></script>
+<script src="{{url('/assets/js/datepicker/date-time-picker/moment.min.js')}}"></script>
+
+<script>
+    var jumlah_court = {!! json_encode($dataLapangan[0]->jumlah_court) !!}
+
+    for (let court= 1; court<= jumlah_court; court++){
+        $("#table-court-"+court).dataTable({
+            "columns": [
+                { "orderable": true, "width": "10%" },
+                null,
+                { "orderable": false, "width": "13%" },
+                
+            ],
+        });
+
+    }
+
+    $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+        $.fn.dataTable.tables({ visible: true, api: true}).columns.adjust();
+    });
+
+    $('#tanggal').datepicker({
+        language: 'en',
+        dateFormat: 'dd-mm-yyyy',
+        minDate: new Date() // Now can select only dates, which goes after today
+    });
+
+    function getPenyewa(idPenggunaPenyewa, court){
+        link = "{{route('pemilikLapangan.getPenyewaProfil', ':idPenggunaPenyewa')}}";
+        link = link.replace(":idPenggunaPenyewa", idPenggunaPenyewa);
+        $.ajax({
+            url: link,
+            method: "GET",
+            dataType: 'json',
+            success: function(data){
+                data.forEach(function(item, index){
+                    if(court === item.court){
+                        var tglBooking = item.tgl_booking.split('-');
+                        var jamMulai = item.jam_mulai.split(':');
+                        var jamSelesai = item.jam_selesai.split(':');
+                        
+                        $('#nama-penyewa').val(item.user.name);
+                        $('#tanggal-penyewaan').val(tglBooking[2]+"-"+tglBooking[1]+"-"+tglBooking[0]);
+                        $('#pilihan-court-penyewa').val(item.court);
+                        $('#pilihan-waktu-penyewa').val(jamMulai[0]+":"+jamMulai[1] +" - "+ jamSelesai[0]+":"+jamSelesai[1]);
+                        $('#total-penyewaan').val(item.biaya);
+                        $('#id-pengguna-penyewa').val(item.id);
+                    }
+                });
+                $('#data-profil-penyewa-modal').modal('show');
+            },
+            error: function(data){
+                console.log("asdsad", data)
+            }
+        });
+    }
+
+    function editCourt(idLapangan, court, waktuLapangan){
+        link = "{{route('pemilikLapangan.statusCourtLapanganStatus', [':idLapangan',':court'])}}";
+        link = link.replace(":idLapangan", idLapangan);
+        link = link.replace(":court", court);
+        $.ajax({
+            url: link,
+            method: "GET",
+            dataType: 'json',
+            success: function(data){
+                data.forEach(function(item, index){
+                    var jamStatusBerlaku = item.jam_status_berlaku_dari.split(':');
+                    var waktuLapanganSplit = waktuLapangan.split(' - ');
+
+                    if(waktuLapanganSplit[0] === jamStatusBerlaku[0]+":"+jamStatusBerlaku[1]){
+                        $('#edit-court-status').find('option').removeAttr('selected');
+                        $('#edit-court-status').find('option[value="'+item.status+'"]').prop('selected',true);
+                        $('#edit-court-alasan').val(item.detail_status);
+                        $('#update-court-button').attr("onclick", "updateCourt("+item.id+")")
+                    }
+                });
+                $('#edit-court-modal').modal('show');
+            },
+            error: function(data){
+                console.log("asdsad", data);
+            }
+        });
+    }
+
+    function updateCourt(court_id){
+        link = "{{route('pemilikLapangan.updateCourtLapanganStatus', ':id')}}";
+        link = link.replace(':id', court_id);
+        
+		swal.fire({
+			title: "Edit Court?",
+			text: "Court will be edited on court list!",
+			icon: "warning",
+			showCancelButton: true,
+			// confirmButtonClass: "btn-danger",
+			confirmButtonText: "Save",
+            closeOnConfirm: true,
+            preConfirm: (login) => {
+                return $.ajax({
+                    type: "POST", 
+                    url: link,
+                    datatype : "json", 
+                    data: $("#editCourt").serialize() + "&court_id="+court_id,
+                    success: function(data){
+                        
+                    },
+                    error: function(data){
+                        swal.fire({title:"Ticket Failed to Approved!", text:"This ticket was not approved successfully", icon:"error"});
+                    }
+                }); 
+            } 
+		}).then((result) => {
+            if(result.value){
+                swal.fire({title:"Ticket Approved!", text:"This ticket has been approved on tickets list", icon:"success"})
+                .then(function(){ 
+                    window.location.href = "";
+                });
+            }
+        });
+    }
+</script>
+
+@endsection
