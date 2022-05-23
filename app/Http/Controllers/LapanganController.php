@@ -28,31 +28,51 @@ class LapanganController extends Controller
     }
 
     public function getAllDataLapangan(){
-        $dataLapangan = Lapangan::select('*')
-            ->with(['User' => function ($query) {$query->select('id', 'name', 'nomor_telepon'); }])
+        $dataLapangan = Lapangan::with(['User' => function ($query) {$query->select('tb_pengguna.id', 'tb_pengguna.name', 'tb_pengguna.nomor_telepon'); }])
+            ->select(['tb_lapangan.id as lapangan_id', 'tb_lapangan.id_pengguna', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.buka_dari_hari', 
+            'tb_lapangan.buka_sampai_hari', 'tb_lapangan.titik_koordinat_lat', 'tb_lapangan.titik_koordinat_lng', 'tb_lapangan.buka_dari_jam', 
+            'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court'])
             ->get();
-        
-        $dataLapanganArr = array();
-        foreach($dataLapangan as $dataLapanganKey => $dataLapanganValue){
-            array_push($dataLapanganArr, array(
-                'nama_lapangan' => $dataLapanganValue->nama_lapangan,
-                'nama_pemilik_lapangan' => $dataLapanganValue->user->name,
-                'nomor_telepon_lapangan' => $dataLapanganValue->user->nomor_telepon,
-                'alamat_lapangan' => $dataLapanganValue->alamat_lapangan,
-                'buka_dari_hari' => $dataLapanganValue->buka_dari_hari,
-                'buka_sampai_hari' => $dataLapanganValue->buka_sampai_hari,
-                'titik_koordinat_lat' => $dataLapanganValue->titik_koordinat_lat, 
-                'titik_koordinat_lng' => $dataLapanganValue->titik_koordinat_lng,
-                'buka_dari_jam' => $dataLapanganValue->buka_dari_jam, 
-                'buka_sampai_jam' => $dataLapanganValue->buka_sampai_jam, 
-                'jumlah_court' => $dataLapanganValue->jumlah_court, 
-                'foto_lapangan_1' => 'data:image/jpg;base64,'.base64_encode(file_get_contents(storage_path($dataLapanganValue->foto_lapangan_1))), 
-                'foto_lapangan_2' => 'data:image/jpg;base64,'.base64_encode(file_get_contents(storage_path($dataLapanganValue->foto_lapangan_2))), 
-                'foto_lapangan_3' => 'data:image/jpg;base64,'.base64_encode(file_get_contents(storage_path($dataLapanganValue->foto_lapangan_3)))
-            ));
-        }
 
+        return response()->json($dataLapangan);
+    }
+
+    public function getLapanganPicture($lapangan_id){
+        $dataLapangan = Lapangan::select('foto_lapangan_1' ,'foto_lapangan_2' ,'foto_lapangan_3')->find($lapangan_id);
+        
+        // $lapanganPictureArr = array();
+                
+        // if(isset($dataLapangan['foto_lapangan_1']) && $dataLapangan['foto_lapangan_1'] !== ""){
+        //     $fileExtension = pathinfo(storage_path($dataLapangan['foto_lapangan_1']), PATHINFO_EXTENSION);
+        //     $lapanganPictureArr[] = 'data:image/'.$fileExtension.';base64,'.base64_encode(file_get_contents(storage_path($dataLapangan['foto_lapangan_1'])));
+        // }else{
+        //     $lapanganPictureArr[] = null;
+        // }
+
+        // if(isset($dataLapangan['foto_lapangan_2']) && $dataLapangan['foto_lapangan_2'] !== ""){
+        //     $fileExtension = pathinfo(storage_path($dataLapangan['foto_lapangan_2']), PATHINFO_EXTENSION);
+        //     $lapanganPictureArr[] = 'data:image/'.$fileExtension.';base64,'.base64_encode(file_get_contents(storage_path($dataLapangan['foto_lapangan_2'])));
+        // }else{
+        //     $lapanganPictureArr[] = null;
+        // }
+
+        // if(isset($dataLapangan['foto_lapangan_3']) && $dataLapangan['foto_lapangan_3'] !== ""){
+        //     $file = File::get($path);
+
+        //     $type = File::mimeType($path);
+        //     $fileExtension = pathinfo(storage_path($dataLapangan['foto_lapangan_3']), PATHINFO_EXTENSION);
+        //     $lapanganPictureArr[] = 'data:image/'.$fileExtension.';base64,'.base64_encode(file_get_contents(storage_path($dataLapangan['foto_lapangan_3'])));
+        // }else{
+        //     $lapanganPictureArr[] = null;
+        // }
+        
         // $lapanganImage = 'data:image/jpg;base64,'.base64_encode(file_get_contents(storage_path($dataProfilPemilikLapangan->toArray()[0]['foto_lapangan_1'])));
-        return response()->json($dataLapanganArr);
+        return response()->json($dataLapangan);
+    }
+
+    public function getLapangan($idLapangan){
+        $lapangan = Lapangan::find($idLapangan);
+
+        return view('penyewa_lapangan.penyewa_lapangan_profil_lapangan');
     }
 }

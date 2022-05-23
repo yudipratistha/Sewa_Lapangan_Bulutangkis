@@ -142,12 +142,8 @@ class AuthController extends Controller
         return redirect()->route('login');
     }
 
-    public function loginPenyewaLapangan(){
-        
-    }
-
     public function createPenyewaLapangan(){
-
+        
         return view('penyewa_lapangan.penyewaLapanganDashboard');
     }
 

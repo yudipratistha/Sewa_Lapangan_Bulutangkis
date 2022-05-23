@@ -77,21 +77,16 @@
             dataType: 'json',
             success: function (data){
                 $.each(data, function(i, item){
-
                     var geoJson = {
                         type: "FeatureCollection",
                         features: [{
                             type: 'Feature',
                             geometry: { "type": "Point", "coordinates": [this.titik_koordinat_lng, this.titik_koordinat_lat]},
                             properties: {
+                                lapanganid: this.lapangan_id,
                                 namaLapangan: this.nama_lapangan,
                                 alamatLapangan: this.alamat_lapangan,
-                                noTelp: this.nomor_telepon_lapangan,
-                                fotoLapangan: [
-                                    [this.foto_lapangan_1,'Lapangan Bulutangkis Bung Tomo.'],
-                                    [this.foto_lapangan_2,'Lapangan Bulutangkis Bung Tomo.'],
-                                    [this.foto_lapangan_3,'Lapangan Bulutangkis Bung Tomo.']
-                                ]
+                                noTelp: this.user.nomor_telepon
                             }
                         }]
                     };
@@ -103,63 +98,86 @@
                         },
                         onEachFeature: onEachFeature
                     }).addTo(map);
-
-                    function onEachFeature(feature, layer) {
-                        if (feature.properties && feature.properties.namaLapangan) {
-                            var images = feature.properties.fotoLapangan
-                            var slideshowContent = '';
-
-                            for(var i = 0; i < images.length; i++) {
-                                var img = images[i];
-
-                                slideshowContent += '<div class="image' + (i === 0 ? ' active' : '') + '">' +
-                                                    '<img src="' + img[0] + '" />' +
-                                                    '<div class="caption">' + img[1] + '</div>' +
-                                                    '</div>';
-                            }
-
-                            var popupContent =  
-                            '<div id="' + feature.properties.namaLapangan + '" class="popup">' +								
-                                "<h4>"+feature.properties.namaLapangan+"</h4>"+
-                                "<h6>Alamat: " +feature.properties.alamatLapangan+"</h6>"+
-                                "<p>No. Telp:"+feature.properties.noTelp+"</p>"+
-                                '<div class="slideshow">' +
-                                    slideshowContent +
-                                '</div>' +
-                                '<div class="cycle">' +
-                                    '<a href="#" class="prev">&laquo; Previous</a>' +
-                                    '<a href="#" class="next">Next &raquo;</a>' +
-                                '</div>'
-                            '</div>';
-
-                            layer.bindPopup(popupContent);
-                        }
-                    };
-
-
-                    $('#map').on('click', '.popup .cycle a', function() {
-                        var $slideshow = $('.slideshow'),
-                            $newSlide;
-
-                        if ($(this).hasClass('prev')) {
-                            $newSlide = $slideshow.find('.active').prev();
-                            if ($newSlide.index() < 0) {
-                                $newSlide = $('.image').last();
-                            }
-                        } else {
-                            $newSlide = $slideshow.find('.active').next();
-                            if ($newSlide.index() < 0) {
-                                $newSlide = $('.image').first();
-                            }
-                        }
-
-                        $slideshow.find('.active').removeClass('active').hide();
-                        $newSlide.addClass('active').show();
-                        return false;
-                    });     
                 });
             }
         });
+
+        function onEachFeature(feature, layer) {
+            layer.on('click', function (e) {
+                
+                if (layer._popup != undefined) {
+                    layer.unbindPopup();
+                }
+
+                link = "{{route('penyewaLapangan.getLapanganPicture', ':idLapangan')}}";
+                link = link.replace(":idLapangan", feature.properties.lapanganid);
+
+                $.ajax({
+                    url: link,
+                    method: "GET",
+                    dataType: 'json',
+                    success: function (data){
+                        
+                        var slideshowContent = '';
+                        var i = 0;
+                        $.each(data, function(key, item){
+                            console.log(item)
+                            if(item !== null){
+                                slideshowContent += '<div class="image' + (i === 0 ? ' active' : '') + '">' +
+                                                '<img src="/' + item + '" />' +
+                                                // '<div class="caption">' + img[1] + '</div>' +
+                                                // '<div class="caption">' + feature.properties.namaLapangan + '</div>' +
+                                                '</div>';
+                            }
+                            i++;
+                        });
+
+                        linkLapangan = '{{route("penyewaLapangan.getLapangan", [":idLapangan", ":namaLapangan"])}}';
+                        linkLapangan = linkLapangan.replace(":idLapangan", feature.properties.lapanganid);
+                        linkLapangan = linkLapangan.replace(":namaLapangan", feature.properties.namaLapangan.replace(/\s+/g, '-').toLowerCase());
+
+                        var popupContent =  
+                        '<div id="' + feature.properties.namaLapangan + '" class="popup">' +								
+                            "<h4>"+feature.properties.namaLapangan+"</h4>"+
+                            "<h6>Alamat: " +feature.properties.alamatLapangan+"</h6>"+
+                            "<p>No. Telp: "+feature.properties.noTelp+"</p>"+
+                            '<div class="slideshow">' +
+                                slideshowContent +
+                            '</div>' +
+                            '<div class="cycle">' +
+                                '<a href="javascript:void(0)" class="prev">&laquo; Previous</a>' +
+                                '<a href="javascript:void(0)" class="next">Next &raquo;</a>' +
+                            '</div>'+
+                            '<a href="'+linkLapangan+'"><button type="button" class="btn btn-square btn-outline-blue mt-1">Pesan Lapangan</button></a>'+
+                        '</div>';
+                        layer.closePopup();
+                        layer.bindPopup(popupContent);
+                        layer.openPopup();
+                    }
+                });
+            });
+        };  
+
+        $('#map').on('click', '.popup .cycle a', function() {
+            var $slideshow = $('.slideshow'),
+            $newSlide;
+            
+            if ($(this).hasClass('next')) {
+                $newSlide = $slideshow.find('.active').next();
+                if ($newSlide.index() < 0) {
+                    $newSlide = $('.image').first();
+                }
+                
+            }else{ 
+                $newSlide = $slideshow.find('.active').prev();
+                if($newSlide.index() < 0) {
+                    $newSlide = $('.image').last();
+                }
+            }
+            
+            $slideshow.find('.active').removeClass('active').hide();
+            $newSlide.addClass('active').show();
+        }); 
     });
 
     

@@ -61,7 +61,11 @@ Route::group(['prefix' => 'penyewa-lapangan/'], function(){
     
     Route::group(['prefix' => '', 'middleware' => 'userStatus'], function () {
         Route::get('dashboard', 'HomeController@penyewaLapanganHome')->name('penyewaLapangan.dashboard');
+
         Route::get('get-all-data-lapangan', 'LapanganController@getAllDataLapangan')->name('penyewaLapangan.getAllDataLapangan');
+        Route::get('get-all-lapangan-picture/{id}', 'LapanganController@getLapanganPicture')->name('penyewaLapangan.getLapanganPicture');
+
+        Route::get('lapangan-bulutangkis/{id}/{lapanganName}', 'LapanganController@getLapangan')->name('penyewaLapangan.getLapangan');
     
         Route::get('profil', 'ProfilController@penyewaLapanganProfil')->name('penyewaLapangan.profil');
     

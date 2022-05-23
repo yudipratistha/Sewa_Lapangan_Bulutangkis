@@ -32,7 +32,7 @@ class HomeController extends Controller
         if(auth()->user()->user_status == 2){
             return redirect()->route('pemilikLapangan.dashboard');
         }else{
-            return redirect()->route('home');
+            return redirect()->route('penyewaLapangan.dashboard');
         }
         
     }
