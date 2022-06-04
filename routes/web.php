@@ -43,7 +43,8 @@ Route::group(['prefix' => 'pemilik-lapangan/'], function(){
     
     Route::group(['prefix' => '', 'middleware' => 'userStatus'], function () {
         Route::get('dashboard', 'HomeController@pemilikLapanganHome')->name('pemilikLapangan.dashboard');
-
+        
+        Route::post('get-data-lapangan-pemilik/{lapangan_id}', 'LapanganController@getDataLapanganPemilik')->name('pemilikLapangan.getDataLapanganPemilik');
         Route::get('get-court-lapangan-status/{lapangan_id}/{court}', 'LapanganController@getStatusCourtLapangan')->name('pemilikLapangan.statusCourtLapanganStatus');
         Route::post('update-lapangan-court-status/{id}', 'LapanganController@updateCourtLapanganStatus')->name('pemilikLapangan.updateCourtLapanganStatus');
 
@@ -62,14 +63,21 @@ Route::group(['prefix' => 'penyewa-lapangan/'], function(){
     Route::group(['prefix' => '', 'middleware' => 'userStatus'], function () {
         Route::get('dashboard', 'HomeController@penyewaLapanganHome')->name('penyewaLapangan.dashboard');
 
-        Route::get('get-all-data-lapangan', 'LapanganController@getAllDataLapangan')->name('penyewaLapangan.getAllDataLapangan');
-        Route::get('get-all-lapangan-picture/{id}', 'LapanganController@getLapanganPicture')->name('penyewaLapangan.getLapanganPicture');
+        Route::post('get-all-data-lapangan/{idLapangan}', 'LapanganController@getAllDataLapangan')->name('penyewaLapangan.getAllDataLapangan');
 
-        Route::get('lapangan-bulutangkis/{id}/{lapanganName}', 'LapanganController@getLapangan')->name('penyewaLapangan.getLapangan');
+        Route::get('get-data-lapangan', 'LapanganController@getDataLapangan')->name('penyewaLapangan.getDataLapangan');
+        Route::get('get-lapangan-picture/{id}', 'LapanganController@getLapanganPicture')->name('penyewaLapangan.getLapanganPicture');
+
+        Route::get('profil-lapangan/{id}/{lapanganName}', 'LapanganController@profilLapangan')->name('penyewaLapangan.profilLapangan');
+        Route::get('pesan-lapangan/{id}/{lapanganName}', 'LapanganController@pesanLapangan')->name('penyewaLapangan.pesanLapangan');
+        Route::post('store-pesan-lapangan', 'BookingController@storePesanLapangan')->name('penyewaLapangan.storePesanLapangan');
     
-        Route::get('profil', 'ProfilController@penyewaLapanganProfil')->name('penyewaLapangan.profil');
+        route::get('pembayaran', 'BookingController@bookValid')->name('pembayaran');
+        
+        Route::get('edit-profil', 'ProfilController@penyewaLapanganProfil')->name('penyewaLapangan.editProfil');
     
         Route::get('riwayat-penyewaan', 'RiwayatController@penyewaLapanganRiwayatPenyewaan')->name('penyewaLapangan.riwayatPenyewaan');
+        Route::post('data-riwayat-penyewaan', 'RiwayatController@getDataRiwayatPenyewaLapangan')->name('penyewaLapangan.getDataRiwayatPenyewaLapangan');
     });
 });
 

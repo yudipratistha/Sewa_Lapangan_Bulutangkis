@@ -88,39 +88,39 @@ class AuthController extends Controller
 
         if ($request->hasFile('foto_lapangan_1')) {
             $userPath = 'file/'.$user->id.'/';
-            Storage::makeDirectory($userPath);
+            Storage::disk('public')->makeDirectory($userPath);
             $fotoLapanganPath = $userPath.$request->nama_lapangan_pemilik_lapangan;
-            Storage::makeDirectory($fotoLapanganPath);
+            Storage::disk('public')->makeDirectory($fotoLapanganPath);
             $pathFotoLapangan_1 = $request->file('foto_lapangan_1')->storeAs(
-                $fotoLapanganPath, "foto_lapangan_1.jpg"
+                $fotoLapanganPath, "foto_lapangan_1.jpg", 'public'
             );
-            $lapangan->foto_lapangan_1 = 'app/'.$pathFotoLapangan_1;
+            $lapangan->foto_lapangan_1 = '/storage/'.$pathFotoLapangan_1;
         }
         if ($request->hasFile('foto_lapangan_2')) {
             $userPath = 'file/'.$user->id.'/';
-            Storage::makeDirectory($userPath);
+            Storage::disk('public')->makeDirectory($userPath);
             $fotoLapanganPath = $userPath.$request->nama_lapangan_pemilik_lapangan;
-            Storage::makeDirectory($fotoLapanganPath);
+            Storage::disk('public')->makeDirectory($fotoLapanganPath);
             $pathFotoLapangan_2 = $request->file('foto_lapangan_2')->storeAs(
-                $fotoLapanganPath, "foto_lapangan_2.jpg"
+                $fotoLapanganPath, "foto_lapangan_2.jpg", 'public'
             );
-            $lapangan->foto_lapangan_2 = 'app/'.$pathFotoLapangan_2;
+            $lapangan->foto_lapangan_2 = '/storage/'.$pathFotoLapangan_2;
         }
         if ($request->hasFile('foto_lapangan_3')) {
             $userPath = 'file/'.$user->id.'/';
-            Storage::makeDirectory($userPath);
+            Storage::disk('public')->makeDirectory($userPath);
             $fotoLapanganPath = $userPath.$request->nama_lapangan_pemilik_lapangan;
-            Storage::makeDirectory($fotoLapanganPath);
+            Storage::disk('public')->makeDirectory($fotoLapanganPath);
             $pathFotoLapangan_3 = $request->file('foto_lapangan_3')->storeAs(
-                $fotoLapanganPath, "foto_lapangan_3.jpg"
+                $fotoLapanganPath, "foto_lapangan_3.jpg", 'public'
             );
-            $lapangan->foto_lapangan_3 = 'app/'.$pathFotoLapangan_3;
+            $lapangan->foto_lapangan_3 = '/storage/'.$pathFotoLapangan_3;
         }
 
         $lapangan->save();
 
-        $dataLapangan = Lapangan::find($lapangan->id)->first();
-
+        $dataLapangan = Lapangan::find($lapangan->id);
+        
         $statusLapanganArr = array();
         $lapanganBuka = strtotime($dataLapangan->buka_dari_jam);
         $lapanganTutup = strtotime($dataLapangan->buka_sampai_jam);
@@ -142,9 +142,24 @@ class AuthController extends Controller
         return redirect()->route('login');
     }
 
-    public function createPenyewaLapangan(){
-        
-        return view('penyewa_lapangan.penyewaLapanganDashboard');
+    public function createPenyewaLapangan(Request $request){
+        $request->validate([
+            'nama_penyewa_lapangan' => 'required',
+            'email_penyewa_lapangan' => 'required|unique:tb_pengguna,email',
+            'password_penyewa_lapangan' => 'required',
+            'nomor_telepon_penyewa_lapangan' => 'required'
+        ]);
+
+        $user = new User;
+
+        $user->name = $request->nama_penyewa_lapangan;
+        $user->email = $request->email_penyewa_lapangan;
+        $user->user_status = 3;
+        $user->password = Hash::make($request->password_penyewa_lapangan);
+        $user->nomor_telepon = $request->nomor_telepon_penyewa_lapangan;
+        $user->save();
+
+        return redirect()->route('login');
     }
 
     public function logout() {

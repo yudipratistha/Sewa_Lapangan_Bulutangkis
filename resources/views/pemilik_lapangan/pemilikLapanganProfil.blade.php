@@ -242,9 +242,9 @@
     var lapanganImage_2 = "{{$lapanganImage['foto_lapangan_2']}}";
     var lapanganImage_3 = "{{$lapanganImage['foto_lapangan_3']}}";
 
-    if(lapanganImage_1 !== "") $('#image-preview-foto-lapangan-1').css("background-image", "url({{$lapanganImage['foto_lapangan_1']}})");
-    if(lapanganImage_2 !== "") $('#image-preview-foto-lapangan-2').css("background-image", "url({{$lapanganImage['foto_lapangan_2']}})");
-    if(lapanganImage_3 !== "") $('#image-preview-foto-lapangan-3').css("background-image", "url({{$lapanganImage['foto_lapangan_3']}})");
+    if(lapanganImage_1 !== "") $('#image-preview-foto-lapangan-1').css("background-image", "url({!!Storage::url($lapanganImage['foto_lapangan_1'])!!})");
+    if(lapanganImage_2 !== "") $('#image-preview-foto-lapangan-2').css("background-image", "url({!!Storage::url($lapanganImage['foto_lapangan_2'])!!})");
+    if(lapanganImage_3 !== "") $('#image-preview-foto-lapangan-3').css("background-image", "url({!!Storage::url($lapanganImage['foto_lapangan_3'])!!})");
 
     $(".img-add").click(function(){
         $(this).closest(".row").find('.img-add').before('<div class="col-sm-2 imgUp"><div class="imagePreview"></div><label class="btn btn-primary">Upload<input type="file" class="uploadFile img" value="Upload Photo" style="width:0px;height:0px;overflow:hidden;"></label><i class="fa fa-times del"></i></div>');

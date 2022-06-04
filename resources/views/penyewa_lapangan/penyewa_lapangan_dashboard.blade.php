@@ -72,7 +72,7 @@
         var marker = L.circleMarker(latlng, geojsonMarkerOptions).addTo(map);
 
         $.ajax({
-            url: "{{route('penyewaLapangan.getAllDataLapangan')}}",
+            url: "{{route('penyewaLapangan.getDataLapangan')}}",
             method: "GET",
             dataType: 'json',
             success: function (data){
@@ -117,14 +117,13 @@
                     method: "GET",
                     dataType: 'json',
                     success: function (data){
-                        
                         var slideshowContent = '';
                         var i = 0;
                         $.each(data, function(key, item){
-                            console.log(item)
                             if(item !== null){
                                 slideshowContent += '<div class="image' + (i === 0 ? ' active' : '') + '">' +
-                                                '<img src="/' + item + '" />' +
+                                                '<img src="{!!Storage::url("'+item+'")!!}" />' +
+
                                                 // '<div class="caption">' + img[1] + '</div>' +
                                                 // '<div class="caption">' + feature.properties.namaLapangan + '</div>' +
                                                 '</div>';
@@ -132,7 +131,7 @@
                             i++;
                         });
 
-                        linkLapangan = '{{route("penyewaLapangan.getLapangan", [":idLapangan", ":namaLapangan"])}}';
+                        linkLapangan = '{{route("penyewaLapangan.profilLapangan", [":idLapangan", ":namaLapangan"])}}';
                         linkLapangan = linkLapangan.replace(":idLapangan", feature.properties.lapanganid);
                         linkLapangan = linkLapangan.replace(":namaLapangan", feature.properties.namaLapangan.replace(/\s+/g, '-').toLowerCase());
 

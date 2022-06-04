@@ -32,7 +32,7 @@
                   </li>-->
                   @elseif (Auth::user()->user_status == 3)
                     <li class="dropdown"><a class="nav-link menu-title link-nav" href="{{route('penyewaLapangan.dashboard')}}"><i data-feather="home"></i><span>Dashboard</span></a></li>
-                    <li class="dropdown"><a class="nav-link menu-title link-nav" href="{{route('penyewaLapangan.profil')}}"><i data-feather="user"></i><span>Profil</span></a></li>
+                    <li class="dropdown"><a class="nav-link menu-title link-nav" href="{{route('penyewaLapangan.editProfil')}}"><i data-feather="user"></i><span>Profil</span></a></li>
                     <li class="dropdown "><a class="nav-link menu-title link-nav {{ isset($activeMenu) ? 'active' : '' }}" href="{{route('penyewaLapangan.riwayatPenyewaan')}}"><i class="icofont icofont-history" style="margin-right: 15px;vertical-align: bottom;float: none;margin-left: -3px;font-size: 21px;"></i><span>Riwayat Penyewaan</span></a></li>
                   @endif
                   

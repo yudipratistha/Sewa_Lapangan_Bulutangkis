@@ -272,18 +272,18 @@
 
     $("#buka-dari-jam").datetimepicker({
         datepicker: false,
-        step: 30,
+        step: 60,
         format: 'H:i',
         minTime: '6',
-        maxTime: '23:30',
+        maxTime: '24:00',
     }); 
 
     $("#buka-sampai-jam").datetimepicker({
         datepicker: false,
-        step: 30,
+        step: 60,
         format: 'H:i',
         minTime: '6',
-        maxTime: '23:30',
+        maxTime: '24:00',
     });
 
     $(".img-add").click(function(){

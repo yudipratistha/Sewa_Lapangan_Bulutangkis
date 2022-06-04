@@ -23,14 +23,14 @@ class ProfilController extends Controller
         // die();
         $lapanganImage = array();
         if($dataProfilPemilikLapangan->toArray()[0]['foto_lapangan_1'] !== ""){
-            $lapanganImage['foto_lapangan_1'] = 'data:image/jpg;base64,'.base64_encode(file_get_contents(storage_path($dataProfilPemilikLapangan->toArray()[0]['foto_lapangan_1'])));
+            $lapanganImage['foto_lapangan_1'] = $dataProfilPemilikLapangan->toArray()[0]['foto_lapangan_1'];
 
         }else{
             $lapanganImage['foto_lapangan_1'] = null;
         }
 
         if($dataProfilPemilikLapangan->toArray()[0]['foto_lapangan_2'] !== ""){
-            $lapanganImage['foto_lapangan_2'] = 'data:image/jpg;base64,'.base64_encode(file_get_contents(storage_path($dataProfilPemilikLapangan->toArray()[0]['foto_lapangan_2'])));
+            $lapanganImage['foto_lapangan_2'] = $dataProfilPemilikLapangan->toArray()[0]['foto_lapangan_2'];
 
         }else{
             $lapanganImage['foto_lapangan_2'] = null;
@@ -38,7 +38,7 @@ class ProfilController extends Controller
 
         if($dataProfilPemilikLapangan->toArray()[0]['foto_lapangan_3'] !== ""){
             $fileExtension = pathinfo(storage_path($dataProfilPemilikLapangan->toArray()[0]['foto_lapangan_3']), PATHINFO_EXTENSION);
-            $lapanganImage['foto_lapangan_3'] = 'data:image/'.$fileExtension.';base64,'.base64_encode(file_get_contents(storage_path($dataProfilPemilikLapangan->toArray()[0]['foto_lapangan_3'])));
+            $lapanganImage['foto_lapangan_3'] = $dataProfilPemilikLapangan->toArray()[0]['foto_lapangan_3'];
 
         }else{
             $lapanganImage['foto_lapangan_3'] = null;
@@ -62,6 +62,8 @@ class ProfilController extends Controller
     }
 
     public function penyewaLapanganProfil(){
-        return view('penyewa_lapangan.penyewaLapanganProfil');
+        $dataUser = User::select('name', 'email', 'nomor_telepon')->find(Auth::user()->id);
+
+        return view('penyewa_lapangan.penyewaLapanganProfil', compact('dataUser'));
     }
 }

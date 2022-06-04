@@ -18,4 +18,8 @@ class Booking extends Model
     public function Lapangan(){
         return $this->belongsTo('App\Models\Lapangan', 'id');
     }
+
+    public function Pembayaran(){
+        return $this->hasMany('App\Models\Pembayaran', 'id_booking');
+    }
 }

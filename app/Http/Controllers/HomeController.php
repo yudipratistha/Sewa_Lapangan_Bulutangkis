@@ -41,7 +41,7 @@ class HomeController extends Controller
         $dataLapangan = Lapangan::select('tb_lapangan.id as lapangan_id', 'tb_lapangan.buka_dari_jam', 'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court')
                 ->where('id_pengguna', Auth::user()->id)->get();
 
-        $dataLapanganBooking = DB::table('tb_pengguna')->select('tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 'tb_booking.biaya', 'tb_booking.status', 
+        $dataLapanganBooking = DB::table('tb_pengguna')->select('tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 
                         'tb_pengguna.id as pengguna_id', 'tb_pengguna.name')
                         ->leftJoin('tb_booking', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
                         ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')

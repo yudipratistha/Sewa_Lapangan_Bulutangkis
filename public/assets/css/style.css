@@ -486,6 +486,8 @@ a:hover {
 .my-gallery.gallery-with-description img {
   border-color: #e6edef !important; }
 
+.lapangan-profile-galery.gallery-with-description img {
+  border-color: #e6edef !important; }
 /**=====================
       01. General CSS Ends
 ==========================**/
@@ -16011,6 +16013,12 @@ p.data-attributes svg {
 .gallery .hover-11:hover img {
   opacity: .5; }
 
+.lapangan-profile-galery img{
+  height: 200px;
+  width: 100%;
+  object-fit: contain;
+}
+
 @-webkit-keyframes flash {
   0% {
     opacity: .4; }
@@ -20874,6 +20882,9 @@ body.dark-only {
   body.dark-only .loader-box.card-loader {
     background-color: #111727; }
   body.dark-only .my-gallery.gallery-with-description img {
+    border: 1px solid rgba(36, 105, 92, 0.2) !important;
+    border-bottom: none !important; }
+  body.dark-only .lapangan-profile-galery.gallery-with-description img {
     border: 1px solid rgba(36, 105, 92, 0.2) !important;
     border-bottom: none !important; }
   body.dark-only .alert-primary.inverse {
@@ -31273,15 +31284,19 @@ span.twitter-typeahead .tt-suggestion {
   display: inline-block;
 }
 
-table tbody tr:hover td:not(:last-child){
+.hover-table-admin tbody tr:hover td:not(:last-child){
   background-color: #c6ebec !important;
   cursor: default;
 }
 
-table tbody tr:hover > .sorting_1 td{
+.hover-table-admin tbody tr:hover > .sorting_1 td{
   background-color: #c6ebec !important;
 }
 
+.hover-table-court-profile tbody tr:hover td{
+  background-color: #c6ebec !important;
+  cursor: default;
+}
 
 
 

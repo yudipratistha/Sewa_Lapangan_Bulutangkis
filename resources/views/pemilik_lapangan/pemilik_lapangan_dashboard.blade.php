@@ -25,8 +25,11 @@
             <!-- Container-fluid starts-->
             <div class="container-fluid">
                 <div class="row">
-                    <div class="card" style="margin-bottom: 10px;">
-                        <div class="card-body">
+                    <div class="col-sm-6 mb-3">
+                        <h3 class="pull-left">Dashboard Pemilik Lapangan</h3>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
                             <div class="mb-3 row g-3">
                                 <label class="col-xl-1 col-sm-3 col-lg-1 col-form-label">Pilih Tanggal</label>
                                 <div class="col-xl-3 col-sm-5 col-lg-7">
@@ -35,12 +38,7 @@
                                         <div class="input-group-text"><i class="fa fa-calendar"> </i></div>
                                     </div>
                                 </div>
-                            </div>                
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="pull-left">Dashboard Pemilik Lapangan</h5>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="tabbed-card">
@@ -56,7 +54,7 @@
                                     @for ($court= 1; $court <= $dataLapangan[0]->jumlah_court; $court++)
                                         <div class="tab-pane fade @if($court === 1) active show @endif" id="court-{{$court}}" role="tabpanel" aria-labelledby="top-home-tab">
                                             <div class="table-responsive">
-                                                <table class="display datatables" id="table-court-{{$court}}">
+                                                <table class="display datatables hover-table-admin" id="table-court-{{$court}}">
                                                     <thead>
                                                         <tr>
                                                             <th>Jam</th>
@@ -64,45 +62,6 @@
                                                             <th>Action</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody>
-                                                        @foreach($dataWaktuLapangan[0] as $dataWaktuLapanganKey => $dataWaktuLapanganValue)
-                                                            <tr>
-                                                                <td>{{$dataWaktuLapanganValue}}</td>
-                                                                @php 
-                                                                    $status_penyewa = false; 
-                                                                    $status_court = false; 
-                                                                @endphp
-                                                                @if(isset($dataLapanganBooking))
-                                                                    @foreach($dataLapanganBooking as $dataLapanganBookingKey => $dataLapanganBookingValue) 
-                                                                        @if($court === $dataLapanganBookingValue->court)
-                                                                            @for($i=strtotime($dataLapanganBookingValue->jam_mulai); $i < strtotime($dataLapanganBookingValue->jam_selesai); $i+=3600)
-                                                                                @if($dataWaktuLapanganValue === date('H:i', $i) . " - ". date('H:i', $i+3600))
-                                                                                    <td><a data-tooltip="tooltip" data-placement="top" title="" data-original-title="Lihat Data Profil Penyewa" href="javascript:getPenyewa({{$dataLapanganBookingValue->pengguna_id}}, {{$dataLapanganBookingValue->court}})">{{$dataLapanganBookingValue->name}}</a></td>
-                                                                                    <td><button type="button" class="btn btn-square btn-outline-blue" id="edit-data-ergonomic" onclick="getPenyewa({{$dataLapanganBookingValue->pengguna_id}}, {{$dataLapanganBookingValue->court}})" style="width: 37px; padding-top: 2px; padding-left: 0px; padding-right: 0px; padding-bottom: 2px; margin-right:5px;"><i class="icon-user" style="font-size:20px;"></i></button></td>
-                                                                                    @php $status_penyewa = true; @endphp
-                                                                                @endif
-                                                                            @endfor
-                                                                        @endif
-                                                                    @endforeach
-                                                                @endif
-                                                                @foreach($dataStatusLapangan as $dataStatusLapanganKey => $dataStatusLapanganValue)
-                                                                    @if($court === $dataStatusLapanganValue->court)
-                                                                        @if($status_penyewa !== true && $dataWaktuLapanganValue === date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_dari)) . " - ". date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_sampai)))
-                                                                            <td>
-                                                                                @if($dataStatusLapanganValue->status === 'Available') 
-                                                                                    Tersedia
-                                                                                @elseif($dataStatusLapanganValue->status === 'Unavailable') 
-                                                                                    Tidak Tersedia
-                                                                                @endif
-                                                                            </td>
-                                                                            <td><button type="button" class="btn btn-square btn-outline-blue" id="edit-data-ergonomic" onclick="editCourt({{$dataLapangan[0]->lapangan_id}}, {{$court}}, '{{$dataWaktuLapanganValue}}')" style="width: 37px; padding-top: 2px; padding-left: 0px; padding-right: 0px; padding-bottom: 2px; margin-right:5px;"><i class="icon-pencil-alt" style="font-size:20px;"></i></button></td>
-                                                                            @php $status_court = true; @endphp
-                                                                        @endif
-                                                                    @endif
-                                                                @endforeach
-                                                            </tr>
-                                                        @endforeach
-                                                    <tbody>
                                                 </table>
                                             </div>
                                         </div>
@@ -237,14 +196,55 @@
 
     }
 
-    $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-        $.fn.dataTable.tables({ visible: true, api: true}).columns.adjust();
-    });
+    var date; 
+
+    // for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
+    //     $('#table-court-'+courtCount).DataTable({
+    //         "processing": true,
+    //         bFilter: false,
+    //         dom: 'tip',
+    //         order: [1, "asc"],
+    //         columns: [
+    //             { "orderable": false, "width": "5%" },
+    //             { "orderable": true, "width": "10%" },
+    //             null
+    //         ]
+    //     });
+    // }
 
     $('#tanggal').datepicker({
         language: 'en',
         dateFormat: 'dd-mm-yyyy',
-        minDate: new Date() // Now can select only dates, which goes after today
+        minDate: new Date(),
+        autoclose: true,
+        onSelect: function(dateText) {
+            $('#tgl-booking').empty().append(dateText);
+            date = dateText;
+            $.ajax({
+                url: "{{route('pemilikLapangan.getDataLapanganPemilik', $dataLapangan[0]->lapangan_id)}}",
+                method: "POST",
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "tanggal" : date
+                },
+                dataType: "json",
+                success:function(data){
+                    for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
+                        $('#table-court-'+courtCount).DataTable().clear().draw();
+                        $('#table-court-'+courtCount).DataTable().rows.add(data['court_'+courtCount]);
+                        $('#table-court-'+courtCount).DataTable().columns.adjust().draw();
+                    }
+                },
+                error: function(xhr, ajaxOptions, thrownError){
+                    console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+                }
+            });
+            return $('#tanggal').trigger('change');
+        }
+    }).datepicker('dateFormat', 'dd-mm-yyyy').data('datepicker').selectDate(new Date());
+
+    $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+        $.fn.dataTable.tables({ visible: true, api: true}).columns.adjust();
     });
 
     function getPenyewa(idPenggunaPenyewa, court){
