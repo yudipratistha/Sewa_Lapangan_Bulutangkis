@@ -23,11 +23,21 @@ class BookingController extends Controller
         $this->middleware('auth');
     }
 
-    public function storePesanLapangan(Request $request){
+    public function storeBookingLapangan(Request $request){
         $currentDate = date('d-m-Y');
         
         if($request->tglBooking <= $currentDate){
             $dataBookArr = array();
+
+            $totalJamBookingLapangan = Lapangan::select('harga_per_jam')->where('id', json_decode($request->checkBook[0])->lapangan_id)->first();
+            $totalHargaBookingLapangan = count($request->checkBook) * $totalJamBookingLapangan->harga_per_jam;
+
+            $pembayaran = new Pembayaran;
+            $pembayaran->total_biaya = $totalHargaBookingLapangan;
+            $pembayaran->status = 'Belum Lunas';
+            $pembayaran->save();
+
+            PembayaranLimitTimeJob::dispatch($pembayaran);
 
             foreach($request->checkBook as $checkBookKey => $checkBookVal){
                 $dataBook = json_decode($checkBookVal);
@@ -35,6 +45,7 @@ class BookingController extends Controller
                 array_push($dataBookArr, array(
                     'id_pengguna' => Auth::user()->id,
                     'id_lapangan' => $dataBook->lapangan_id,
+                    'id_pembayaran' => $pembayaran->id,
                     'jam_mulai' => $jam[0],
                     'jam_selesai' => $jam[1],
                     'court' => $dataBook->court,
@@ -42,8 +53,10 @@ class BookingController extends Controller
                 ));
             }
             Booking::insert($dataBookArr);
+            
+            
 
-            return response()->json($dataBookArr);
+            return response()->json($totalHargaBookingLapangan);
         }
     }
 
@@ -57,6 +70,7 @@ class BookingController extends Controller
         $pembayaran = new Pembayaran;
         $pembayaran->id_booking = 1;
         $pembayaran->total_biaya = 60000;
+        $pembayaran->status = 'Belum Lunas';
         $pembayaran->save();
 
         PembayaranLimitTimeJob::dispatch($pembayaran);

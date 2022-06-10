@@ -197,7 +197,7 @@
             preConfirm: (login) => {
                 return $.ajax({
                     type: "POST", 
-                    url: "{{route('penyewaLapangan.storePesanLapangan')}}",
+                    url: "{{route('penyewaLapangan.storeBookingLapangan')}}",
                     datatype : "json", 
                     data: $("#check-book-time").serialize() + "&tglBooking="+date + "&totalBiaya="+total_biaya,
                     success: function(data){

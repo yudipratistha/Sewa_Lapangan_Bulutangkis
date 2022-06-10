@@ -33,7 +33,7 @@ Route::group(['prefix' => '/'], function(){
 });
 
 
-Route::group(['prefix' => '', 'middleware' => 'userStatus'], function () {
+Route::group(['prefix' => '', 'middleware' => 'userStatus'], function(){
     Route::get('/', 'HomeController@index')->name('index');
 });
 
@@ -41,7 +41,7 @@ Route::group(['prefix' => '', 'middleware' => 'userStatus'], function () {
 Route::group(['prefix' => 'pemilik-lapangan/'], function(){
     Route::post('register', 'Auth\AuthController@createPemilikLapangan')->name('pemilikLapangan.register');
     
-    Route::group(['prefix' => '', 'middleware' => 'userStatus'], function () {
+    Route::group(['prefix' => '', 'middleware' => 'userStatus'], function(){
         Route::get('dashboard', 'HomeController@pemilikLapanganHome')->name('pemilikLapangan.dashboard');
         
         Route::post('get-data-lapangan-pemilik/{lapangan_id}', 'LapanganController@getDataLapanganPemilik')->name('pemilikLapangan.getDataLapanganPemilik');
@@ -60,7 +60,7 @@ Route::group(['prefix' => 'pemilik-lapangan/'], function(){
 Route::group(['prefix' => 'penyewa-lapangan/'], function(){
     Route::post('register', 'Auth\AuthController@createPenyewaLapangan')->name('penyewaLapangan.register');
     
-    Route::group(['prefix' => '', 'middleware' => 'userStatus'], function () {
+    Route::group(['prefix' => '', 'middleware' => 'userStatus'], function(){
         Route::get('dashboard', 'HomeController@penyewaLapanganHome')->name('penyewaLapangan.dashboard');
 
         Route::post('get-all-data-lapangan/{idLapangan}', 'LapanganController@getAllDataLapangan')->name('penyewaLapangan.getAllDataLapangan');
@@ -70,7 +70,7 @@ Route::group(['prefix' => 'penyewa-lapangan/'], function(){
 
         Route::get('profil-lapangan/{id}/{lapanganName}', 'LapanganController@profilLapangan')->name('penyewaLapangan.profilLapangan');
         Route::get('pesan-lapangan/{id}/{lapanganName}', 'LapanganController@pesanLapangan')->name('penyewaLapangan.pesanLapangan');
-        Route::post('store-pesan-lapangan', 'BookingController@storePesanLapangan')->name('penyewaLapangan.storePesanLapangan');
+        Route::post('store-pesan-lapangan', 'BookingController@storeBookingLapangan')->name('penyewaLapangan.storeBookingLapangan');
     
         route::get('pembayaran', 'BookingController@bookValid')->name('pembayaran');
         

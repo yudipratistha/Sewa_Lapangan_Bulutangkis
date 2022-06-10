@@ -35,9 +35,9 @@ class PembayaranLimitTimeJob implements ShouldQueue
     public function handle()
     {
         $pembayaran = $this->pembayaran;
-        // print_r($time->created_at);
+        
         $pembayaranCreated = date('H:i:s', strtotime($pembayaran->created_at));
-        $pembayaranTimeLimit   = date('H:i:s', strtotime('+1 minutes', strtotime($pembayaran->created_at)));
+        $pembayaranTimeLimit = date('H:i:s', strtotime('+1 minutes', strtotime($pembayaran->created_at)));
         $status = true;
         while($status){
             sleep(1);
@@ -45,12 +45,18 @@ class PembayaranLimitTimeJob implements ShouldQueue
             $now->addMinute(0);
             $timeNow  = $now->format('H:i:s');
             
-            if($timeNow >= $pembayaranCreated && $timeNow <= $pembayaranTimeLimit){
-                echo $timeNow . '\n';
-                continue;
-            }else{
-                print($timeNow);
+            if($timeNow > $pembayaranCreated && $timeNow > $pembayaranTimeLimit){
+                echo('\n '. $pembayaranTimeLimit);
+                $pembayaran = Pembayaran::find($this->pembayaran['id']);
+                if(!isset($pembayaran->foto_bukti_pembayaran)){
+                    $pembayaran->status = 'Batal';
+                    $pembayaran->save();
+                }
+                
                 $status = false;
+            // }else{
+            //     echo $timeNow . '\n';
+            //     // continue;
             }
         }
     }
