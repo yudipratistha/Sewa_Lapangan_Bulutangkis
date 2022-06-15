@@ -46,8 +46,9 @@ class RiwayatController extends Controller
 
         $totalRecords = Booking::where('id_pengguna', Auth::user()->id)->count();
 
-        $dataBooking = DB::table('tb_booking')->select('tb_lapangan.nama_lapangan', 'tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court')
+        $dataBooking = DB::table('tb_booking')->select('tb_lapangan.nama_lapangan', 'tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 'tb_pembayaran.status AS pembayaran_status')
             ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+            ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
             ->where('tb_booking.id_pengguna', Auth::user()->id)
             ->orderByRaw('tgl_booking DESC')
             ->skip($start)

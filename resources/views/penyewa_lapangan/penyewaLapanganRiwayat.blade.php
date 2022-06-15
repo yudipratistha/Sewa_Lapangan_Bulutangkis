@@ -109,7 +109,7 @@
                 { "defaultContent": "", "orderable": true, "width": "7%", render: function (data, type, row, meta){ return meta.row + meta.settings._iDisplayStart + 1; } },
                 { "data": "tgl_booking", "orderable": true, "width": "14%" },
                 { "data": "nama_lapangan" },
-                { "defaultContent": "", "orderable": true, "width": "13%" },
+                { "data": "pembayaran_status", "orderable": true, "width": "13%" },
                 { "defaultContent": "", "orderable": false, "width": "10%" }
         ],
         order: [[ 0, "asc" ]],
