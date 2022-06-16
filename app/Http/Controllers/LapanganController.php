@@ -29,7 +29,8 @@ class LapanganController extends Controller
                             'tb_pengguna.id as pengguna_id', 'tb_pengguna.name')
                             ->leftJoin('tb_booking', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
                             ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
-                            ->where('tb_lapangan.id', $request->lapangan_id)->where('tb_booking.tgl_booking', date('Y-m-d', strtotime($request->tanggal)))
+                            ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
+                            ->where('tb_lapangan.id', $request->lapangan_id)->where('tb_booking.tgl_booking', date('Y-m-d', strtotime($request->tanggal)))->where('tb_pembayaran.status', '!=', 'Batal')
                             ->get();
 
             $dataStatusLapangan = DB::table('tb_lapangan')->select('tb_status_lapangan.court', 'tb_status_lapangan.status', 'tb_status_lapangan.detail_status',
@@ -68,7 +69,7 @@ class LapanganController extends Controller
                                 $dataLapanganArr['court_'.$court][$row][] = $waktuLapangan;
                                 if($dataStatusLapanganValue->status === 'Available') $dataLapanganArr['court_'.$court][$row][] = "Tersedia";
                                 else if($dataStatusLapanganValue->status === 'Unavailable') $dataLapanganArr['court_'.$court][$row][] = "Tidak Tersedia";
-                                $dataLapanganArr['court_'.$court][$row][] = '<td><button type="button" class="btn btn-square btn-outline-blue" id="edit-data-court" onclick="editCourt('.$dataLapangan->lapangan_id.', '.$court.', "'.$waktuLapangan.'"\)" style="width: 37px; padding-top: 2px; padding-left: 0px; padding-right: 0px; padding-bottom: 2px; margin-right:5px;"><i class="icon-pencil-alt" style="font-size:20px;"></i></button></td>';
+                                $dataLapanganArr['court_'.$court][$row][] = "<td><button type=\"button\" class=\"btn btn-square btn-outline-blue\" id=\"edit-data-court\" onclick=\"editCourt($dataLapangan->lapangan_id, $court, '$waktuLapangan')\" style=\"width: 37px; padding-top: 2px; padding-left: 0px; padding-right: 0px; padding-bottom: 2px; margin-right:5px;\"><i class=\"icon-pencil-alt\" style=\"font-size:20px;\"></i></button></td>";
                             }
                         }
                     }

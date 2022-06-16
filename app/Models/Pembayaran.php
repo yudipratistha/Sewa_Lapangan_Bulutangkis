@@ -12,6 +12,6 @@ class Pembayaran extends Model
     protected $table = 'tb_pembayaran';
 
     public function Booking(){
-        return $this->belongsTo('App\Models\Booking', 'id_booking', 'id');
+        return $this->hasMany('App\Models\Booking', 'id_booking');
     }   
 }

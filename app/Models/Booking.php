@@ -20,6 +20,6 @@ class Booking extends Model
     }
 
     public function Pembayaran(){
-        return $this->hasMany('App\Models\Pembayaran', 'id_booking');
+        return $this->belongsTo('App\Models\Pembayaran', 'id');
     }
 }

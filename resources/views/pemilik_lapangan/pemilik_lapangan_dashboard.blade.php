@@ -247,28 +247,47 @@
         $.fn.dataTable.tables({ visible: true, api: true}).columns.adjust();
     });
 
-    function getPenyewa(idPenggunaPenyewa, court){
-        link = "{{route('pemilikLapangan.getPenyewaProfil', ':idPenggunaPenyewa')}}";
-        link = link.replace(":idPenggunaPenyewa", idPenggunaPenyewa);
+    function getPenyewa(penggunaPenyewaId, court){
+        link = "{{route('pemilikLapangan.getPenyewaProfil', [':penggunaPenyewaId',':date'])}}";
+        link = link.replace(":penggunaPenyewaId", penggunaPenyewaId);
+        link = link.replace(":date", date);
         $.ajax({
             url: link,
             method: "GET",
             dataType: 'json',
             success: function(data){
+                var jamBooking= '';
+                var totalCourt= '';
+
                 data.forEach(function(item, index){
-                    if(court === item.court){
-                        var tglBooking = item.tgl_booking.split('-');
-                        var jamMulai = item.jam_mulai.split(':');
-                        var jamSelesai = item.jam_selesai.split(':');
-                        
-                        $('#nama-penyewa').val(item.user.name);
-                        $('#tanggal-penyewaan').val(tglBooking[2]+"-"+tglBooking[1]+"-"+tglBooking[0]);
-                        $('#pilihan-court-penyewa').val(item.court);
-                        $('#pilihan-waktu-penyewa').val(jamMulai[0]+":"+jamMulai[1] +" - "+ jamSelesai[0]+":"+jamSelesai[1]);
-                        $('#total-penyewaan').val(item.biaya);
-                        $('#id-pengguna-penyewa').val(item.id);
+                    var tglBooking = item.tgl_booking.split('-');
+                    var jamMulai = item.jam_mulai.split(':');
+                    var jamSelesai = item.jam_selesai.split(':');
+                    var punctuation= '';
+
+                    if(data.length > index+1 && data.length === 2){
+                        punctuation= ' & ';
+                    }else if(data.length >= index+1 && data.length-3 !== index-1 && data.length !== index+1){
+                        punctuation= ', ';
+                    }else if(data.length >= 2 && data.length-3 === index-1){
+                        punctuation= ' & ';
                     }
+                    
+                    jamBooking += jamMulai[0]+":"+jamMulai[1] +" - "+ jamSelesai[0]+":"+jamSelesai[1] + punctuation;
+                    totalCourt += item.court;
+                    
+                    $('#nama-penyewa').val(item.name);
+                    $('#tanggal-penyewaan').val(tglBooking[2]+"-"+tglBooking[1]+"-"+tglBooking[0]);
+                    $('#total-penyewaan').val(item.total_biaya);
+                    $('#id-pengguna-penyewa').val(item.id);
                 });
+                
+                totalCourt = totalCourt.replace(/(.)\1+/g, '$1')
+
+                $('#pilihan-court-penyewa').val(totalCourt.match(/\d/g).join(", ").replace(/,([^,]*)$/, ' &$1'));
+                $('#pilihan-waktu-penyewa').val(jamBooking);
+                
+                
                 $('#data-profil-penyewa-modal').modal('show');
             },
             error: function(data){

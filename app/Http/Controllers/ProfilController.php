@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Booking;
 use App\Models\Lapangan;
+use App\Models\Pembayaran;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ProfilController extends Controller
@@ -56,8 +58,14 @@ class ProfilController extends Controller
     }
 
     
-    public function getPenyewaLapanganProfil($idPenggunaPenyewa){
-        $dataProfilPenyewa = Booking::with('User')->where('id_pengguna', $idPenggunaPenyewa)->get();
+    public function getPenyewaLapanganProfil($penggunaPenyewaId, $date){
+        $dataProfilPenyewa = DB::table('tb_pengguna')->select('tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 
+            'tb_pengguna.id as pengguna_id', 'tb_pengguna.name', 'tb_pembayaran.total_biaya')
+            ->leftJoin('tb_booking', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
+            ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+            ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
+            ->where('tb_booking.id_pengguna', $penggunaPenyewaId)->where('tb_booking.tgl_booking', date('Y-m-d', strtotime($date)))->where('tb_pembayaran.status', '!=', 'Batal')
+            ->get();
         return response()->json($dataProfilPenyewa);
     }
 
