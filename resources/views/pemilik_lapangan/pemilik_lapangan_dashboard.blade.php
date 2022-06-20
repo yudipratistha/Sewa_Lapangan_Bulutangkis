@@ -59,6 +59,7 @@
                                                         <tr>
                                                             <th>Jam</th>
                                                             <th>Penyewa</th>
+                                                            <th>Status</th>
                                                             <th>Action</th>
                                                         </tr>
                                                     </thead>
@@ -189,6 +190,7 @@
             "columns": [
                 { "orderable": true, "width": "10%" },
                 null,
+                { "orderable": false, "width": "20%" },
                 { "orderable": false, "width": "13%" },
                 
             ],
