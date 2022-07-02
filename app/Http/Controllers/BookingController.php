@@ -7,6 +7,7 @@ use App\Models\Booking;
 use App\Models\Lapangan;
 use App\Models\StatusLapangan;
 use App\Models\Pembayaran;
+use App\Models\RiwayatStatusPembayaran;
 
 use App\Jobs\PembayaranLimitTimeJob;
 use App\Events\PembayaranLimitTime;
@@ -34,8 +35,12 @@ class BookingController extends Controller
 
             $pembayaran = new Pembayaran;
             $pembayaran->total_biaya = $totalHargaBookingLapangan;
-            $pembayaran->status = 'Belum Lunas';
             $pembayaran->save();
+
+            $riwayatStatusPembayaran = new RiwayatStatusPembayaran;
+            $riwayatStatusPembayaran->id_pembayaran = $pembayaran->id;
+            $riwayatStatusPembayaran->status_pembayaran = 'Belum Lunas';
+            $riwayatStatusPembayaran->save();
 
             PembayaranLimitTimeJob::dispatch($pembayaran);
 
@@ -78,12 +83,5 @@ class BookingController extends Controller
         if ($time >= $start && $time <= $end) {
             // dd($time);
         }
-        
-        // $job = DB::table('jobs')->whereId(88)->first();
-        // $payload = json_decode($job->payload);
-        // $mailable = unserialize($payload->data->command);
-        // dd($mailable);
-        // if ($mailable->user->id != GOOD)
-        //     DB::table('jobs')->whereId($id)->delete();
     }
 }

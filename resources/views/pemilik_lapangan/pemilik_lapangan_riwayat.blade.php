@@ -40,47 +40,43 @@
                                         <div class="input-group-text"><i class="fa fa-calendar"> </i></div>
                                     </div>
                                 </div>
-                            </div>      
-                            <div class="mb-3 row g-3">
-                                <label class="col-xl-1 col-sm-3 col-lg-1 col-form-label">Status</label>
-                                <div class="col-xl-11 col-sm-9 col-lg-11 filter-group">
-                                    <div class="btn-showcase">
-                                        <button class="btn btn-pill btn-outline-primary btn-air-primary active" type="button">Semua</button>
-                                        <button class="btn btn-pill btn-outline-primary btn-air-primary" type="button">Berlangsung</button>
-                                        <button class="btn btn-pill btn-outline-primary btn-air-primary" type="button">Berhasil</button>
-                                        <button class="btn btn-pill btn-outline-primary btn-air-primary" type="button">Tidak Berhasil</button>
-                                        <p class="reset-filter">Reset Filter</p>
+                                <div class="mb-3 row g-3">
+                                    <label class="col-xl-1 col-sm-3 col-lg-1 col-form-label">Status</label>
+                                    <div class="col-xl-11 col-sm-9 col-lg-11 filter-group">
+                                        <div class="btn-showcase">
+                                            <button class="btn btn-pill btn-outline-primary btn-air-primary active" type="button">Semua</button>
+                                            <button class="btn btn-pill btn-outline-primary btn-air-primary" type="button">Berlangsung</button>
+                                            <button class="btn btn-pill btn-outline-primary btn-air-primary" type="button">Berhasil</button>
+                                            <button class="btn btn-pill btn-outline-primary btn-air-primary" type="button">Tidak Berhasil</button>
+                                            <p class="reset-filter">Reset Filter</p>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>  
-                            <div class="row g-3">  
-                                <button class="btn btn-square btn-outline-waiting-payment waiting-payment txt-dark" type="button" onclick='location.href="{{route('penyewaLapangan.menungguPembayaranPenyewaIndex')}}"' data-bs-original-title="" title="" style="text-align: left;padding-left: 0px;border-radius: 8px;">
-                                    <i class="icofont icofont-time" style="margin: 0 8px 0 12px; font-size: 15px; color: #24695c; font-weight: bold;"></i> 
-                                    <span>Menunggu Pembayaran</span>
-                                    <!-- <i class="icofont icofont-double-right" style="text-align: right; margin: 0 8px 0 12px;"></i>  -->
-                                </button>      
-                            </div>     
+                                </div>     
+                            </div>    
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-body">                 
+                        <div class="card-body">
+                        <div id="length-data-riwayat-penyewa" class="dataTables_wrapper"></div>
                             <div class="table-responsive">
                                 <table class="display datatables" id="data-riwayat-penyewa">
                                     <thead>
                                         <tr>
                                             <th>No.</th>
+                                            <th>Nama Penyewa</th>
                                             <th>Tanggal Penyewaan</th>
-                                            <th>Nama Lapangan</th>
-                                            <th>Status</th>
+                                            <th>Status Pembayaran</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
                                 </table>
                             </div>
+                            <div id="pagination-data-riwayat-penyewa" class="dataTables_wrapper"></div>
                         </div>
                     </div>
                 </div>
             </div>
+            <!-- Container-fluid Ends-->
         </div>
         <!-- footer start-->
         @include('layouts.footer')
@@ -116,7 +112,7 @@
         }
     });
 
-    table = $('#data-riwayat-penyewa').DataTable({
+    var table = $('#data-riwayat-penyewa').DataTable({
         bFilter: true,
         processing: true,
         serverSide: true,
@@ -129,7 +125,7 @@
         },
         ajax: {
             type: "POST",
-            url: "{{route('penyewaLapangan.getDataRiwayatPenyewaLapangan')}}",
+            url: "{{route('pemilikLapangan.getDataRiwayatPenyewaanPemilikLapangan')}}",
             dataType: "json",
             contentType: 'application/json',
             data: function (data) {
@@ -139,44 +135,47 @@
                 $.extend(form, info);
                 return JSON.stringify(form);
             },
-            "complete": function(response) {
-
-            }
         },
         "columns": [
-                { "defaultContent": "", "orderable": true, "width": "7%", render: function (data, type, row, meta){ return meta.row + meta.settings._iDisplayStart + 1; } },
-                { "data": "tgl_booking", "orderable": true, "width": "14%" },
-                { "data": "nama_lapangan" },
-                { "data": "status_pembayaran", "orderable": true, "width": "13%" },
-                { "defaultContent": "", "orderable": false, "width": "10%" }
+            { "defaultContent": "", "orderable": true, "width": "7%", render: function (data, type, row, meta){ return meta.row + meta.settings._iDisplayStart + 1; } },
+            { "data": "name", "orderable": true},
+            { "data": "tgl_booking", "orderable": true, "width": "16%" },
+            { "data": "status_pembayaran", "orderable": true, "width": "14%" },
+            { "orderable": false, "width": "10%", "defaultContent": '\
+                <button type="button" class="btn btn-outline-primary" id="view-data-penyewaan" style="width: 37px; padding-top: 2px; padding-left: 0px; padding-right: 0px; padding-bottom: 2px; margin-right:5px;"><i class="fa fa-edit" style="font-size:20px;"></i></button>',
+                // render: function (data, type, row) { console.log(row) }
+            },
         ],
         order: [[ 0, "asc" ]],
-        fixedColumns:{left: 1},
         initComplete:function( settings, json){
-            // $("div.dataTables_length").append('&nbsp<span onclick="approveTicket()" class="btn btn-pill btn-outline-secondary btn-air-secondary btn-sm">Approve Ticket</span>');
-            // $('#data-ergonomic_length').appendTo('#length-data-ergonomic');
-            // $('#data-ergonomic_info').appendTo('#pagination-data-ergonomic');
-            // $('#data-ergonomic_paginate').appendTo('#pagination-data-ergonomic');
-            // $('#data-ergonomic tbody').on('click', "#edit-data-ergonomic", function() {
-            //     let row = $(this).parents('tr')[0];
-            //     console.log(table.row(row).data().ssp_time_id);
-                
-            //     $('#edit-body-data-ergonomic').append('<input type="hidden" id="ticket-id" name="ticket_id" value="'+table.row(row).data().ssp_ticket_id+'">\
-            //         <input type="hidden" id="time-id" name="time_id" value="'+table.row(row).data().ssp_time_id+'">');
-
-            //     Object.keys(table.row(row).data()).forEach(function(item, index) {
-            //         if(index >= 6){
-            //             $('#edit-body-data-ergonomic').append('\
-            //                 <div class="form-group row" id="job-analyst-div">\
-            //                     <label class="col-xl-3 col-sm-4 col-form-label">'+ucwords(item.replace(/_/g, " "))+'</label>\
-            //                     <div class="col-xl-9 col-sm-8">\
-            //                         <input type="text" class="form-control" id="'+item.replace(/_/g, "-")+'" name="'+item+'" placeholder="'+ucwords(item.replace(/_/g, " "))+'..." value="'+table.row(row).data()[item]+'">\
-            //                     </div>\
-            //                 </div>');
+            $('#data-riwayat-penyewa_length').appendTo('#length-data-riwayat-penyewa');
+            $('#data-riwayat-penyewa_filter').appendTo('#length-data-riwayat-penyewa');
+            $('#data-riwayat-penyewa_info').appendTo('#pagination-data-riwayat-penyewa');
+            $('#data-riwayat-penyewa_paginate').appendTo('#pagination-data-riwayat-penyewa');
+            $('#data-riwayat-penyewa tbody').on('click', "#view-data-penyewaan", function() {
+                let row = $(this).parents('tr')[0];
+                console.log(table.row(row).data().id_pembayaran);
+            //     $.ajax({
+            //         url: "",
+            //         method: "POST",
+            //         data: {
+            //             "_token": "{{ csrf_token() }}",
+            //             "tanggal" : date
+            //         },
+            //         dataType: "json",
+            //         success:function(data){
+            //             for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
+            //                 $('#table-court-'+courtCount).DataTable().clear().draw();
+            //                 $('#table-court-'+courtCount).DataTable().rows.add(data['court_'+courtCount]);
+            //                 $('#table-court-'+courtCount).DataTable().columns.adjust().draw();
+            //             }
+            //         },
+            //         error: function(xhr, ajaxOptions, thrownError){
+            //             console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
             //         }
             //     })
-            //     $('#editDataErgonomic').modal('show');
-            // });
+            //     $('#view-data-penyewa').modal('show');
+            });
 
             // $('#data-ergonomic tbody').on('click', "#delete-data-ergonomic", function() {
             //     let row = $(this).parents('tr')[0];
@@ -186,7 +185,7 @@
     });
     table.on('order.dt search.dt', function () {
         let i = 1;
- 
+
         table.cells(null, 0, { search: 'applied', order: 'applied' }).every(function (cell) {
             this.data(i++);
         });
@@ -211,6 +210,6 @@
         $(this).data('daterangepicker').show();
         $('#data-riwayat-penyewa').DataTable().ajax.reload();
     });
-
+    
 </script>
 @endsection

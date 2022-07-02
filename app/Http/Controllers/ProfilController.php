@@ -58,13 +58,17 @@ class ProfilController extends Controller
     }
 
     
-    public function getPenyewaLapanganProfil($penggunaPenyewaId, $date){
+    public function getPenyewaLapanganProfil($penggunaPenyewaId, $date, $pembayaranId){
         $dataProfilPenyewa = DB::table('tb_pengguna')->select('tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 
-            'tb_pengguna.id as pengguna_id', 'tb_pengguna.name', 'tb_pembayaran.total_biaya')
+            'tb_pengguna.id as pengguna_id', 'tb_pengguna.name', 'tb_pembayaran.total_biaya', 'tb_pembayaran.id AS pembayaran_id', 'tb_riwayat_status_pembayaran.status_pembayaran')
             ->leftJoin('tb_booking', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
             ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
             ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
-            ->where('tb_booking.id_pengguna', $penggunaPenyewaId)->where('tb_booking.tgl_booking', date('Y-m-d', strtotime($date)))->where('tb_pembayaran.status', '!=', 'Batal')
+            ->leftJoin('tb_riwayat_status_pembayaran', function($join){
+                $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
+                ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
+            })
+            ->where('tb_booking.id_pengguna', $penggunaPenyewaId)->where('tb_booking.tgl_booking', date('Y-m-d', strtotime($date)))->where('tb_riwayat_status_pembayaran.status_pembayaran', '!=', 'Batal')->where('tb_booking.id_pembayaran', $pembayaranId)
             ->get();
         return response()->json($dataProfilPenyewa);
     }
@@ -74,4 +78,6 @@ class ProfilController extends Controller
 
         return view('penyewa_lapangan.penyewaLapanganProfil', compact('dataUser'));
     }
+
+    
 }

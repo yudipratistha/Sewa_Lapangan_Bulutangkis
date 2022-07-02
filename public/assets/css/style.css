@@ -1512,13 +1512,13 @@ a:hover {
 
 .btn-outline-secondary-2x {
   border-width: 2px;
-  border-color: #ba895d;
-  color: #ba895d;
+  border-color: #90b4cd;
+  color: #90b4cd;
   background-color: transparent; }
   .btn-outline-secondary-2x:hover, .btn-outline-secondary-2x:focus, .btn-outline-secondary-2x:active, .btn-outline-secondary-2x.active {
     color: white;
-    background-color: #a07044 !important;
-    border-color: #a07044 !important;
+    background-color: #6d9cbd !important;
+    border-color: #6d9cbd !important;
     -webkit-box-shadow: none;
             box-shadow: none; }
 
@@ -6145,6 +6145,9 @@ table tbody .border-bottom-warning td {
   .btn-showcase .btn {
     margin-bottom: 10px;
     margin-right: 18px; }
+    .btn-showcase .reset-filter {
+      margin-bottom: 10px;
+      margin-right: 18px; }
 
 .btn-dropdown-showcase {
   margin-bottom: -10px; }
@@ -17142,8 +17145,8 @@ footer {
 .clockpicker-canvas-fg, .clockpicker-canvas-bearing {
   fill: #24695c; }
 
-.daterangepicker td.available:hover, .daterangepicker th.available:hover {
-  background-color: #24695c; }
+/* .daterangepicker td.available:hover, .daterangepicker th.available:hover {
+  background-color: #24695c; } */
 
 .datepicker--day-name {
   color: #000;
@@ -17162,7 +17165,7 @@ footer {
 .datepicker--cell.-selected- {
   background: #24695c; }
 
-.daterangepicker.ltr {
+/* .daterangepicker.ltr {
   color: #898989;
   z-index: 8; }
   .daterangepicker.ltr tr {
@@ -17187,7 +17190,7 @@ footer {
         border: 1px solid #24695c;
         color: #fff; }
   .daterangepicker.ltr .calendar-time select {
-    color: #898989; }
+    color: #898989; } */
 
 .datetime-picker .bootstrap-datetimepicker-widget.dropdown-menu {
   width: auto; }
@@ -17195,7 +17198,7 @@ footer {
 .date-range-picker > div:last-child .theme-form {
   margin-bottom: 0px; }
 
-.daterangepicker:before {
+/* .daterangepicker:before {
   border-bottom: 7px solid #efefef; }
 
 .daterangepicker .daterangepicker_input i {
@@ -17205,12 +17208,12 @@ footer {
 .daterangepicker .input-mini {
   border-color: #efefef !important;
   font-size: 14px;
-  color: #59667a; }
+  color: #59667a; } */
 
-.daterangepicker th, .daterangepicker td {
+/* .daterangepicker th, .daterangepicker td {
   height: 34px;
-  width: 34px; }
-  .daterangepicker th:hover, .daterangepicker td:hover {
+  width: 34px; } */
+  /* .daterangepicker th:hover, .daterangepicker td:hover {
     color: #2c323f; }
   .daterangepicker th.prev, .daterangepicker th.next, .daterangepicker td.prev, .daterangepicker td.next {
     color: #fff;
@@ -17220,7 +17223,7 @@ footer {
   .daterangepicker th.month, .daterangepicker td.month {
     color: #24695c;
     letter-spacing: 1px;
-    text-transform: uppercase; }
+    text-transform: uppercase; } */
 
 /**=====================
    52. Datepicker CSS End
@@ -26777,7 +26780,7 @@ span.twitter-typeahead .tt-suggestion {
   transition: all 0.3s ease; }
 
 .browser-widget .media-body {
-  text-align: center;
+  text-align: left;
   -webkit-column-count: 3;
      -moz-column-count: 3;
           column-count: 3;
@@ -31233,6 +31236,85 @@ span.twitter-typeahead .tt-suggestion {
   background-size: contain;
   /* height: 150px;
   width: 300px; */
+}
+
+.filter-group > .btn-showcase {
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+/* .filter-group > .btn-showcase > .btn {
+  display: inline-block;
+} */
+.reset-filter{
+  position: absolute;
+  display: inline-block;
+  bottom: 5px;
+  padding-left: 25px;
+  color: #24695c;
+  cursor: pointer;
+}
+
+.waiting-payment span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+.btn-outline-waiting-payment {
+  border-color: #c7d7db;
+  color: #c7d7db;
+  background-color: transparent; }
+  .btn-outline-waiting-payment.disabled {
+    color: #ba895d; }
+  /* .btn-outline-waiting-payment:hover, .btn-outline-waiting-payment:focus, .btn-outline-waiting-payment:active, .btn-outline-waiting-payment.active {
+    color: white;
+    background-color: #a07044 !important;
+    border-color: #a07044 !important; } */
+
+.waiting-payment span:after {
+  font-family: 'IcoFont' !important;
+  font-size: 30px;
+  content: '\eb3a';
+  position: absolute;
+  padding: 0 0 0 8px;
+  opacity: 0;
+  top: -10px;
+  right: -20px;
+  transition: 0.5s;
+}
+
+.waiting-payment:hover span {
+  padding-right: 35px;
+}
+
+.waiting-payment:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+
+.info-widget-card span {
+  color: #999;
+  margin-bottom: 4px;
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600; }
+
+.info-widget-card h5 {
+  color: #999;
+  text-align: center;
+  padding: 20px 0;
+  margin-bottom: 30px;
+  font-size: 16px;
+  font-weight: 700; }
+
+.info-widget-card h4 {
+  font-size: 18px;
+  font-weight: 600; }
+
+.dropdown-toggle::after {
+  display:none;
 }
 
 .btn-primary{

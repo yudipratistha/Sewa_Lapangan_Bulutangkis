@@ -14,4 +14,8 @@ class Pembayaran extends Model
     public function Booking(){
         return $this->hasMany('App\Models\Booking', 'id_booking');
     }   
+
+    public function RiwayatStatusPembayaran(){
+        return $this->hasMany('App\Models\RiwayatStatusPembayaran', 'id_pembayaran');
+    } 
 }

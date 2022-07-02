@@ -48,12 +48,15 @@ Route::group(['prefix' => 'pemilik-lapangan/'], function(){
         Route::get('get-court-lapangan-status/{lapangan_id}/{court}', 'LapanganController@getStatusCourtLapangan')->name('pemilikLapangan.statusCourtLapanganStatus');
         Route::post('update-lapangan-court-status/{id}', 'LapanganController@updateCourtLapanganStatus')->name('pemilikLapangan.updateCourtLapanganStatus');
 
-        Route::get('get-profil/{penggunaPenyewaId}/{date}', 'ProfilController@getPenyewaLapanganProfil')->name('pemilikLapangan.getPenyewaProfil');
+        route::post('update-status-pembayaran/{pembayaran_id}', 'PembayaranController@updateStatusPembayaranPenyewa')->name('pemilikLapangan.updateStatusPembayaran');
+
+        Route::get('get-profil/{penggunaPenyewaId}/{date}/{pembayaranId}', 'ProfilController@getPenyewaLapanganProfil')->name('pemilikLapangan.getPenyewaProfil');
     
         Route::get('profil', 'ProfilController@pemilikLapanganProfil')->name('pemilikLapangan.profil');
         Route::post('update-profil', 'ProfilController@pemilikLapanganUpdateProfil')->name('pemilikLapangan.updateProfil');
 
         Route::get('riwayat-penyewaan', 'RiwayatController@pemilikLapanganRiwayatPenyewaan')->name('pemilikLapangan.riwayatPenyewaan');
+        Route::post('data-riwayat-penyewaan/', 'RiwayatController@getDataRiwayatPenyewaanPemilikLapangan')->name('pemilikLapangan.getDataRiwayatPenyewaanPemilikLapangan');
     });
 });
  
@@ -72,7 +75,7 @@ Route::group(['prefix' => 'penyewa-lapangan/'], function(){
         Route::get('pesan-lapangan/{id}/{lapanganName}', 'LapanganController@pesanLapangan')->name('penyewaLapangan.pesanLapangan');
         Route::post('store-pesan-lapangan', 'BookingController@storeBookingLapangan')->name('penyewaLapangan.storeBookingLapangan');
     
-        route::get('pembayaran', 'BookingController@bookValid')->name('pembayaran');
+        route::get('menunggu-pembayaran', 'PembayaranController@menungguPembayaranPenyewaIndex')->name('penyewaLapangan.menungguPembayaranPenyewaIndex');
         
         Route::get('edit-profil', 'ProfilController@penyewaLapanganProfil')->name('penyewaLapangan.editProfil');
     
@@ -80,4 +83,3 @@ Route::group(['prefix' => 'penyewa-lapangan/'], function(){
         Route::post('data-riwayat-penyewaan', 'RiwayatController@getDataRiwayatPenyewaLapangan')->name('penyewaLapangan.getDataRiwayatPenyewaLapangan');
     });
 });
-

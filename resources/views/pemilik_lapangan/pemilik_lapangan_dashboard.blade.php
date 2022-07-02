@@ -6,7 +6,7 @@
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/date-picker.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/sweetalert2.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/datatables.css')}}">
-
+<link rel="stylesheet" type="text/css" href="{{url('/assets/css/photoswipe.css')}}">
 
 @endsection
 
@@ -162,13 +162,33 @@
                                 <input type="text" disabled class="form-control" id="total-penyewaan" name="total_penyewaan" placeholder="Total..." value="">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label>Foto Bukti Pembayaran</label>
+                            <div class="gallery my-gallery card-body" itemscope="">
+                                <figure class="col-md-12" itemprop="associatedMedia" itemscope="">
+                                    <a href="{{url('/assets/images/buktibayar/bni-5.jpg')}}" itemprop="contentUrl" data-size="1600x950">
+                                        <img class="img-thumbnail" src="{{url('/assets/images/buktibayar/bni-5.jpg')}}" itemprop="thumbnail" alt="Image description">
+                                    </a>
+                                    <figcaption itemprop="caption description">Image caption  1</figcaption>
+                                </figure>
+                            </div>
+                        </div>
+                        <div class="form-group" id="update-status-pembayaran-div">
+                            <label>Update Status Pembayaran</label>
+                            <div class="input-group"><span class="input-group-text"><i class="icofont icofont-paperclip"></i></span>
+                                <select class="form-select" id="update-status-pembayaran" name="status_pembayaran" required="">
+                                    <option selected="" disabled="" value="">Pilih Status Pembayaran...</option>
+                                    <option value="Lunas">Lunas</option>
+                                    <option value="DP">DP</option>
+                                    <option value="Batal">Batal</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-square btn-outline-light txt-dark" data-bs-dismiss="modal">Close</button>
-                <button type="button" onclick="tolakPenyewaan()" class="btn btn-square btn-outline-secondary">Tolak</button>
-                <button type="button" onclick="terimaPenyewaan()" class="btn btn-square btn-outline-secondary">Terima</button>
             </div>
         </div>
     </div>
@@ -181,6 +201,9 @@
 <script src="{{url('/assets/js/sweet-alert/sweetalert.min.js')}}"></script>
 <script src="{{url('/assets/js/datatable/datatables/jquery.dataTables.min.js')}}"></script>
 <script src="{{url('/assets/js/datepicker/date-time-picker/moment.min.js')}}"></script>
+<script src="{{url('/assets/js/photoswipe/photoswipe.min.js')}}"></script>
+<script src="{{url('/assets/js/photoswipe/photoswipe-ui-default.min.js')}}"></script>
+<script src="{{url('/assets/js/photoswipe/photoswipe.js')}}"></script>
 
 <script>
     var jumlah_court = {!! json_encode($dataLapangan[0]->jumlah_court) !!}
@@ -190,13 +213,17 @@
             "columns": [
                 { "orderable": true, "width": "10%" },
                 null,
-                { "orderable": false, "width": "20%" },
+                { "orderable": false, "width": "16%" },
                 { "orderable": false, "width": "13%" },
                 
             ],
         });
 
     }
+
+    $('body').on('hidden.bs.modal', '.modal', function () {
+        $('#data-profil-penyewa-modal').find('.modal-footer').children('button').slice(-2).remove();
+    });
 
     var date; 
 
@@ -249,10 +276,11 @@
         $.fn.dataTable.tables({ visible: true, api: true}).columns.adjust();
     });
 
-    function getPenyewa(penggunaPenyewaId, court){
-        link = "{{route('pemilikLapangan.getPenyewaProfil', [':penggunaPenyewaId',':date'])}}";
+    function getPenyewa(penggunaPenyewaId, court, pembayaranId){
+        link = "{{route('pemilikLapangan.getPenyewaProfil', [':penggunaPenyewaId',':date', ':pembayaranId'])}}";
         link = link.replace(":penggunaPenyewaId", penggunaPenyewaId);
         link = link.replace(":date", date);
+        link = link.replace(":pembayaranId", pembayaranId);
         $.ajax({
             url: link,
             method: "GET",
@@ -266,7 +294,7 @@
                     var jamMulai = item.jam_mulai.split(':');
                     var jamSelesai = item.jam_selesai.split(':');
                     var punctuation= '';
-
+                    
                     if(data.length > index+1 && data.length === 2){
                         punctuation= ' & ';
                     }else if(data.length >= index+1 && data.length-3 !== index-1 && data.length !== index+1){
@@ -280,7 +308,7 @@
                     
                     $('#nama-penyewa').val(item.name);
                     $('#tanggal-penyewaan').val(tglBooking[2]+"-"+tglBooking[1]+"-"+tglBooking[0]);
-                    $('#total-penyewaan').val(item.total_biaya);
+                    $('#total-penyewaan').val('Rp'+item.total_biaya);
                     $('#id-pengguna-penyewa').val(item.id);
                 });
                 
@@ -288,7 +316,15 @@
 
                 $('#pilihan-court-penyewa').val(totalCourt.match(/\d/g).join(", ").replace(/,([^,]*)$/, ' &$1'));
                 $('#pilihan-waktu-penyewa').val(jamBooking);
-                
+
+                console.log(data[0].status_pembayaran)
+                if(data[0].status_pembayaran === 'DP' || data[0].status_pembayaran === 'Lunas'){
+                    $("#update-status-pembayaran").val(data[0].status_pembayaran).change();
+                }
+                $('#data-profil-penyewa-modal').find('.modal-footer').children('button').after('\
+                    <button type="button" onclick="tolakPenyewaan('+data[0].pembayaran_id+')" class="btn btn-square btn-outline-warning">Tolak</button>\
+                    <button type="button" onclick="terimaPenyewaan('+data[0].pembayaran_id+')" class="btn btn-square btn-outline-primary">Terima</button>'
+                )
                 
                 $('#data-profil-penyewa-modal').modal('show');
             },
@@ -360,6 +396,101 @@
                 });
             }
         });
+    }
+
+    function terimaPenyewaan(pembayaranId){
+        if($("#update-status-pembayaran").val() === 'Batal' || $("#update-status-pembayaran").val() === null){
+            $("#error-msg-update-status-pembayaran").remove();
+            $("#update-status-pembayaran").addClass("is-invalid");
+            $('#update-status-pembayaran-div').append('<div id="error-msg-update-status-pembayaran" class="text-danger">Update status terima pesanan, hanya bisa dipilih "Lunas atau DP".</div>');
+        }else{
+            $("#update-status-pembayaran").removeClass("is-invalid");
+            $("#error-msg-update-status-pembayaran").remove();
+            $("#update-status-pembayaran").addClass("is-valid");
+
+            link = "{{route('pemilikLapangan.updateStatusPembayaran', ':id')}}";
+            link = link.replace(':id', pembayaranId);
+            
+            swal.fire({
+                title: "Terima Pesanan?",
+                text: "Status pembayaran penyewa akan diperbaharui!",
+                icon: "warning",
+                showCancelButton: true,
+                // confirmButtonClass: "btn-danger",
+                confirmButtonText: "Save",
+                closeOnConfirm: true,
+                preConfirm: (login) => {
+                    return $.ajax({
+                        type: "POST", 
+                        url: link,
+                        datatype : "json", 
+                        data: {'pembayaranId':pembayaranId, "_token": "{{ csrf_token() }}", 'statusPembayaran': $("#update-status-pembayaran").val()},
+                        success: function(data){
+                            
+                        },
+                        error: function(data){
+                            swal.fire({title:"Ticket Failed to Approved!", text:"This ticket was not approved successfully", icon:"error"});
+                        }
+                    }); 
+                } 
+            }).then((result) => {
+                if(result.value){
+                    swal.fire({title:"Ticket Approved!", text:"This ticket has been approved on tickets list", icon:"success"})
+                    .then(function(){ 
+                        window.location.href = "";
+                    });
+                }
+            });
+        }
+        console.log($("#update-status-pembayaran").val())
+    }
+
+    function tolakPenyewaan(pembayaranId){
+        if($("#update-status-pembayaran").val() === 'Lunas' || $("#update-status-pembayaran").val() === 'DP'){
+            $("#error-msg-update-status-pembayaran").remove();
+            $("#update-status-pembayaran").addClass("is-invalid");
+            $('#update-status-pembayaran-div').append('<div id="error-msg-update-status-pembayaran" class="text-danger">Update status tolak pesanan, hanya bisa dipilih "Batal".</div>');
+        }else{
+            $("#update-status-pembayaran").removeClass("is-invalid");
+            $("#error-msg-update-status-pembayaran").remove();
+            $("#update-status-pembayaran").addClass("is-valid");
+            // $("#update-status-pembayaran").val("Batal").change();
+
+            link = "{{route('pemilikLapangan.updateStatusPembayaran', ':id')}}";
+            link = link.replace(':id', pembayaranId);
+            
+            swal.fire({
+                title: "Tolak Penyewaan?",
+                text: "Status pembayaran penyewa akan diperbaharui!",
+                icon: "warning",
+                showCancelButton: true,
+                // confirmButtonClass: "btn-danger",
+                confirmButtonText: "Save",
+                closeOnConfirm: true,
+                preConfirm: (login) => {
+                    return $.ajax({
+                        type: "POST", 
+                        url: link,
+                        datatype : "json", 
+                        data: {'pembayaranId':pembayaranId, "_token": "{{ csrf_token() }}"},
+                        success: function(data){
+                            
+                        },
+                        error: function(data){
+                            swal.fire({title:"Ticket Failed to Approved!", text:"This ticket was not approved successfully", icon:"error"});
+                        }
+                    }); 
+                } 
+            }).then((result) => {
+                if(result.value){
+                    swal.fire({title:"Ticket Approved!", text:"This ticket has been approved on tickets list", icon:"success"})
+                    .then(function(){ 
+                        window.location.href = "";
+                    });
+                }
+            });
+        }
+        
     }
 </script>
 
