@@ -62,8 +62,12 @@
                                     </tbody>
                                 </table>
                                 <hr/>
-                                <button type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#modal-metode-pembayaran" data-bs-original-title="" title="" class="btn btn-square btn-outline-blue">Pilih Pembayaran</button>
-                                <!-- <button type="button" onClick="pesanLapangan()" class="btn btn-square btn-outline-blue">Konfirmasi Sewa</button> -->
+                                @if($dataLapangan->status_pembayaran === "Belum Lunas")
+                                    <span class="btn btn-secondary" style="cursor: not-allowed;background-color: #90b4cd !important;border-color: #90b4cd !important;"></i>Ada pembayaran yang belum lunas!</button>
+                                    <!-- <button type="button" onClick="pesanLapangan()" class="btn btn-square btn-outline-blue">Konfirmasi Sewa</button> -->
+                                @else
+                                    <button type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#modal-metode-pembayaran" data-bs-original-title="" title="" class="btn btn-square btn-outline-blue">Pilih Pembayaran</button>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -132,13 +136,12 @@
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="card">
-                                <div class="media p-20" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);">
-                                    
+                                <div class="pilih-pembayaran media p-20" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);cursor: pointer;">
                                     <div class="media-body">
                                         <h6 class="mt-0">BRI</h6>
                                     </div>
-                                    <div class="radio radio-primary me-3">
-                                        <input id="radio30" type="radio" name="radio1" value="option1">
+                                    <div class="radio radio-primary me-3" style="display: contents;">
+                                        <input id="radio30" type="radio" name="radio1" value="1">
                                         <label for="radio30"></label>
                                     </div>
                                 </div>
@@ -146,12 +149,12 @@
                         </div>
                         <div class="col-sm-12">
                             <div class="card">
-                                <div class="media p-20" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);">
+                                <div class="pilih-pembayaran media p-20" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);cursor: pointer;">
                                     <div class="media-body">
                                         <h6 class="mt-0">BCA</h6>
                                     </div>
-                                    <div class="radio radio-primary me-3">
-                                        <input id="radio1" type="radio" name="radio1" value="option1">
+                                    <div class="radio radio-primary me-3" style="display: contents;">
+                                        <input id="radio1" type="radio" name="radio1" value="2">
                                         <label for="radio1"></label>
                                     </div>
                                 </div>
@@ -242,6 +245,7 @@
 
     
     function pesanLapangan(){
+        var pilihPembayaran = $(".pilih-pembayaran").children('.radio').children('input').filter(":checked").val();
 		swal.fire({
 			title: "Konfirmasi Sewa Lapangan?",
 			icon: "warning",
@@ -253,7 +257,7 @@
                     type: "POST", 
                     url: "{{route('penyewaLapangan.storeBookingLapangan')}}",
                     datatype : "json", 
-                    data: $("#check-book-time").serialize() + "&tglBooking="+date + "&totalBiaya="+total_biaya,
+                    data: $("#check-book-time").serialize() + "&tglBooking="+date + "&totalBiaya="+total_biaya + "&pilihPembayaran="+pilihPembayaran, 
                     success: function(data){
                         
                     },
@@ -271,6 +275,10 @@
             }
         });
     }
+
+    $(".pilih-pembayaran").on("click", function(){
+        $(this).children('.radio').children('input').prop('checked', true);
+    });
 </script>
 
 @endsection
