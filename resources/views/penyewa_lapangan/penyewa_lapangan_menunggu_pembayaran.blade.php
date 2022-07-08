@@ -200,7 +200,7 @@
                             <label class="mb-2">Foto Bukti Pembayaran</label>
                             <div class="col-sm-12 img-up">
                                 <div class="image-preview" id="image-preview-foto-bukti-bayar"></div>
-                                <label class="btn btn-primary">Browse
+                                <label class="btn btn-primary">Pilih
                                     <input type="file" class="upload-file img" name="foto_bukti_bayar" value="foto_bukti_bayar" style="width: 0px;height: 0px;overflow: hidden;">
                                 </label>
                             </div>

@@ -42,21 +42,28 @@
                                 <table class="table table-borderless table-sm">
                                     <tbody>
                                         <tr>
-                                            <th scope="row" style="width: 10%;padding-left: 0px;padding-right: 0px;">Nama Lapangan</th>
-                                            <td style="padding-left: 0px;">: {{$dataLapangan->nama_lapangan}}</td>
+                                            <td scope="row" style="width: 145px;padding-left: 0px;padding-right: 0px;">Nama Lapangan <span class="pull-right">:&nbsp;</span></td>
+                                            <th style="padding-left: 0px;">{{$dataLapangan->nama_lapangan}}</th>
                                         </tr>
                                         <tr>
-                                            <th scope="row" style="width: 10%;padding-left: 0px;padding-right: 0px;">Tanggal Booking</th>
-                                            <td style="padding-left: 0px;">: <span id="tgl-booking">-</span></td>
+                                            <td scope="row" style="width: 145px;padding-left: 0px;padding-right: 0px;">Tanggal Booking <span class="pull-right">:&nbsp;</span></td>
+                                            <th style="padding-left: 0px;"><span class="fw-bold" id="tgl-booking">-</span></th>
                                         </tr>
                                         <tr>
-                                            <th scope="row" style="width: 10%;padding-left: 0px;padding-right: 0px;">Total</th>
-                                            <td style="padding-left: 0px;">: Rp. <span id="total-harga">-</span></td>
+                                            <td scope="row" style="width: 145px;padding-left: 0px;padding-right: 0px;">Total <span class="pull-right">:&nbsp;</span></td>
+                                            <th style="padding-left: 0px;">Rp<span class="fw-bold" id="total-harga">-</span></th>
                                         </tr>
+                                        <!-- <tr>
+                                            <td scope="row" style="width: 145px;padding-left: 0px;padding-right: 0px;">Pilih Pembayaran <span class="pull-right">:&nbsp;</span></td>
+                                            <th style="padding-left: 0px;">
+                                                <span class="btn input-air-primary fw-bold" style="display: initial;padding: 3px 3px 3px 3px;background-color: #e6edef !important;border-color: #e6edef !important;text-align: center;color: #212529;font-weight: bold;cursor: pointer;font-size: inherit;" data-bs-toggle="modal" data-original-title="test" data-bs-target="#modal-metode-pembayaran" data-bs-original-title="" title="">Belum Dipilih</span>
+                                            </th>
+                                        </tr> -->
                                     </tbody>
                                 </table>
                                 <hr/>
-                                <button type="button" onClick="pesanLapangan()" class="btn btn-square btn-outline-blue">Konfirmasi Sewa</button>
+                                <button type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#modal-metode-pembayaran" data-bs-original-title="" title="" class="btn btn-square btn-outline-blue">Pilih Pembayaran</button>
+                                <!-- <button type="button" onClick="pesanLapangan()" class="btn btn-square btn-outline-blue">Konfirmasi Sewa</button> -->
                             </div>
                         </div>
                     </div>
@@ -110,6 +117,53 @@
         </div>
         <!-- footer start-->
         @include('layouts.footer')
+    </div>
+</div>
+
+<!-- Modal Metode Pembayaran-->
+<div class="modal fade" id="modal-metode-pembayaran" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center d-block">
+                <h4 class="modal-title ">Pembayaran</h3>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="card">
+                                <div class="media p-20" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);">
+                                    
+                                    <div class="media-body">
+                                        <h6 class="mt-0">BRI</h6>
+                                    </div>
+                                    <div class="radio radio-primary me-3">
+                                        <input id="radio30" type="radio" name="radio1" value="option1">
+                                        <label for="radio30"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="card">
+                                <div class="media p-20" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);">
+                                    <div class="media-body">
+                                        <h6 class="mt-0">BCA</h6>
+                                    </div>
+                                    <div class="radio radio-primary me-3">
+                                        <input id="radio1" type="radio" name="radio1" value="option1">
+                                        <label for="radio1"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-square btn-outline-light txt-dark" data-bs-dismiss="modal">Close</button>
+                <button type="button" onClick="pesanLapangan()" class="btn btn-square btn-outline-blue">Konfirmasi Sewa</button>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
