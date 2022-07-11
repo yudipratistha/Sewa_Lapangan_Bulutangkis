@@ -357,7 +357,7 @@
             if(result.value){
                 swal.fire({title:"Bukti Transfer Berhasil Disimpan!", icon:"success"})
                 .then(function(){ 
-                    window.location.href = "";
+                    window.location.href = "{{route('penyewaLapangan.riwayatPenyewaan')}}";
                 });
             }
         });

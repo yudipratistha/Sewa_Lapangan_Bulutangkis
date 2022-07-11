@@ -52,20 +52,18 @@ class RiwayatController extends Controller
         ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
         ->leftJoin('tb_riwayat_status_pembayaran', function($join){
             $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
-            ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
+            ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran GROUP BY tb_riwayat_status_pembayaran.id_pembayaran)');
         })
         ->where('tb_booking.id_lapangan', $dataLapangan['lapangan_id'])
         ->when(isset($request->filterTanggalStart), function ($query)  use ($request) {
             $query->whereBetween('tb_booking.tgl_booking', [date('Y-m-d', strtotime($request->filterTanggalStart)), date('Y-m-d', strtotime($request->filterTanggalEnd))]);
         })
         ->groupBy('tb_pembayaran.id')
-        ->orderByRaw('tgl_booking DESC')
+        ->orderByRaw('tb_pembayaran.id DESC')
         ->skip($start)
         ->take($rowperpage)
         ->get();
-    
-            
-            
+        
         $response = array(
             "draw" => intval($draw),
             "iTotalRecords" => $totalRecords,
@@ -105,17 +103,18 @@ class RiwayatController extends Controller
             ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
             ->leftJoin('tb_riwayat_status_pembayaran', function($join){
                 $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
-                ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
+                ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran GROUP BY tb_riwayat_status_pembayaran.id_pembayaran)');
             })
             ->where('tb_booking.id_pengguna', Auth::user()->id)
             ->when(isset($request->filterTanggalStart), function ($query)  use ($request) {
                 $query->whereBetween('tb_booking.tgl_booking', [date('Y-m-d', strtotime($request->filterTanggalStart)), date('Y-m-d', strtotime($request->filterTanggalEnd))]);
             })
             ->groupBy('tb_pembayaran.id')
-            ->orderByRaw('tgl_booking DESC')
+            ->orderByRaw('tb_pembayaran.id DESC')
             ->skip($start)
             ->take($rowperpage)
             ->get();
+            // dd($dataBooking);
             
         $response = array(
             "draw" => intval($draw),

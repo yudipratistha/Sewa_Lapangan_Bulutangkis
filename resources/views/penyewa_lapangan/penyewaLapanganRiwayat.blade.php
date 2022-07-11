@@ -45,10 +45,10 @@
                                 <label class="col-xl-1 col-sm-3 col-lg-1 col-form-label">Status</label>
                                 <div class="col-xl-11 col-sm-9 col-lg-11 filter-group">
                                     <div class="btn-showcase">
-                                        <button class="btn btn-pill btn-outline-primary btn-air-primary active" type="button">Semua</button>
-                                        <button class="btn btn-pill btn-outline-primary btn-air-primary" type="button">Berlangsung</button>
-                                        <button class="btn btn-pill btn-outline-primary btn-air-primary" type="button">Berhasil</button>
-                                        <button class="btn btn-pill btn-outline-primary btn-air-primary" type="button">Tidak Berhasil</button>
+                                        <button class="btn btn-pill btn-outline-primary btn-air-primary active" id="filter-semua" type="button">Semua</button>
+                                        <button class="btn btn-pill btn-outline-primary btn-air-primary" id="filter-diproses" type="button">Diproses</button>
+                                        <button class="btn btn-pill btn-outline-primary btn-air-primary" id="filter-berhasil" type="button">Berhasil</button>
+                                        <button class="btn btn-pill btn-outline-primary btn-air-primary" id="filter-tidak-berhasil" type="button">Tidak Berhasil</button>
                                         <p class="reset-filter">Reset Filter</p>
                                     </div>
                                 </div>

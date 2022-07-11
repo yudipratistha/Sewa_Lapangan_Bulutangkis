@@ -282,9 +282,9 @@
             } 
 		}).then((result) => {
             if(result.value){
-                swal.fire({title:"Konfirmasi Sewa Lapangan Berhasil Tersimpan!", text:"Sewa lapangan menunggu validasi admin", icon:"success"})
+                swal.fire({title:"Konfirmasi Sewa Lapangan Berhasil Tersimpan!", text:"Segera lunasi pembayaran sewa lapangan!", icon:"success"})
                 .then(function(){ 
-                    window.location.href = "";
+                    window.location.href = "{{route('penyewaLapangan.menungguPembayaranPenyewaIndex')}}";
                 });
             }
         });
