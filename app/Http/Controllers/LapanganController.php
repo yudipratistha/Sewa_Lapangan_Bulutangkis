@@ -158,8 +158,14 @@ class LapanganController extends Controller
         ->where('tb_booking.id_pengguna', Auth::user()->id)
         ->where('tb_lapangan.id', $idLapangan)
         ->first();
+
+        $dataDaftarJenisPembayaranLapangan = DB::table('tb_lapangan')->select('tb_daftar_jenis_pembayaran.id AS daftar_jenis_pembayaran_id', 'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama', 
+        'tb_daftar_jenis_pembayaran.no_rekening')
+        ->leftJoin('tb_daftar_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.id_lapangan', '=', 'tb_lapangan.id')
+        ->where('tb_lapangan.id', $idLapangan)
+        ->get();
         
-        return view('penyewa_lapangan.penyewa_lapangan_pesan_lapangan', compact('idLapangan', 'dataLapangan'));
+        return view('penyewa_lapangan.penyewa_lapangan_pesan_lapangan', compact('idLapangan', 'dataLapangan', 'dataDaftarJenisPembayaranLapangan'));
     }
 
     public function getAllDataLapangan(Request $request){

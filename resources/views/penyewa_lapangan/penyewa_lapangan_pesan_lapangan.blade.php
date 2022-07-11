@@ -68,6 +68,8 @@
                                 @else
                                     <button type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#modal-metode-pembayaran" data-bs-original-title="" title="" class="btn btn-square btn-outline-blue">Pilih Pembayaran</button>
                                 @endif
+                                <!-- <button type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#modal-metode-pembayaran" data-bs-original-title="" title="" class="btn btn-square btn-outline-blue">Pilih Pembayaran</button> -->
+
                             </div>
                         </div>
                     </div>
@@ -133,34 +135,23 @@
                 <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="card-body">
-                    <div class="row">
+                <div class="row">
+                    @foreach($dataDaftarJenisPembayaranLapangan as $keyDaftarJenisPembayaran => $valueDaftarJenisPembayaran)
                         <div class="col-sm-12">
-                            <div class="card">
+                            <div class="card pilih-pembayaran-card">
                                 <div class="pilih-pembayaran media p-20" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);cursor: pointer;">
                                     <div class="media-body">
-                                        <h6 class="mt-0">BRI</h6>
+                                        <h6 class="mt-0">{{$valueDaftarJenisPembayaran->nama_jenis_pembayaran}}</h6>
                                     </div>
                                     <div class="radio radio-primary me-3" style="display: contents;">
-                                        <input id="radio30" type="radio" name="radio1" value="1">
+                                        <input id="radio30" type="radio" name="pilih_pembayaran" value="{{$valueDaftarJenisPembayaran->daftar_jenis_pembayaran_id}}">
                                         <label for="radio30"></label>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-12">
-                            <div class="card">
-                                <div class="pilih-pembayaran media p-20" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);cursor: pointer;">
-                                    <div class="media-body">
-                                        <h6 class="mt-0">BCA</h6>
-                                    </div>
-                                    <div class="radio radio-primary me-3" style="display: contents;">
-                                        <input id="radio1" type="radio" name="radio1" value="2">
-                                        <label for="radio1"></label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    @endforeach
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-square btn-outline-light txt-dark" data-bs-dismiss="modal">Close</button>
@@ -237,6 +228,12 @@
             total_biaya -= harga_per_jam;
         }
         $('#total-harga').empty().append(total_biaya);
+
+        for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
+            $('#table-court-'+courtCount).children().children().children().first().removeAttr('style');
+            $('#table-court-'+courtCount).children('tbody').children().find("td:first").removeAttr('style');
+            $('#table-court-'+courtCount).children('tbody').children('tr:last').find("td:first").removeAttr('style');
+        }
     });
 
     $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -257,12 +254,29 @@
                     type: "POST", 
                     url: "{{route('penyewaLapangan.storeBookingLapangan')}}",
                     datatype : "json", 
-                    data: $("#check-book-time").serialize() + "&tglBooking="+date + "&totalBiaya="+total_biaya + "&pilihPembayaran="+pilihPembayaran, 
+                    data: $("#check-book-time").serialize() + "&tglBooking="+date + "&totalBiaya="+total_biaya + "&pilihPembayaran="+pilihPembayaran + "&lapanganId="+{{$dataLapangan->lapangan_id}}, 
                     success: function(data){
                         
                     },
                     error: function(data){
-                        swal.fire({title:"Konfirmasi Sewa Lapangan Gagal Tersimpan!", icon:"error"});
+                        var responseErrTxt = '';
+
+                        if(data.responseJSON.errorTextJamBooking.trim()){
+                            responseErrTxt = data.responseJSON.errorTextJamBooking+'<br>';
+                            
+                            for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
+                                $('#table-court-'+courtCount).children().children().children().first().css({'border-top': '1px solid red', 'border-left': '1px solid red', 'border-right': '1px solid red'});
+                                $('#table-court-'+courtCount).children('tbody').children().find("td:first").css({'border-top': '1px solid red', 'border-left': '1px solid red', 'border-right': '1px solid red'});
+                                $('#table-court-'+courtCount).children('tbody').children('tr:last').find("td:first").css({'border-left': '1px solid red', 'border-right': '1px solid red', 'border-bottom': '1px solid red'});
+                            }
+                        }
+                        if(data.responseJSON.errorTextPembayaran.trim()){
+                            responseErrTxt += data.responseJSON.errorTextPembayaran;
+                            $(".pilih-pembayaran-card").addClass("invalid-pilih-pembayaran-card");
+                            $(".pilih-pembayaran").addClass("invalid-pilih-pembayaran");
+                        }
+                        
+                        swal.fire({title:"Konfirmasi Sewa Lapangan Gagal Tersimpan!", icon:"error", html: responseErrTxt});
                     }
                 }); 
             } 
@@ -278,7 +292,20 @@
 
     $(".pilih-pembayaran").on("click", function(){
         $(this).children('.radio').children('input').prop('checked', true);
+        
+        $(".pilih-pembayaran-card").removeClass("invalid-pilih-pembayaran-card");
+        $(".pilih-pembayaran").removeClass("invalid-pilih-pembayaran");
     });
+
+    $.ajax({
+        type: "GET", 
+        url: "{{route('penyewaLapangan.getDaftarJenisPembayaran', $dataLapangan->lapangan_id)}}",
+        datatype : "json", 
+        success: function(data){
+            console.log(data)
+        }
+    })
+
 </script>
 
 @endsection

@@ -26,6 +26,10 @@ class BookingController extends Controller
 
     public function storeBookingLapangan(Request $request){
         $currentDate = date('d-m-Y');
+        $errorTextJamBooking = '';
+        $errorTextPembayaran = '';
+        
+        // if(!isset($request->checkBook)) dd($request->checkBook);
         
         if($request->tglBooking <= $currentDate){
             $dataBookArr = array();
@@ -37,42 +41,57 @@ class BookingController extends Controller
                     $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
                     ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
                 })
-                ->where('id', json_decode($request->checkBook[0])->lapangan_id)
+                ->where('tb_lapangan.id', $request->lapanganId)
                 ->first();
-            
+
             if($dataLapangan->status_pembayaran === 'Belum Lunas'){
-                return response()->json(['error' => "Ada data pembayaran belum lunas"], 403);
+                return response()->json(['error' => "Ada data pembayaran belum lunas"], 400);
             }else{
-                $totalHargaBookingLapangan = count($request->checkBook) * $dataLapangan->harga_per_jam;
+                if(isset($request->checkBook) && $request->pilihPembayaran !== "undefined"){
+                    
+                    $totalHargaBookingLapangan = count($request->checkBook) * $dataLapangan->harga_per_jam;
 
-                $pembayaran = new Pembayaran;
-                $pembayaran->id_daftar_jenis_pembayaran = $request->pilihPembayaran;
-                $pembayaran->total_biaya = $totalHargaBookingLapangan;
-                $pembayaran->save();
+                    $pembayaran = new Pembayaran;
+                    $pembayaran->id_daftar_jenis_pembayaran = $request->pilihPembayaran;
+                    $pembayaran->total_biaya = $totalHargaBookingLapangan;
+                    $pembayaran->save();
 
-                $riwayatStatusPembayaran = new RiwayatStatusPembayaran;
-                $riwayatStatusPembayaran->id_pembayaran = $pembayaran->id;
-                $riwayatStatusPembayaran->status_pembayaran = 'Belum Lunas';
-                $riwayatStatusPembayaran->save();
+                    $riwayatStatusPembayaran = new RiwayatStatusPembayaran;
+                    $riwayatStatusPembayaran->id_pembayaran = $pembayaran->id;
+                    $riwayatStatusPembayaran->status_pembayaran = 'Belum Lunas';
+                    $riwayatStatusPembayaran->save();
 
-                PembayaranLimitTimeJob::dispatch($pembayaran);
+                    PembayaranLimitTimeJob::dispatch($pembayaran);
 
-                foreach($request->checkBook as $checkBookKey => $checkBookVal){
-                    $dataBook = json_decode($checkBookVal);
-                    $jam = explode(" - ", $dataBook->jam);
-                    array_push($dataBookArr, array(
-                        'id_pengguna' => Auth::user()->id,
-                        'id_lapangan' => $dataBook->lapangan_id,
-                        'id_pembayaran' => $pembayaran->id,
-                        'jam_mulai' => $jam[0],
-                        'jam_selesai' => $jam[1],
-                        'court' => $dataBook->court,
-                        'tgl_booking' => date('Y-m-d', strtotime($request->tglBooking))
-                    ));
+                    foreach($request->checkBook as $checkBookKey => $checkBookVal){
+                        $dataBook = json_decode($checkBookVal);
+                        $jam = explode(" - ", $dataBook->jam);
+                        array_push($dataBookArr, array(
+                            'id_pengguna' => Auth::user()->id,
+                            'id_lapangan' => $dataBook->lapangan_id,
+                            'id_pembayaran' => $pembayaran->id,
+                            'jam_mulai' => $jam[0],
+                            'jam_selesai' => $jam[1],
+                            'court' => $dataBook->court,
+                            'tgl_booking' => date('Y-m-d', strtotime($request->tglBooking))
+                        ));
+                    }
+                    Booking::insert($dataBookArr);
+                    
+                    return response()->json($totalHargaBookingLapangan);
                 }
-                Booking::insert($dataBookArr);
                 
-                return response()->json($totalHargaBookingLapangan);
+                if(!isset($request->checkBook)){
+                    $errorTextJamBooking = "Jam booking belum dipilih!";
+                }
+                if($request->pilihPembayaran === "undefined"){
+                    $errorTextPembayaran = "Pilih pembayaran belum dipilih!";
+                }
+                
+                if(isset($errorTextJamBooking) || isset($errorTextPembayaran)){
+                    return response()->json(['errorTextJamBooking' => $errorTextJamBooking, 'errorTextPembayaran' => $errorTextPembayaran], 400);
+                } 
+                
             }
         }
     }

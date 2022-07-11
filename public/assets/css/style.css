@@ -31217,7 +31217,21 @@ span.twitter-typeahead .tt-suggestion {
 	border: 0;
 }
 
+.invalid-pilih-pembayaran-card{
+  border-color: red;
+}
+.invalid-pilih-pembayaran{
+  box-shadow: rgb(227, 67, 78) 0px 4px 14px !important;
+  cursor: pointer;
+}
 
+.is-invalid-pilih-pembayaran-card{
+  border-color: #198754;
+}
+.is-invalid-pilih-pembayaran{
+  box-shadow: rgb(80, 116, 82) 0px 4px 14px !important;
+  cursor: pointer;
+}
 .image-preview {
   width: 100%;
   height: 180px;

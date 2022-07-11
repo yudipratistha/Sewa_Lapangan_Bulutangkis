@@ -75,7 +75,11 @@ Route::group(['prefix' => 'penyewa-lapangan/'], function(){
         Route::get('pesan-lapangan/{id}/{lapanganName}', 'LapanganController@pesanLapangan')->name('penyewaLapangan.pesanLapangan');
         Route::post('store-pesan-lapangan', 'BookingController@storeBookingLapangan')->name('penyewaLapangan.storeBookingLapangan');
     
+        route::get('get-data-daftar-jenis-pembayaran/{lapanganId}', 'PembayaranController@getDaftarJenisPembayaran')->name('penyewaLapangan.getDaftarJenisPembayaran');
         route::get('menunggu-pembayaran', 'PembayaranController@menungguPembayaranPenyewaIndex')->name('penyewaLapangan.menungguPembayaranPenyewaIndex');
+        route::get('get-pembayaran-detail', 'PembayaranController@getPembayaranDetail')->name('penyewaLapangan.getPembayaranDetail');
+        route::post('batalkan-pembayaran', 'PembayaranController@batalkanPembayaran')->name('penyewaLapangan.batalkanPembayaran');
+        route::post('simpan-bukti-pembayaran', 'PembayaranController@simpanBuktiPembayaran')->name('penyewaLapangan.simpanBuktiPembayaran');
         
         Route::get('edit-profil', 'ProfilController@penyewaLapanganProfil')->name('penyewaLapangan.editProfil');
     
