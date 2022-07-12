@@ -45,11 +45,12 @@
                                 <label class="col-xl-1 col-sm-3 col-lg-1 col-form-label">Status</label>
                                 <div class="col-xl-11 col-sm-9 col-lg-11 filter-group">
                                     <div class="btn-showcase">
-                                        <button class="btn btn-pill btn-outline-primary btn-air-primary active" id="filter-semua" type="button">Semua</button>
-                                        <button class="btn btn-pill btn-outline-primary btn-air-primary" id="filter-diproses" type="button">Diproses</button>
-                                        <button class="btn btn-pill btn-outline-primary btn-air-primary" id="filter-berhasil" type="button">Berhasil</button>
-                                        <button class="btn btn-pill btn-outline-primary btn-air-primary" id="filter-tidak-berhasil" type="button">Tidak Berhasil</button>
-                                        <p class="reset-filter">Reset Filter</p>
+                                        <button class="btn btn-pill btn-outline-primary btn-air-primary filter-status active" id="filter-semua" value="semua" type="button">Semua</button>
+                                        <button class="btn btn-pill btn-outline-primary btn-air-primary filter-status" id="filter-diproses" value="diproses" type="button">Diproses</button>
+                                        <button class="btn btn-pill btn-outline-primary btn-air-primary filter-status" id="filter-berhasil" value="berhasil" type="button">Berhasil</button>
+                                        <!-- <button class="btn btn-pill btn-outline-primary btn-air-primary filter-status" id="filter-berhasil" value="berhasil" type="button">Belum Lunas</button> -->
+                                        <button class="btn btn-pill btn-outline-primary btn-air-primary filter-status" id="filter-tidak-berhasil" value="tidak berhasil" type="button">Tidak Berhasil</button>
+                                        <p class="reset-filter filter-status" value="reset">Reset Filter</p>
                                     </div>
                                 </div>
                             </div>  
@@ -97,6 +98,7 @@
 <script>
     var filterDateStart; 
     var filterDateEnd;
+    var filterTrx;
 
     $('#filter-tanggal').daterangepicker({
         autoUpdateInput: false,
@@ -115,6 +117,30 @@
             cancelLabel: 'Clear'
         }
     });
+
+    $(".filter-status").click(function() {
+        if($(this).hasClass('reset-filter')){
+            filterDateStart= null;
+            filterDateEnd= null;
+            filterTrx = null;
+            
+            $('#filter-tanggal').val('');
+            $('#filter-tanggal').data('daterangepicker').setStartDate(moment().format("DD-MM-YYYY")); //date now
+            $('#filter-tanggal').data('daterangepicker').setEndDate(moment().format("DD-MM-YYYY"));//date
+            
+            $('.btn-showcase').find('.active').removeClass('active');
+            $("#filter-semua").addClass('active');
+
+            $('#data-riwayat-penyewa').DataTable().ajax.reload();
+        }else{
+            $('.btn-showcase').find('.active').removeClass('active');
+            $(this).addClass('active');
+            filterTrx = $(this).val();
+            console.log(filterTrx)
+            $('#data-riwayat-penyewa').DataTable().ajax.reload();
+        }
+    });
+
 
     table = $('#data-riwayat-penyewa').DataTable({
         bFilter: true,
@@ -135,7 +161,7 @@
             data: function (data) {
                 var form = {};
                 // Add options used by Datatables
-                var info = { "_token": "{{ csrf_token() }}", "start": api.page.info().start, "length": api.page.info().length, "draw": api.page.info().draw, "filterTanggalStart" : filterDateStart, "filterTanggalEnd" : filterDateEnd };
+                var info = { "_token": "{{ csrf_token() }}", "start": api.page.info().start, "length": api.page.info().length, "draw": api.page.info().draw, "filterTanggalStart" : filterDateStart, "filterTanggalEnd" : filterDateEnd, "filterStatusTrx": filterTrx};
                 $.extend(form, info);
                 return JSON.stringify(form);
             },

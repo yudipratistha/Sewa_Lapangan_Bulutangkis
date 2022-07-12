@@ -39,11 +39,30 @@ class RiwayatController extends Controller
         // $columnSortOrder = $order_arr[0]['dir'];
         // $searchValue = $search_arr['value'];
         // dd($request->filterTanggalStart);
-        $totalRecords = Booking::where('id_lapangan', $dataLapangan['lapangan_id'])
+        $totalRecords = DB::table('tb_booking')->select('tb_pembayaran.id AS id_pembayaran', 'tb_pengguna.name', 'tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 'tb_riwayat_status_pembayaran.status_pembayaran')
+        ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')   
+        ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+        ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
+        ->leftJoin('tb_riwayat_status_pembayaran', function($join){
+            $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
+            ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran GROUP BY tb_riwayat_status_pembayaran.id_pembayaran)');
+        })
+        ->where('tb_booking.id_lapangan', $dataLapangan['lapangan_id'])
         ->when(isset($request->filterTanggalStart), function ($query)  use ($request) {
             $query->whereBetween('tb_booking.tgl_booking', [date('Y-m-d', strtotime($request->filterTanggalStart)), date('Y-m-d', strtotime($request->filterTanggalEnd))]);
         })
-        ->groupBy('tb_booking.id_pembayaran')
+        ->when(isset($request->filterStatusTrx), function ($query)  use ($request) {
+            if($request->filterStatusTrx === 'diproses'){
+                $query->where('tb_riwayat_status_pembayaran.status_pembayaran', 'Proses');
+            }else if($request->filterStatusTrx === 'berhasil'){
+                // $query->where('tb_riwayat_status_pembayaran.status_pembayaran', 'DP');
+                $query->whereRaw('tb_riwayat_status_pembayaran.status_pembayaran IN("Lunas", "DP")');
+            }else if($request->filterStatusTrx === 'tidak berhasil'){
+                $query->where('tb_riwayat_status_pembayaran.status_pembayaran', 'Batal');
+                // $query->where('tb_riwayat_status_pembayaran.status_pembayaran', 'Belum Lunas');
+            }
+        })
+        ->groupBy('tb_pembayaran.id')
         ->get()->count();
         
         $dataBooking = DB::table('tb_booking')->select('tb_pembayaran.id AS id_pembayaran', 'tb_pengguna.name', 'tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 'tb_riwayat_status_pembayaran.status_pembayaran')
@@ -57,6 +76,17 @@ class RiwayatController extends Controller
         ->where('tb_booking.id_lapangan', $dataLapangan['lapangan_id'])
         ->when(isset($request->filterTanggalStart), function ($query)  use ($request) {
             $query->whereBetween('tb_booking.tgl_booking', [date('Y-m-d', strtotime($request->filterTanggalStart)), date('Y-m-d', strtotime($request->filterTanggalEnd))]);
+        })
+        ->when(isset($request->filterStatusTrx), function ($query)  use ($request) {
+            if($request->filterStatusTrx === 'diproses'){
+                $query->where('tb_riwayat_status_pembayaran.status_pembayaran', 'Proses');
+            }else if($request->filterStatusTrx === 'berhasil'){
+                // $query->where('tb_riwayat_status_pembayaran.status_pembayaran', 'DP');
+                $query->whereRaw('tb_riwayat_status_pembayaran.status_pembayaran IN("Lunas", "DP")');
+            }else if($request->filterStatusTrx === 'tidak berhasil'){
+                $query->where('tb_riwayat_status_pembayaran.status_pembayaran', 'Batal');
+                // $query->where('tb_riwayat_status_pembayaran.status_pembayaran', 'Belum Lunas');
+            }
         })
         ->groupBy('tb_pembayaran.id')
         ->orderByRaw('tb_pembayaran.id DESC')
@@ -96,7 +126,31 @@ class RiwayatController extends Controller
         // $columnSortOrder = $order_arr[0]['dir'];
         // $searchValue = $search_arr['value'];
 
-        $totalRecords = Booking::where('id_pengguna', Auth::user()->id)->count();
+        $totalRecords = DB::table('tb_booking')->select('tb_lapangan.nama_lapangan', 'tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 'tb_riwayat_status_pembayaran.status_pembayaran')
+            ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+            ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
+            ->leftJoin('tb_riwayat_status_pembayaran', function($join){
+                $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
+                ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran GROUP BY tb_riwayat_status_pembayaran.id_pembayaran)');
+            })
+            ->where('tb_booking.id_pengguna', Auth::user()->id)
+            ->when(isset($request->filterTanggalStart), function ($query)  use ($request) {
+                $query->whereBetween('tb_booking.tgl_booking', [date('Y-m-d', strtotime($request->filterTanggalStart)), date('Y-m-d', strtotime($request->filterTanggalEnd))]);
+            })
+            ->when(isset($request->filterStatusTrx), function ($query)  use ($request) {
+                if($request->filterStatusTrx === 'diproses'){
+                    $query->where('tb_riwayat_status_pembayaran.status_pembayaran', 'Proses');
+                }else if($request->filterStatusTrx === 'berhasil'){
+                    $query->where('tb_riwayat_status_pembayaran.status_pembayaran', 'DP');
+                    $query->orWhere('tb_riwayat_status_pembayaran.status_pembayaran', 'Lunas');
+                }else if($request->filterStatusTrx === 'tidak berhasil'){
+                    $query->where('tb_riwayat_status_pembayaran.status_pembayaran', 'Belum Lunas');
+                    $query->orWhere('tb_riwayat_status_pembayaran.status_pembayaran', 'Batal');
+
+                }
+            })
+        ->groupBy('tb_pembayaran.id')
+        ->get();
 
         $dataBooking = DB::table('tb_booking')->select('tb_lapangan.nama_lapangan', 'tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 'tb_riwayat_status_pembayaran.status_pembayaran')
             ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
@@ -109,17 +163,28 @@ class RiwayatController extends Controller
             ->when(isset($request->filterTanggalStart), function ($query)  use ($request) {
                 $query->whereBetween('tb_booking.tgl_booking', [date('Y-m-d', strtotime($request->filterTanggalStart)), date('Y-m-d', strtotime($request->filterTanggalEnd))]);
             })
+            ->when(isset($request->filterStatusTrx), function ($query)  use ($request) {
+                if($request->filterStatusTrx === 'diproses'){
+                    $query->where('tb_riwayat_status_pembayaran.status_pembayaran', 'Proses');
+                }else if($request->filterStatusTrx === 'berhasil'){
+                    // $query->where('tb_riwayat_status_pembayaran.status_pembayaran', 'DP');
+                    $query->whereRaw('tb_riwayat_status_pembayaran.status_pembayaran IN("Lunas", "DP")');
+                }else if($request->filterStatusTrx === 'tidak berhasil'){
+                    $query->where('tb_riwayat_status_pembayaran.status_pembayaran', 'Batal');
+                    // $query->where('tb_riwayat_status_pembayaran.status_pembayaran', 'Belum Lunas');
+                }
+            })
             ->groupBy('tb_pembayaran.id')
             ->orderByRaw('tb_pembayaran.id DESC')
             ->skip($start)
             ->take($rowperpage)
             ->get();
-            // dd($dataBooking);
+            
             
         $response = array(
             "draw" => intval($draw),
-            "iTotalRecords" => $totalRecords,
-            "iTotalDisplayRecords" => $totalRecords,
+            "iTotalRecords" => count($totalRecords),
+            "iTotalDisplayRecords" => count($totalRecords),
             "aaData" => $dataBooking
         );
 
