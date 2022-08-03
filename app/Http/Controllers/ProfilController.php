@@ -66,7 +66,7 @@ class ProfilController extends Controller
             ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
             ->leftJoin('tb_riwayat_status_pembayaran', function($join){
                 $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
-                ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
+                ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran GROUP BY tb_riwayat_status_pembayaran.id_pembayaran)');
             })
             ->where('tb_booking.id_pengguna', $penggunaPenyewaId)->where('tb_booking.tgl_booking', date('Y-m-d', strtotime($date)))->where('tb_riwayat_status_pembayaran.status_pembayaran', '!=', 'Batal')->where('tb_booking.id_pembayaran', $pembayaranId)
             ->get();
@@ -78,6 +78,5 @@ class ProfilController extends Controller
 
         return view('penyewa_lapangan.penyewaLapanganProfil', compact('dataUser'));
     }
-
     
 }

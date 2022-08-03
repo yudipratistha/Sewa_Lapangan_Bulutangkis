@@ -45,7 +45,7 @@ class HomeController extends Controller
                         'tb_pengguna.id as pengguna_id', 'tb_pengguna.name')
                         ->leftJoin('tb_booking', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
                         ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
-                        ->where('tb_lapangan.id_pengguna', Auth::user()->id)->where('tb_booking.tgl_booking', '2022-05-19')
+                        ->where('tb_lapangan.id_pengguna', Auth::user()->id)->where('tb_booking.tgl_booking', '2022-07-12')
                         ->get();
 
         // $dataLapanganBooking = Lapangan::select('*')->with(['User' => function ($query) {
