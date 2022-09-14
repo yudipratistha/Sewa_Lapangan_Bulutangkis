@@ -170,7 +170,7 @@ class LapanganController extends Controller
                             ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
                         })
                         ->leftJoin('tb_status_lapangan', 'tb_status_lapangan.id_lapangan', '=', 'tb_lapangan.id')
-                        ->where('tb_lapangan.id', 5)
+                        ->where('tb_lapangan.id', $request->idLapangan)
                         ->get();
 
             
