@@ -221,6 +221,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-square btn-outline-light txt-dark" data-bs-dismiss="modal">Close</button>
                     <button type="button" id="update-court-button" class="btn btn-square btn-outline-secondary" onclick="simpanBuktiTransfer(1)">Save</button>
+                    <!-- <button type="button" id="pay-button" class="btn btn-square btn-outline-secondary">Save</button> -->
                 </div>
             </div>
         </div>
@@ -233,6 +234,35 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script src="{{url('/assets/js/sweet-alert/sweetalert.min.js')}}"></script>
 <script src="{{url('/assets/js/datatable/datatables/jquery.dataTables.min.js')}}"></script>
+
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+<script>
+    const payButton = document.querySelector('#pay-button');
+    payButton.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        snap.pay('', {
+            // Optional
+            onSuccess: function(result) {
+                /* You may add your own js here, this is just example */
+                // document.getElementById('result-json').innerHTML += JSON.stringify(result, null, 2);
+                console.log(result)
+            },
+            // Optional
+            onPending: function(result) {
+                /* You may add your own js here, this is just example */
+                // document.getElementById('result-json').innerHTML += JSON.stringify(result, null, 2);
+                console.log(result)
+            },
+            // Optional
+            onError: function(result) {
+                /* You may add your own js here, this is just example */
+                // document.getElementById('result-json').innerHTML += JSON.stringify(result, null, 2);
+                console.log(result)
+            }
+        });
+    });
+</script>
 
 <script>
 

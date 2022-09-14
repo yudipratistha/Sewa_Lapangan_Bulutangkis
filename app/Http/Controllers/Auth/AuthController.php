@@ -94,7 +94,7 @@ class AuthController extends Controller
             $pathFotoLapangan_1 = $request->file('foto_lapangan_1')->storeAs(
                 $fotoLapanganPath, "foto_lapangan_1.jpg", 'public'
             );
-            $lapangan->foto_lapangan_1 = '/storage/'.$pathFotoLapangan_1;
+            $lapangan->foto_lapangan_1 = $pathFotoLapangan_1;
         }
         if ($request->hasFile('foto_lapangan_2')) {
             $userPath = 'file/'.$user->id.'/';
@@ -104,7 +104,7 @@ class AuthController extends Controller
             $pathFotoLapangan_2 = $request->file('foto_lapangan_2')->storeAs(
                 $fotoLapanganPath, "foto_lapangan_2.jpg", 'public'
             );
-            $lapangan->foto_lapangan_2 = '/storage/'.$pathFotoLapangan_2;
+            $lapangan->foto_lapangan_2 = $pathFotoLapangan_2;
         }
         if ($request->hasFile('foto_lapangan_3')) {
             $userPath = 'file/'.$user->id.'/';
@@ -114,7 +114,7 @@ class AuthController extends Controller
             $pathFotoLapangan_3 = $request->file('foto_lapangan_3')->storeAs(
                 $fotoLapanganPath, "foto_lapangan_3.jpg", 'public'
             );
-            $lapangan->foto_lapangan_3 = '/storage/'.$pathFotoLapangan_3;
+            $lapangan->foto_lapangan_3 = $pathFotoLapangan_3;
         }
 
         $lapangan->save();
@@ -136,7 +136,9 @@ class AuthController extends Controller
                 ));
             }
         }
-        // dd($statusLapanganArr);
+
+        dd($statusLapanganArr);
+        
         StatusLapangan::insert($statusLapanganArr);
         
         return redirect()->route('login');

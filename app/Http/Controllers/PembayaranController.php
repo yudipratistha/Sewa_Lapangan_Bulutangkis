@@ -7,6 +7,7 @@ use App\Models\Booking;
 use App\Models\Lapangan;
 use App\Models\Pembayaran;
 use App\Models\RiwayatStatusPembayaran;
+use App\Services\Midtrans\CreateSnapTokenService; 
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,7 +33,8 @@ class PembayaranController extends Controller
     
     public function menungguPembayaranPenyewaIndex(){
         $dataMenungguPembayaran = DB::table('tb_booking')->select('tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.foto_lapangan_1', 'tb_pengguna.name', 
-        'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama', 'tb_daftar_jenis_pembayaran.no_rekening', 'tb_booking.tgl_booking', 'tb_pembayaran.id AS pembayaran_id', 'tb_pembayaran.total_biaya', 'tb_pembayaran.created_at AS pembayaran_created_at')
+        'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama', 'tb_daftar_jenis_pembayaran.no_rekening', 'tb_booking.tgl_booking', 'tb_pembayaran.id AS pembayaran_id', 
+        'tb_pembayaran.total_biaya', 'tb_pembayaran.snap_token', 'tb_pembayaran.created_at AS pembayaran_created_at')
         ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')  
         ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
         ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
@@ -44,6 +46,18 @@ class PembayaranController extends Controller
         ->where('tb_booking.id_pengguna', Auth::user()->id)
         ->where('tb_riwayat_status_pembayaran.status_pembayaran', 'Belum Lunas')
         ->first();
+
+        // $snapToken = $dataMenungguPembayaran->snap_token;
+        // if (empty($snapToken)) {
+        //     $pembayaran = Pembayaran::find($dataMenungguPembayaran->pembayaran_id);
+        //     // Jika snap token masih NULL, buat token snap dan simpan ke database
+            
+        //     $midtrans = new CreateSnapTokenService($dataMenungguPembayaran->pembayaran_id);
+        //     $snapToken = $midtrans->getSnapToken();
+        //     // dd($snapToken);
+        //     $pembayaran->snap_token = $snapToken;
+        //     $pembayaran->save();
+        // }
         
         $limitWaktuUploadBuktiTrx = date('Y-m-d H:i:s', strtotime('+10 minutes', strtotime(isset($dataMenungguPembayaran) ? $dataMenungguPembayaran->pembayaran_created_at : '')));
 
@@ -53,7 +67,7 @@ class PembayaranController extends Controller
     public function getPembayaranDetail(){
         $waktuBook = '';
         $totalCourt= '';
-        $i = 0;
+        $counter = 0;
 
         $pembayaranDetail = DB::table('tb_booking')->select('tb_pengguna.name', 'tb_booking.tgl_booking', 'tb_booking.court', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 
         'tb_pembayaran.total_biaya')
@@ -72,17 +86,17 @@ class PembayaranController extends Controller
 
         foreach($pembayaranDetail as $pembayaranDetailKey => $pembayaranDetailValue){
             $punctuation = '';
-            if(count($pembayaranDetail) > $i+1 && count($pembayaranDetail) === 2){
+            if(count($pembayaranDetail) > $counter+1 && count($pembayaranDetail) === 2){
                 $punctuation= ' & ';
-            }else if(count($pembayaranDetail) >= $i+1 && count($pembayaranDetail)-3 !== $i-1 && count($pembayaranDetail) !== $i+1){
+            }else if(count($pembayaranDetail) >= $counter+1 && count($pembayaranDetail)-3 !== $counter-1 && count($pembayaranDetail) !== $counter+1){
                 $punctuation= ', ';
-            }else if(count($pembayaranDetail) >= 2 && count($pembayaranDetail)-3 === $i-1){
+            }else if(count($pembayaranDetail) >= 2 && count($pembayaranDetail)-3 === $counter-1){
                 $punctuation= ' & ';
             }
             $waktuBook .= date('H:i', strtotime($pembayaranDetailValue->jam_mulai)) .'-'. date('H:i', strtotime($pembayaranDetailValue->jam_selesai)) . $punctuation;
             $totalCourt .= $pembayaranDetailValue->court;
 
-            $i++;
+            $counter++;
         }
         $totalCourt = preg_replace('/(.)\\1+/', '$1', $totalCourt);
         $totalCourt = implode(', ', str_split($totalCourt));

@@ -11,6 +11,20 @@
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/leaflet.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/leaflet-gesture-handling.min.css')}}">
 
+<style>
+.nav-tabs {
+    white-space: nowrap !important;
+    flex-wrap: nowrap !important;
+    max-width: 85% !important;
+    overflow-x: scroll !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+.nav-item>li {
+    display: inline-block !important;
+}
+</style>
+
 @endsection
 
 @section('content')
@@ -67,6 +81,7 @@
                                     <!-- <button type="button" onClick="pesanLapangan()" class="btn btn-square btn-outline-blue">Konfirmasi Sewa</button> -->
                                 @else
                                     <button type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#modal-metode-pembayaran" data-bs-original-title="" title="" class="btn btn-square btn-outline-blue">Pilih Pembayaran</button>
+                                    <!-- <button type="button" id="pay-button" class="btn btn-square btn-outline-blue">Pilih Pembayaran</button> -->
                                 @endif
                                 <!-- <button type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#modal-metode-pembayaran" data-bs-original-title="" title="" class="btn btn-square btn-outline-blue">Pilih Pembayaran</button> -->
 
@@ -74,19 +89,17 @@
                         </div>
                     </div>
                     <div class="card" style="margin-bottom: 10px;">
-                        <div class="card-header">
-                            <div class="mb-3 row g-3">
-                                <label class="col-xl-1 col-sm-3 col-lg-1 col-form-label">Pilih Tanggal</label>
-                                <div class="col-xl-3 col-sm-5 col-lg-7">
+                        <div class="col-md-12 card-header row pb-0 pe-0">
+                            <div class="col-md-4 mb-3 mt-0 row g-3">
+                                <label class="col-md-3 mt-2 col-form-label">Pilih Tanggal</label>
+                                <div class="col-md-9 mt-2">
                                     <div class="input-group date">
                                         <input class="form-control digits" id="tanggal" name="tanggal" type="text" placeholder="dd-mm-yyyy" readonly>
                                         <div class="input-group-text"><i class="fa fa-calendar"> </i></div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="tabbed-card">
+                            <div class="col-md-8">
                                 <ul class="pull-right nav nav-tabs border-tab nav-success" id="top-tabdanger" role="tablist">
                                     @for ($court= 1; $court <= $dataLapangan->jumlah_court; $court++)
                                         <li class="nav-item"><a class="nav-link @if($court === 1) active @endif" id="top-home-danger" data-bs-toggle="tab" href="#court-{{$court}}" role="tab" aria-controls="top-homedanger" aria-selected="true"><i class="icofont icofont-badminton-birdie"></i>Court {{$court}}</a>
@@ -94,6 +107,10 @@
                                         </li>
                                     @endfor
                                 </ul>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="tabbed-card">
                                 <form id="check-book-time">
                                     @csrf
                                     <div class="tab-content" id="top-tabContentdanger">
@@ -168,9 +185,39 @@
 <script src="{{url('/assets/js/sweet-alert/sweetalert.min.js')}}"></script>
 <script src="{{url('/assets/js/datatable/datatables/jquery.dataTables.min.js')}}"></script>
 <script src="{{url('/assets/js/datepicker/date-time-picker/moment.min.js')}}"></script>
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+
+<script>
+    const payButton = document.querySelector('#pay-button');
+    payButton.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        snap.pay('', {
+            // Optional
+            onSuccess: function(result) {
+                /* You may add your own js here, this is just example */
+                // document.getElementById('result-json').innerHTML += JSON.stringify(result, null, 2);
+                console.log(result)
+            },
+            // Optional
+            onPending: function(result) {
+                /* You may add your own js here, this is just example */
+                // document.getElementById('result-json').innerHTML += JSON.stringify(result, null, 2);
+                console.log(result)
+            },
+            // Optional
+            onError: function(result) {
+                /* You may add your own js here, this is just example */
+                // document.getElementById('result-json').innerHTML += JSON.stringify(result, null, 2);
+                console.log(result)
+            }
+        });
+    });
+</script>
 
 <script>
     var jumlah_court = {!! json_encode($dataLapangan->jumlah_court) !!}
+    console.log(jumlah_court)
     var harga_per_jam = {!! json_encode($dataLapangan->harga_per_jam) !!}
     var date; 
     var total_biaya = 0;

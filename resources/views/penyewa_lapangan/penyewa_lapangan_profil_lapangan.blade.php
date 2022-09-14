@@ -9,7 +9,19 @@
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/photoswipe.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/leaflet.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/leaflet-gesture-handling.min.css')}}">
-
+<style>
+.nav-tabs {
+    white-space: nowrap !important;
+    flex-wrap: nowrap !important;
+    max-width: 85% !important;
+    overflow-x: scroll !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+.nav-item>li {
+    display: inline-block !important;
+}
+</style>
 @endsection
 
 @section('content')
@@ -53,26 +65,28 @@
                         </div>
                     </div>
                     <div class="card" style="margin-bottom: 10px;">
-                        <div class="card-header">
-                            <div class="mb-3 row g-3">
-                                <label class="col-xl-1 col-sm-3 col-lg-1 col-form-label">Pilih Tanggal</label>
-                                <div class="col-xl-3 col-sm-5 col-lg-7">
+                        <div class="col-md-12 card-header row pb-0 pe-0">
+                            <div class="col-md-4 mb-3 mt-0 row g-3">
+                                <label class="col-md-3 mt-2 col-form-label">Pilih Tanggal</label>
+                                <div class="col-md-9 mt-2">
                                     <div class="input-group date">
-                                        <input class="form-control digits" id="tanggal" name="tanggal" type="text" data-bs-original-title="" title="">
+                                        <input class="form-control digits" id="tanggal" name="tanggal" type="text" placeholder="dd-mm-yyyy" readonly>
                                         <div class="input-group-text"><i class="fa fa-calendar"> </i></div>
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-8">
+                                <ul class="pull-right nav nav-tabs border-tab nav-success" id="top-tabdanger" role="tablist">
+                                    @for ($court= 1; $court <= $dataLapangan->jumlah_court; $court++)
+                                        <li class="nav-item"><a class="nav-link @if($court === 1) active @endif" id="top-home-danger" data-bs-toggle="tab" href="#court-{{$court}}" role="tab" aria-controls="top-homedanger" aria-selected="true"><i class="icofont icofont-badminton-birdie"></i>Court {{$court}}</a>
+                                            <div class="material-border"></div>
+                                        </li>
+                                    @endfor
+                                </ul>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="tabbed-card">
-                                <ul class="pull-right nav nav-tabs border-tab nav-success" id="top-tabdanger" role="tablist">
-                                @for ($court= 1; $court <= $dataLapangan->jumlah_court; $court++)
-                                    <li class="nav-item"><a class="nav-link @if($court === 1) active @endif" id="top-home-danger" data-bs-toggle="tab" href="#court-{{$court}}" role="tab" aria-controls="top-homedanger" aria-selected="true"><i class="icofont icofont-badminton-birdie"></i>Court {{$court}}</a>
-                                        <div class="material-border"></div>
-                                    </li>
-                                @endfor
-                                </ul>
                                 
                                 <div class="tab-content" id="top-tabContentdanger">
                                     @for ($court= 1; $court <= $dataLapangan->jumlah_court; $court++)
@@ -85,43 +99,6 @@
                                                             <th>Penyewa</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody>
-                                                        @foreach($dataWaktuLapangan as $dataWaktuLapanganKey => $dataWaktuLapanganValue)
-                                                            <tr>
-                                                                <td>{{$dataWaktuLapanganValue}}</td>
-                                                                @php 
-                                                                    $status_penyewa = false; 
-                                                                    $status_court = false; 
-                                                                @endphp
-                                                                @if(isset($dataLapanganBooking))
-                                                                    @foreach($dataLapanganBooking as $dataLapanganBookingKey => $dataLapanganBookingValue) 
-                                                                        @if($court === $dataLapanganBookingValue->court)
-                                                                            @for($i=strtotime($dataLapanganBookingValue->jam_mulai); $i < strtotime($dataLapanganBookingValue->jam_selesai); $i+=3600)
-                                                                                @if($dataWaktuLapanganValue === date('H:i', $i) . " - ". date('H:i', $i+3600))
-                                                                                    <td>Booked</td>
-                                                                                    @php $status_penyewa = true; @endphp
-                                                                                @endif
-                                                                            @endfor
-                                                                        @endif
-                                                                    @endforeach
-                                                                @endif
-                                                                @foreach($dataStatusLapangan as $dataStatusLapanganKey => $dataStatusLapanganValue)
-                                                                    @if($court === $dataStatusLapanganValue->court)
-                                                                        @if($status_penyewa !== true && $dataWaktuLapanganValue === date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_dari)) . " - ". date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_sampai)))
-                                                                            <td>
-                                                                                @if($dataStatusLapanganValue->status === 'Available') 
-                                                                                    Tersedia
-                                                                                @elseif($dataStatusLapanganValue->status === 'Unavailable') 
-                                                                                    Tidak Tersedia
-                                                                                @endif
-                                                                            </td>
-                                                                            @php $status_court = true; @endphp
-                                                                        @endif
-                                                                    @endif
-                                                                @endforeach
-                                                            </tr>
-                                                        @endforeach
-                                                    <tbody>
                                                 </table>
                                             </div>
                                         </div>
@@ -232,8 +209,33 @@
     $('#tanggal').datepicker({
         language: 'en',
         dateFormat: 'dd-mm-yyyy',
-        minDate: new Date() // Now can select only dates, which goes after today
-    });
+        minDate: new Date(),
+        autoclose: true,
+        onSelect: function(dateText) {
+            $('#tgl-booking').empty().append(dateText);
+            date = dateText;
+            $.ajax({
+                url: "{{route('penyewaLapangan.getDataProfilLapangan', $dataLapangan->lapangan_id)}}",
+                method: "POST",
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "tanggal" : date
+                },
+                dataType: "json",
+                success:function(data){
+                    for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
+                        $('#table-court-'+courtCount).DataTable().clear().draw();
+                        $('#table-court-'+courtCount).DataTable().rows.add(data['court_'+courtCount]);
+                        $('#table-court-'+courtCount).DataTable().columns.adjust().draw();
+                    }
+                },
+                error: function(xhr, ajaxOptions, thrownError){
+                    console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+                }
+            });
+            return $('#tanggal').trigger('change');
+        }
+    }).datepicker('dateFormat', 'dd-mm-yyyy').data('datepicker').selectDate(new Date());
 
     var dataProfilPemilikLapanganLat = "{{$dataLapangan->titik_koordinat_lat}}";
     var dataProfilPemilikLapanganLng = "{{$dataLapangan->titik_koordinat_lng}}";

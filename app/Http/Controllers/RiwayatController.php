@@ -106,7 +106,7 @@ class RiwayatController extends Controller
 
 
     public function penyewaLapanganRiwayatPenyewaan(){
-        return view('penyewa_lapangan.penyewaLapanganRiwayat');
+        return view('penyewa_lapangan.penyewa_lapangan_riwayat');
     }
 
     public function getDataRiwayatPenyewaLapangan(Request $request){

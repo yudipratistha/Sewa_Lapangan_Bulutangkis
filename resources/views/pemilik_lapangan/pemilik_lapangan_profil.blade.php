@@ -37,37 +37,22 @@
                                         <form method="POST" action="{{ route('pemilikLapangan.updateProfil') }}">
                                             @csrf
                                             <div class="form-group">
-                                                <label>Nama Lapangan</label>
+                                                <label class="form-label">Nama Lapangan</label>
                                                 <div class="input-group"><span class="input-group-text"><i class="icofont icofont-badminton-birdie"></i></span>
-                                                    <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="nama_lapangan_pemilik_lapangan" placeholder="Nama Lapangan" value="{{$dataProfilPemilikLapangan[0]->nama_lapangan}}" required>
+                                                    <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="nama_lapangan_pemilik_lapangan" placeholder="Nama Lapangan" value="{{$dataProfilPemilikLapangan->nama_lapangan}}" required>
                                                 </div>
-                                                @error('name')
-                                                    <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $message }}</strong>
-                                                    </span>
-                                                @enderror
                                             </div>
                                             <div class="form-group">
-                                                <label>Nama Lengkap</label>
+                                                <label class="form-label">Nama Lengkap</label>
                                                 <div class="input-group"><span class="input-group-text"><i class="icon-user"></i></span>
-                                                    <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="nama_pemilik_lapangan" placeholder="Name" value="{{$dataProfilPemilikLapangan[0]->user->name}}" required autocomplete="name" autofocus>
+                                                    <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="nama_pemilik_lapangan" placeholder="Name" value="{{$dataProfilPemilikLapangan->user->name}}" required autocomplete="name" autofocus>
                                                 </div>
-                                                @error('name')
-                                                    <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $message }}</strong>
-                                                    </span>
-                                                @enderror
                                             </div>
                                             <div class="form-group">
-                                                <label>Alamat Email</label>
+                                                <label class="form-label">Alamat Email</label>
                                                 <div class="input-group"><span class="input-group-text"><i class="icon-email"></i></span>
-                                                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email_pemilik_lapangan" placeholder="Test@gmail.com" value="{{$dataProfilPemilikLapangan[0]->user->email}}" disabled>
+                                                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email_pemilik_lapangan" placeholder="Test@gmail.com" value="{{$dataProfilPemilikLapangan->user->email}}" disabled>
                                                 </div>
-                                                @error('email')
-                                                    <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $message }}</strong>
-                                                    </span>
-                                                @enderror
                                             </div>
                                             <!-- <div class="form-group">
                                                 <label>Password</label>
@@ -89,14 +74,14 @@
                                                 </div>
                                             </div> -->
                                             <div class="form-group">
-                                                <label>Nomor Telepon</label>
+                                                <label class="form-label">Nomor Telepon</label>
                                                 <div class="input-group"><span class="input-group-text"><i class="icofont icofont-telephone"></i></span>
-                                                    <input id="nomor-telepon" type="number" class="form-control" name="nomor_telepon_pemilik_lapangan" placeholder="08xxxx" value="{{$dataProfilPemilikLapangan[0]->user->nomor_telepon}}" required>
+                                                    <input id="nomor-telepon" type="number" class="form-control" name="nomor_telepon_pemilik_lapangan" placeholder="08xxxx" value="{{$dataProfilPemilikLapangan->user->nomor_telepon}}" required>
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label>Upload Foto Lapangan</label>
-                                                <div class="form-space theme-form row">
+                                                <label class="form-label">Upload Foto Lapangan</label>
+                                                <div class="form-space theme-form row mt-2">
                                                     <div class="col-md-4 img-up">
                                                         <div class="image-preview" id="image-preview-foto-lapangan-1"></div>
                                                         <label class="btn btn-primary">Upload
@@ -120,7 +105,7 @@
                                             <div class="form-group">
                                                 <label>Jumlah Court</label>
                                                 <div class="input-group"><span class="input-group-text"><i class="icofont icofont-telephone"></i></span>
-                                                    <input id="nomor-telepon" type="number" class="form-control" name="nomor_telepon_pemilik_lapangan" placeholder="08xxxx" value="{{$dataProfilPemilikLapangan[0]->jumlah_court}}" required>
+                                                    <input id="nomor-telepon" type="number" class="form-control" name="nomor_telepon_pemilik_lapangan" placeholder="08xxxx" value="{{$dataProfilPemilikLapangan->jumlah_court}}" required>
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -130,13 +115,13 @@
                                                         <div class="input-group"><span class="input-group-text"><i class="icofont icofont-calendar"></i></span>
                                                             <select class="form-select" id="validationDefault04" name="lapangan_buka_dari_hari" required="">
                                                                 <option disabled="" value="">Pilih Hari...</option>
-                                                                <option value="1" @if($dataProfilPemilikLapangan[0]->buka_dari_hari == 1) selected @endif>Senin</option>
-                                                                <option value="2" @if($dataProfilPemilikLapangan[0]->buka_dari_hari == 2) selected @endif>Selasa</option>
-                                                                <option value="3" @if($dataProfilPemilikLapangan[0]->buka_dari_hari == 3) selected @endif>Rabu</option>
-                                                                <option value="4" @if($dataProfilPemilikLapangan[0]->buka_dari_hari == 4) selected @endif>Kamis</option>
-                                                                <option value="5" @if($dataProfilPemilikLapangan[0]->buka_dari_hari == 5) selected @endif>Jumat</option>
-                                                                <option value="6" @if($dataProfilPemilikLapangan[0]->buka_dari_hari == 6) selected @endif>Sabtu</option>
-                                                                <option value="7" @if($dataProfilPemilikLapangan[0]->buka_dari_hari == 7) selected @endif>Minggu</option>
+                                                                <option value="1" @if($dataProfilPemilikLapangan->buka_dari_hari == 1) selected @endif>Senin</option>
+                                                                <option value="2" @if($dataProfilPemilikLapangan->buka_dari_hari == 2) selected @endif>Selasa</option>
+                                                                <option value="3" @if($dataProfilPemilikLapangan->buka_dari_hari == 3) selected @endif>Rabu</option>
+                                                                <option value="4" @if($dataProfilPemilikLapangan->buka_dari_hari == 4) selected @endif>Kamis</option>
+                                                                <option value="5" @if($dataProfilPemilikLapangan->buka_dari_hari == 5) selected @endif>Jumat</option>
+                                                                <option value="6" @if($dataProfilPemilikLapangan->buka_dari_hari == 6) selected @endif>Sabtu</option>
+                                                                <option value="7" @if($dataProfilPemilikLapangan->buka_dari_hari == 7) selected @endif>Minggu</option>
                                                             </select>
                                                         </div>
                                                     </div>
@@ -145,18 +130,18 @@
                                                         <div class="input-group"><span class="input-group-text"><i class="icofont icofont-calendar"></i></span>
                                                             <select class="form-select" id="validationDefault04" name="lapangan_buka_sampai_hari" required="">
                                                                 <option disabled="" value="">Pilih Hari...</option>
-                                                                <option value="1" @if($dataProfilPemilikLapangan[0]->buka_sampai_hari == 1) selected @endif>Senin</option>
-                                                                <option value="2" @if($dataProfilPemilikLapangan[0]->buka_sampai_hari == 2) selected @endif>Selasa</option>
-                                                                <option value="3" @if($dataProfilPemilikLapangan[0]->buka_sampai_hari == 3) selected @endif>Rabu</option>
-                                                                <option value="4" @if($dataProfilPemilikLapangan[0]->buka_sampai_hari == 4) selected @endif>Kamis</option>
-                                                                <option value="5" @if($dataProfilPemilikLapangan[0]->buka_sampai_hari == 5) selected @endif>Jumat</option>
-                                                                <option value="6" @if($dataProfilPemilikLapangan[0]->buka_sampai_hari == 6) selected @endif>Sabtu</option>
-                                                                <option value="7" @if($dataProfilPemilikLapangan[0]->buka_sampai_hari == 7) selected @endif>Minggu</option>
+                                                                <option value="1" @if($dataProfilPemilikLapangan->buka_sampai_hari == 1) selected @endif>Senin</option>
+                                                                <option value="2" @if($dataProfilPemilikLapangan->buka_sampai_hari == 2) selected @endif>Selasa</option>
+                                                                <option value="3" @if($dataProfilPemilikLapangan->buka_sampai_hari == 3) selected @endif>Rabu</option>
+                                                                <option value="4" @if($dataProfilPemilikLapangan->buka_sampai_hari == 4) selected @endif>Kamis</option>
+                                                                <option value="5" @if($dataProfilPemilikLapangan->buka_sampai_hari == 5) selected @endif>Jumat</option>
+                                                                <option value="6" @if($dataProfilPemilikLapangan->buka_sampai_hari == 6) selected @endif>Sabtu</option>
+                                                                <option value="7" @if($dataProfilPemilikLapangan->buka_sampai_hari == 7) selected @endif>Minggu</option>
                                                             </select>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="row g-3">
+                                                <div class="row g-3 mt-1">
                                                     <div class="col-md-6">
                                                         <label class="form-label" for="validationDefault04">Lapangan Buka Dari Jam</label>
                                                         <div class="input-group"><span class="input-group-text"><i class="icofont icofont-clock-time"></i></span>
@@ -182,11 +167,11 @@
                                             <div class="form-group" id="job-description-div">
                                                 <label class="form-label">Alamat Tertulis</label>
                                                 <div class="input-group"><span class="input-group-text"><i class="icofont icofont-address-book"></i></span>
-                                                    <textarea class="form-control" id="alamat-tertulis" name="alamat_tertulis_pemilik_lapangan" rows="3">{{$dataProfilPemilikLapangan[0]->alamat_lapangan}}</textarea>
+                                                    <textarea class="form-control" id="alamat-tertulis" name="alamat_tertulis_pemilik_lapangan" rows="3">{{$dataProfilPemilikLapangan->alamat_lapangan}}</textarea>
                                                 </div>
                                             </div>
                                             <div class="form-group float-end">
-                                                <button class="btn btn-primary btn-block" type="submit">Simpan</button>
+                                                <button class="btn btn-primary btn-block" type="button" onclick="updateProfilLapangan()">Simpan</button>
                                             </div>
                                         </form>
                                     </div>
@@ -221,23 +206,23 @@
         datepicker: false,
         step: 30,
         format: 'H:i',
-        minTime: '6',
-        maxTime: '23:30',
+        // minTime: '6',
+        // maxTime: '23:30',
         timepickerScrollbar: true,
         scrollTime: true
-        // defaultTime: '{{$dataProfilPemilikLapangan[0]->buka_dari_jam}}'
-    }).val('{{date("H:i", strtotime($dataProfilPemilikLapangan[0]->buka_dari_jam))}}'); 
+        // defaultTime: '{{$dataProfilPemilikLapangan->buka_dari_jam}}'
+    }).val('{{date("H:i", strtotime($dataProfilPemilikLapangan->buka_dari_jam))}}'); 
 
     $("#buka-sampai-jam").datetimepicker({
         datepicker: false,
         step: 30,
         format: 'H:i',
-        minTime: '6',
-        maxTime: '23:30',
+        // minTime: '6',
+        // maxTime: '23:30',
         timepickerScrollbar: true,
         scrollTime: true
-        // defaultTime: '{{date("H:i", strtotime($dataProfilPemilikLapangan[0]->buka_sampai_jam))}}'
-    }).val('{{date("H:i", strtotime($dataProfilPemilikLapangan[0]->buka_sampai_jam))}}');
+        // defaultTime: '{{date("H:i", strtotime($dataProfilPemilikLapangan->buka_sampai_jam))}}'
+    }).val('{{date("H:i", strtotime($dataProfilPemilikLapangan->buka_sampai_jam))}}');
     var lapanganImage_1 = "{{$lapanganImage['foto_lapangan_1']}}";
     var lapanganImage_2 = "{{$lapanganImage['foto_lapangan_2']}}";
     var lapanganImage_3 = "{{$lapanganImage['foto_lapangan_3']}}";
@@ -257,20 +242,19 @@
     $(document).on("change",".upload-file", function(){
         var uploadFile = $(this);
         var files = !!this.files ? this.files : [];
-        if (!files.length || !window.FileReader) return; // no file selected, or no FileReader support
-            if (/^image/.test( files[0].type)){ // only image file
-                var reader = new FileReader(); // instance of the FileReader
-                reader.readAsDataURL(files[0]); // read the local file
+        if (!files.length || !window.FileReader) return;
+            if (/^image/.test( files.type)){
+                var reader = new FileReader();
+                reader.readAsDataURL(files);
     
-                reader.onloadend = function(){ // set image data as background of div
-                    //alert(uploadFile.closest(".upimage").find('.imagePreview').length);
+                reader.onloadend = function(){
                 uploadFile.closest(".img-up").find('.image-preview').css("background-image", "url("+this.result+")");
             }
         }
     });
 
-        var dataProfilPemilikLapanganLat = "{{$dataProfilPemilikLapangan[0]->titik_koordinat_lat}}";
-        var dataProfilPemilikLapanganLng = "{{$dataProfilPemilikLapangan[0]->titik_koordinat_lng}}";
+        var dataProfilPemilikLapanganLat = "{{$dataProfilPemilikLapangan->titik_koordinat_lat}}";
+        var dataProfilPemilikLapanganLng = "{{$dataProfilPemilikLapangan->titik_koordinat_lng}}";
 
         var latlngview = L.latLng(dataProfilPemilikLapanganLat, dataProfilPemilikLapanganLng);
         

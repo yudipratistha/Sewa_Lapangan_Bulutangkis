@@ -174,8 +174,8 @@
                                         </div>
                                         <div class="form-group">
                                             <label>Jumlah Court</label>
-                                            <div class="input-group"><span class="input-group-text"><i class="icofont icofont-telephone"></i></span>
-                                                <input id="nomor-telepon" type="number" class="form-control" name="jumlah_court_pemilik_lapangan" placeholder="08xxxx" required>
+                                            <div class="input-group"><span class="input-group-text"><i class="icofont icofont-badminton-birdie"></i></span>
+                                                <input id="nomor-telepon" type="number" class="form-control" name="jumlah_court_pemilik_lapangan" placeholder="Jumlah Court..." required>
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -274,25 +274,25 @@
         datepicker: false,
         step: 60,
         format: 'H:i',
-        minTime: '6',
-        maxTime: '24:00',
+        // minTime: '6',
+        // maxTime: '24:00',
     }); 
 
     $("#buka-sampai-jam").datetimepicker({
         datepicker: false,
         step: 60,
         format: 'H:i',
-        minTime: '6',
-        maxTime: '24:00',
+        // minTime: '6',
+        // maxTime: '24:00',
     });
 
     $(".img-add").click(function(){
         $(this).closest(".row").find('.img-add').before('<div class="col-sm-2 imgUp"><div class="imagePreview"></div><label class="btn btn-primary">Upload<input type="file" class="uploadFile img" value="Upload Photo" style="width:0px;height:0px;overflow:hidden;"></label><i class="fa fa-times del"></i></div>');
     });
     $(document).on("click", "i.del" , function() {
-    // 	to remove card
+    // remove card
         $(this).parent().remove();
-    // to clear image
+    // clear image
     // $(this).parent().find('.imagePreview').css("background-image","url('')");
     });
     
