@@ -49,7 +49,7 @@ class ProfilController extends Controller
         // $image = $response;
         // dd($fileExtension);
         // die();
-        return view('pemilik_lapangan.pemilik_apangan_profil', compact('dataProfilPemilikLapangan', 'lapanganImage'));
+        return view('pemilik_lapangan.pemilik_lapangan_profil', compact('dataProfilPemilikLapangan', 'lapanganImage'));
     }
 
     public function pemilikLapanganUpdateProfil(Request $request){
