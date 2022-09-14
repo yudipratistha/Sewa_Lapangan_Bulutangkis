@@ -173,6 +173,12 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
+                                            <label>Harga Lapangan Per Jam</label>
+                                            <div class="input-group"><span class="input-group-text"><i class="icofont icofont-money"></i></span>
+                                                <input id="harga-lapangan-per-jam" type="number" class="form-control" name="harga_lapangan_per_jam" placeholder="Harga Lapangan Per Jam..." required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
                                             <label>Jumlah Court</label>
                                             <div class="input-group"><span class="input-group-text"><i class="icofont icofont-badminton-birdie"></i></span>
                                                 <input id="nomor-telepon" type="number" class="form-control" name="jumlah_court_pemilik_lapangan" placeholder="Jumlah Court..." required>

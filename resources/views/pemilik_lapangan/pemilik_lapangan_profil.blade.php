@@ -103,9 +103,15 @@
                                                 </div>
                                             </div>
                                             <div class="form-group">
+                                                <label>Harga Lapangan Per Jam</label>
+                                                <div class="input-group"><span class="input-group-text"><i class="icofont icofont-money"></i></span>
+                                                    <input id="harga-lapangan-per-jam" type="number" class="form-control" name="harga_lapangan_per_jam" placeholder="Harga Lapangan Per Jam..." value="{{$dataProfilPemilikLapangan->harga_per_jam}}" required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
                                                 <label>Jumlah Court</label>
                                                 <div class="input-group"><span class="input-group-text"><i class="icofont icofont-telephone"></i></span>
-                                                    <input id="nomor-telepon" type="number" class="form-control" name="nomor_telepon_pemilik_lapangan" placeholder="08xxxx" value="{{$dataProfilPemilikLapangan->jumlah_court}}" required>
+                                                    <input id="jumlah-court" type="number" class="form-control" name="jumlah_court_pemilik_lapangan" placeholder="08xxxx" value="{{$dataProfilPemilikLapangan->jumlah_court}}" required>
                                                 </div>
                                             </div>
                                             <div class="form-group">

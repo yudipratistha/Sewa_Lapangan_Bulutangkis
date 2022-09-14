@@ -54,6 +54,8 @@ class AuthController extends Controller
             'email_pemilik_lapangan' => 'required|unique:tb_pengguna,email',
             'password_pemilik_lapangan' => 'required',
             'nomor_telepon_pemilik_lapangan' => 'required',
+            'harga_lapangan_per_jam' => 'required',
+            'jumlah_court_pemilik_lapangan' => 'required',
             'lapangan_buka_dari_hari' => 'required',
             'lapangan_buka_sampai_hari' => 'required',
             'lapangan_buka_dari_jam' => 'required',
@@ -84,6 +86,7 @@ class AuthController extends Controller
         $lapangan->buka_sampai_jam = $request->lapangan_buka_sampai_jam;
         $lapangan->titik_koordinat_lat = $request->lat_alamat_pemilik_lapangan;
         $lapangan->titik_koordinat_lng = $request->lng_alamat_pemilik_lapangan;
+        $lapangan->harga_per_jam = $request->harga_lapangan_per_jam;
         $lapangan->jumlah_court = $request->jumlah_court_pemilik_lapangan;
 
         if ($request->hasFile('foto_lapangan_1')) {
