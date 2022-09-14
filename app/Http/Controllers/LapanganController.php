@@ -152,8 +152,8 @@ class LapanganController extends Controller
             $dataLapangan = Lapangan::select('tb_lapangan.id as lapangan_id', 'tb_lapangan.buka_dari_jam', 'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court')
                 ->find($request->idLapangan);
 
-            $dataLapanganBooking = DB::table('tb_booking')->select('tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 'tb_riwayat_status_pembayaran.status_pembayaran')
-                        ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+            $dataLapanganBooking = DB::table('tb_lapangan')->select('tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 'tb_riwayat_status_pembayaran.status_pembayaran')
+                        ->leftJoin('tb_booking', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
                         ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
                         ->leftJoin('tb_riwayat_status_pembayaran', function($join){
                             $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id');
@@ -161,19 +161,19 @@ class LapanganController extends Controller
                         ->where('tb_lapangan.id', $request->idLapangan)->where('tb_booking.tgl_booking', date('Y-m-d', strtotime($request->tanggal)))->where('tb_riwayat_status_pembayaran.status_pembayaran', '!=', 'Batal')
                         ->get();
 
-            $dataStatusLapangan = DB::table('tb_booking')->select('tb_status_lapangan.court', 'tb_status_lapangan.status', 'tb_status_lapangan.detail_status',
+            $dataStatusLapangan = DB::table('tb_lapangan')->select('tb_status_lapangan.court', 'tb_status_lapangan.status', 'tb_status_lapangan.detail_status',
                         'tb_status_lapangan.jam_status_berlaku_dari', 'tb_status_lapangan.jam_status_berlaku_sampai', 'tb_riwayat_status_pembayaran.status_pembayaran')
-                        ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+                        ->leftJoin('tb_booking', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
                         ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
                         ->leftJoin('tb_riwayat_status_pembayaran', function($join){
                             $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
                             ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
                         })
                         ->leftJoin('tb_status_lapangan', 'tb_status_lapangan.id_lapangan', '=', 'tb_lapangan.id')
-                        ->where('tb_lapangan.id', $request->idLapangan)
+                        ->where('tb_lapangan.id', 5)
                         ->get();
 
-            // dd($dataLapanganBooking);
+            
             $dataLapanganArr = array();
             $lapanganBuka = strtotime($dataLapangan->buka_dari_jam);
             $lapanganTutup = strtotime($dataLapangan->buka_sampai_jam);
@@ -213,6 +213,7 @@ class LapanganController extends Controller
                     $row++;
                 }
             }
+            
             return response()->json($dataLapanganArr); 
         }
     }
@@ -258,8 +259,8 @@ class LapanganController extends Controller
             $dataLapangan = Lapangan::select('tb_lapangan.id as lapangan_id', 'tb_lapangan.buka_dari_jam', 'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court')
                 ->find($request->idLapangan);
 
-            $dataLapanganBooking = DB::table('tb_booking')->select('tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 'tb_riwayat_status_pembayaran.status_pembayaran')
-                ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+            $dataLapanganBooking = DB::table('tb_lapangan')->select('tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 'tb_riwayat_status_pembayaran.status_pembayaran')
+                ->leftJoin('tb_booking', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
                 ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
                 ->leftJoin('tb_riwayat_status_pembayaran', function($join){
                     $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id');
@@ -267,9 +268,9 @@ class LapanganController extends Controller
                 ->where('tb_lapangan.id', $request->idLapangan)->where('tb_booking.tgl_booking', date('Y-m-d', strtotime($request->tanggal)))->where('tb_riwayat_status_pembayaran.status_pembayaran', '!=', 'Batal')
                 ->get();
 
-            $dataStatusLapangan = DB::table('tb_booking')->select('tb_status_lapangan.court', 'tb_status_lapangan.status', 'tb_status_lapangan.detail_status',
+            $dataStatusLapangan = DB::table('tb_lapangan')->select('tb_status_lapangan.court', 'tb_status_lapangan.status', 'tb_status_lapangan.detail_status',
                 'tb_status_lapangan.jam_status_berlaku_dari', 'tb_status_lapangan.jam_status_berlaku_sampai', 'tb_riwayat_status_pembayaran.status_pembayaran')
-                ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+                ->leftJoin('tb_booking', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
                 ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
                 ->leftJoin('tb_riwayat_status_pembayaran', function($join){
                     $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
