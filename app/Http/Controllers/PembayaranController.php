@@ -34,7 +34,7 @@ class PembayaranController extends Controller
     public function menungguPembayaranPenyewaIndex(){
         $dataMenungguPembayaran = DB::table('tb_booking')->select('tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.foto_lapangan_1', 'tb_pengguna.name', 
         'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama', 'tb_daftar_jenis_pembayaran.no_rekening', 'tb_booking.tgl_booking', 'tb_pembayaran.id AS pembayaran_id', 
-        'tb_pembayaran.total_biaya', 'tb_pembayaran.snap_token', 'tb_pembayaran.created_at AS pembayaran_created_at')
+        'tb_pembayaran.total_biaya', 'tb_pembayaran.created_at AS pembayaran_created_at')
         ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')  
         ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
         ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')

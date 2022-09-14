@@ -218,7 +218,7 @@ class LapanganController extends Controller
 
     public function pesanLapangan($idLapangan){
         $dataLapangan = DB::table('tb_lapangan')->select('tb_lapangan.id as lapangan_id', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.jumlah_court','tb_lapangan.harga_per_jam',
-        'tb_pembayaran.snap_token', 'tb_riwayat_status_pembayaran.status_pembayaran')
+        'tb_riwayat_status_pembayaran.status_pembayaran')
         ->leftJoin('tb_booking', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
         ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
         ->leftJoin('tb_riwayat_status_pembayaran', function($join){
