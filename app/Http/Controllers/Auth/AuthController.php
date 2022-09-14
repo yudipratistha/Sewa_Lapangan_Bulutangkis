@@ -137,7 +137,7 @@ class AuthController extends Controller
             }
         }
 
-        dd($statusLapanganArr);
+        // dd($statusLapanganArr);
         
         StatusLapangan::insert($statusLapanganArr);
         

@@ -62,7 +62,7 @@ class BookingController extends Controller
                     $riwayatStatusPembayaran->status_pembayaran = 'Belum Lunas';
                     $riwayatStatusPembayaran->save();
 
-                    PembayaranLimitTimeJob::dispatch($pembayaran);
+                    // PembayaranLimitTimeJob::dispatch($pembayaran);
 
                     foreach($request->checkBook as $checkBookKey => $checkBookVal){
                         $dataBook = json_decode($checkBookVal);
