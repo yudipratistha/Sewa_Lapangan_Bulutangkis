@@ -223,6 +223,7 @@
                 },
                 dataType: "json",
                 success:function(data){
+                    console.log(date)
                     for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
                         $('#table-court-'+courtCount).DataTable().clear().draw();
                         $('#table-court-'+courtCount).DataTable().rows.add(data['court_'+courtCount]);

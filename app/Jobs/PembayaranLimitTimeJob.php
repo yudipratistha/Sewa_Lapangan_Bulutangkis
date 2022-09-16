@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Pembayaran;
+use App\Models\RiwayatStatusPembayaran;
 
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -47,10 +48,12 @@ class PembayaranLimitTimeJob implements ShouldQueue
             
             if($timeNow > $pembayaranCreated && $timeNow > $pembayaranTimeLimit){
                 echo('\n '. $pembayaranTimeLimit);
-                $pembayaran = Pembayaran::find($this->pembayaran['id']);
+                // $pembayaran = Pembayaran::find($this->pembayaran['id']);
+                $riwayatPembayaranStatus = new RiwayatStatusPembayaran;
                 if(!isset($pembayaran->foto_bukti_pembayaran)){
-                    $pembayaran->status = 'Batal';
-                    $pembayaran->save();
+                    $riwayatPembayaranStatus->id_pembayaran = $this->pembayaran['id'];
+                    $riwayatPembayaranStatus->status_pembayaran = 'Batal';
+                    $riwayatPembayaranStatus->save();
                 }
                 
                 $status = false;
