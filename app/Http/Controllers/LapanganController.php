@@ -303,7 +303,6 @@ class LapanganController extends Controller
                 ->where('tb_booking.id_pengguna', Auth::user()->id)
                 ->first();
 
-            // dd($dataLapangan);
             $dataLapanganArr = array();
             $lapanganBuka = strtotime($dataLapangan->buka_dari_jam);
             $lapanganTutup = strtotime($dataLapangan->buka_sampai_jam);
