@@ -221,18 +221,20 @@ class LapanganController extends Controller
     }
 
     public function pesanLapangan($idLapangan){
-        $dataLapangan = DB::table('tb_lapangan')->select('tb_lapangan.id as lapangan_id', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.jumlah_court','tb_lapangan.harga_per_jam',
-        'tb_riwayat_status_pembayaran.status_pembayaran')
-        ->leftJoin('tb_booking', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+        $dataLapangan = DB::table('tb_lapangan')->select('tb_lapangan.id as lapangan_id', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 
+        'tb_lapangan.jumlah_court','tb_lapangan.harga_per_jam')
+        ->where('tb_lapangan.id', $idLapangan)
+        ->first();
+        
+        $dataBookUser = DB::table('tb_booking')->select('tb_riwayat_status_pembayaran.status_pembayaran')
         ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
         ->leftJoin('tb_riwayat_status_pembayaran', function($join){
             $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
             ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
         })
-        
-        ->where('tb_lapangan.id', $idLapangan)
+        ->where('tb_booking.id_pengguna', Auth::user()->id)
         ->first();
-        
+
         $dataDaftarJenisPembayaranLapangan = DB::table('tb_lapangan')->select('tb_daftar_jenis_pembayaran.id AS daftar_jenis_pembayaran_id', 'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama', 
         'tb_daftar_jenis_pembayaran.no_rekening')
         ->leftJoin('tb_daftar_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.id_lapangan', '=', 'tb_lapangan.id')
@@ -251,7 +253,7 @@ class LapanganController extends Controller
         //     $pembayaran->save();
         // }
         
-        return view('penyewa_lapangan.penyewa_lapangan_pesan_lapangan', compact('idLapangan', 'dataLapangan', 'dataDaftarJenisPembayaranLapangan'));
+        return view('penyewa_lapangan.penyewa_lapangan_pesan_lapangan', compact('idLapangan', 'dataLapangan', 'dataBookUser', 'dataDaftarJenisPembayaranLapangan'));
     }
 
     public function getAllDataLapangan(Request $request){
