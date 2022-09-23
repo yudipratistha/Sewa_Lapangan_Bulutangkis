@@ -187,7 +187,7 @@
 <script src="{{url('/assets/js/datepicker/date-time-picker/moment.min.js')}}"></script>
 <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
 
-<script>
+<!-- <script>
     const payButton = document.querySelector('#pay-button');
     payButton.addEventListener('click', function(e) {
         e.preventDefault();
@@ -213,7 +213,7 @@
             }
         });
     });
-</script>
+</script> -->
 
 <script>
     var jumlah_court = {!! json_encode($dataLapangan->jumlah_court) !!}
@@ -259,9 +259,9 @@
                         $('#table-court-'+courtCount).DataTable().rows.add(data['court_'+courtCount]);
                         $('#table-court-'+courtCount).DataTable().columns.adjust().draw();
 
-                        $('#table-court-'+courtCount).rows().nodes().to$().find('input[type="checkbox"]').each(function(){
-                            console.log(this)
-                        });
+                        // $('#table-court-'+courtCount).rows().nodes().to$().find('input[type="checkbox"]').each(function(){
+                        //     console.log(this)
+                        // });
                     }
                 },
                 error: function(xhr, ajaxOptions, thrownError){
