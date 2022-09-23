@@ -239,8 +239,8 @@ class LapanganController extends Controller
             ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
         })
         ->where('tb_booking.id_pengguna', Auth::user()->id)
-        ->where('tb_riwayat_status_pembayaran.status_pembayaran', '!=', 'Batal')
-        ->where('tb_riwayat_status_pembayaran.status_pembayaran', '!=', 'Proses')
+        // ->where('tb_riwayat_status_pembayaran.status_pembayaran', '!=', 'Batal')
+        // ->where('tb_riwayat_status_pembayaran.status_pembayaran', '!=', 'Proses')
         ->first();
 
         $dataDaftarJenisPembayaranLapangan = DB::table('tb_lapangan')->select('tb_daftar_jenis_pembayaran.id AS daftar_jenis_pembayaran_id', 'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama', 
@@ -300,8 +300,8 @@ class LapanganController extends Controller
                     ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
                 })
                 ->where('tb_booking.id_pengguna', Auth::user()->id)
-                ->where('tb_riwayat_status_pembayaran.status_pembayaran', '!=', 'Batal')
-                ->where('tb_riwayat_status_pembayaran.status_pembayaran', '!=', 'Proses')
+                // ->where('tb_riwayat_status_pembayaran.status_pembayaran', '==', 'Batal')
+                // ->where('tb_riwayat_status_pembayaran.status_pembayaran', '==', 'Proses')
                 ->first();
 
             // dd($dataBookUser);
@@ -334,7 +334,7 @@ class LapanganController extends Controller
                         if($court === $dataStatusLapanganValue->court){
                             if($statusPenyewa !== true && $waktuLapangan === date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_dari)) . " - ". date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_sampai))){
                                 if($dataStatusLapanganValue->status === 'Available'){
-                                    if($dataStatusLapanganValue->status_pembayaran === 'Belum Lunas' || isset($dataBookUser->status_pembayaran)){
+                                    if($dataStatusLapanganValue->status_pembayaran === 'Belum Lunas' || isset($dataBookUser->status_pembayaran) && $dataBookUser->status_pembayaran === 'Belum Lunas'){
                                         $dataLapanganArr['court_'.$court][$row][] = '<input name="checkBook[]" value="" type="checkbox" style="cursor: not-allowed;" disabled>';
                                     }else{
                                         $dataLapanganArr['court_'.$court][$row][] = "<input name=\"checkBook[]\" value='{\"lapangan_id\":$dataLapangan->lapangan_id,\"court\":$dataStatusLapanganValue->court,\"jam\":\"$waktuLapangan\"}' type=\"checkbox\">";
