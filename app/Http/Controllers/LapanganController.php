@@ -273,18 +273,28 @@ class LapanganController extends Controller
                 ->where('tb_lapangan.id', $request->idLapangan)->where('tb_booking.tgl_booking', date('Y-m-d', strtotime($request->tanggal)))->where('tb_riwayat_status_pembayaran.status_pembayaran', '!=', 'Batal')
                 ->get();
 
-            $dataStatusLapangan = DB::table('tb_booking')->select('tb_status_lapangan.court', 'tb_status_lapangan.status', 'tb_status_lapangan.detail_status',
+            $dataStatusLapangan = DB::table('tb_lapangan')->select('tb_status_lapangan.court', 'tb_status_lapangan.status', 'tb_status_lapangan.detail_status',
                 'tb_status_lapangan.jam_status_berlaku_dari', 'tb_status_lapangan.jam_status_berlaku_sampai', 'tb_riwayat_status_pembayaran.status_pembayaran')
-                ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_booking.id_lapangan')
+                ->leftJoin('tb_booking', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
                 ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
                 ->leftJoin('tb_riwayat_status_pembayaran', function($join){
                     $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
                     ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
                 })
                 ->leftJoin('tb_status_lapangan', 'tb_status_lapangan.id_lapangan', '=', 'tb_lapangan.id')
-                ->where('tb_booking.id_pengguna', Auth::user()->id)
+                ->where('tb_lapangan.id', $request->idLapangan)
                 ->get();
 
+            $dataBookUser = DB::table('tb_booking')->select('tb_riwayat_status_pembayaran.status_pembayaran')
+                ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
+                ->leftJoin('tb_riwayat_status_pembayaran', function($join){
+                    $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
+                    ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
+                })
+                ->where('tb_booking.id_pengguna', Auth::user()->id)
+                ->first();
+
+            // dd($dataBookUser);
             $dataLapanganArr = array();
             $lapanganBuka = strtotime($dataLapangan->buka_dari_jam);
             $lapanganTutup = strtotime($dataLapangan->buka_sampai_jam);
@@ -314,7 +324,7 @@ class LapanganController extends Controller
                         if($court === $dataStatusLapanganValue->court){
                             if($statusPenyewa !== true && $waktuLapangan === date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_dari)) . " - ". date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_sampai))){
                                 if($dataStatusLapanganValue->status === 'Available'){
-                                    if($dataStatusLapanganValue->status_pembayaran === 'Belum Lunas'){
+                                    if(isset($dataBookUser)){
                                         $dataLapanganArr['court_'.$court][$row][] = '<input name="checkBook[]" value="" type="checkbox" style="cursor: not-allowed;" disabled>';
                                     }else{
                                         $dataLapanganArr['court_'.$court][$row][] = "<input name=\"checkBook[]\" value='{\"lapangan_id\":$dataLapangan->lapangan_id,\"court\":$dataStatusLapanganValue->court,\"jam\":\"$waktuLapangan\"}' type=\"checkbox\">";

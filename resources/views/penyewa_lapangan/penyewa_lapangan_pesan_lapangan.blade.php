@@ -76,7 +76,7 @@
                                     </tbody>
                                 </table>
                                 <hr/>
-                                @if($dataBookUser->status_pembayaran === "Belum Lunas")
+                                @if(isset($dataBookUser->status_pembayaran))
                                     <span class="btn btn-secondary" style="cursor: not-allowed;background-color: #90b4cd !important;border-color: #90b4cd !important;"></i>Ada pembayaran yang belum lunas!</button>
                                     <!-- <button type="button" onClick="pesanLapangan()" class="btn btn-square btn-outline-blue">Konfirmasi Sewa</button> -->
                                 @else
