@@ -235,7 +235,7 @@
             ]
         });
     }
-
+   
     $('input[type="checkbox"]').prop('checked', false);
     $('#tanggal').datepicker({
         language: 'en',
@@ -258,6 +258,10 @@
                         $('#table-court-'+courtCount).DataTable().clear().draw();
                         $('#table-court-'+courtCount).DataTable().rows.add(data['court_'+courtCount]);
                         $('#table-court-'+courtCount).DataTable().columns.adjust().draw();
+
+                        $('#table-court-'+courtCount).rows().nodes().to$().find('input[type="checkbox"]').each(function(){
+                            console.log(this)
+                        });
                     }
                 },
                 error: function(xhr, ajaxOptions, thrownError){
