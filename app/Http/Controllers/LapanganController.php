@@ -235,22 +235,20 @@ class LapanganController extends Controller
         ->first();
         
         $dataBookUser = DB::table('tb_booking')->select('tb_riwayat_status_pembayaran.status_pembayaran')
-        ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
-        ->leftJoin('tb_riwayat_status_pembayaran', function($join){
-            $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
-            ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran GROUP BY tb_riwayat_status_pembayaran.id_pembayaran)');
-        })
-        ->where('tb_booking.id_pengguna', Auth::user()->id)
-        // ->where('tb_riwayat_status_pembayaran.status_pembayaran', '!=', 'Batal')
-        // ->where('tb_riwayat_status_pembayaran.status_pembayaran', '!=', 'Proses')
-        ->first();
+            ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
+            ->leftJoin('tb_riwayat_status_pembayaran', function($join){
+                $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
+                ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
+            })
+            ->where('tb_booking.id_pengguna', Auth::user()->id)
+            ->first();
 
         $dataDaftarJenisPembayaranLapangan = DB::table('tb_lapangan')->select('tb_daftar_jenis_pembayaran.id AS daftar_jenis_pembayaran_id', 'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama', 
         'tb_daftar_jenis_pembayaran.no_rekening')
         ->leftJoin('tb_daftar_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.id_lapangan', '=', 'tb_lapangan.id')
         ->where('tb_lapangan.id', $idLapangan)
         ->get();
-        // dd($dataLapangan);
+        // dd($dataBookUser);
         // $snapToken = $dataLapangan->snap_token;
         // if (empty($snapToken)) {
         //     $pembayaran = Pembayaran::find($dataMenungguPembayaran->pembayaran_id);
@@ -300,11 +298,9 @@ class LapanganController extends Controller
                 ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
                 ->leftJoin('tb_riwayat_status_pembayaran', function($join){
                     $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
-                    ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran GROUP BY tb_riwayat_status_pembayaran.id_pembayaran)');
+                    ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
                 })
                 ->where('tb_booking.id_pengguna', Auth::user()->id)
-                // ->where('tb_riwayat_status_pembayaran.status_pembayaran', '==', 'Batal')
-                // ->where('tb_riwayat_status_pembayaran.status_pembayaran', '==', 'Proses')
                 ->first();
 
             // dd($dataLapangan);
