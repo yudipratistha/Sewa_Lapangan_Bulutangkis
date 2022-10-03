@@ -10,4 +10,7 @@ class DaftarJenisPembayaran extends Model
     use HasFactory;
 
     protected $table = 'tb_daftar_jenis_pembayaran';
+
+    protected $guarded = ['id']; 
+
 }

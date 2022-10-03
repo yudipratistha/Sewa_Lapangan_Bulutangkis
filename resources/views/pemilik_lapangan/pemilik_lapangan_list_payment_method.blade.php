@@ -51,6 +51,7 @@
                                                                 <label class="form-label">Nomor Rekening / Virtual Account / E-Wallet 1</label>
                                                                 <input class="form-control" name="no_rek_virtual_account[]" type="number" placeholder="..." value="{{$dataDaftarJenisPembayaranLapangan[$counter]->no_rekening}}" required="">
                                                             </div>
+                                                            <input type="hidden" value="{{$dataDaftarJenisPembayaranLapangan[$counter]->daftar_jenis_pembayaran_id}}">
                                                         </div>
                                                     @else
                                                         <div class="row g-2 mb-2 form-payment-method">
@@ -73,6 +74,7 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
+                                                            <input type="hidden" value="{{$dataDaftarJenisPembayaranLapangan[$counter]->daftar_jenis_pembayaran_id}}">
                                                         </div>
                                                     @endif
                                                 @endfor
@@ -133,6 +135,7 @@
                         </div>\
                     </div>\
                 </div>\
+                <input type="hidden" value="">\
             </div>\
             ')
         });

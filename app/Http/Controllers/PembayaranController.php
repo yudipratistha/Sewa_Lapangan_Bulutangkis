@@ -25,7 +25,7 @@ class PembayaranController extends Controller
     public function listPaymentMethodPemilikLapangan(){
         $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
-        $dataDaftarJenisPembayaranLapangan = DB::table('tb_lapangan')->select('tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama', 
+        $dataDaftarJenisPembayaranLapangan = DB::table('tb_lapangan')->select('tb_daftar_jenis_pembayaran.id AS daftar_jenis_pembayaran_id', 'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama', 
             'tb_daftar_jenis_pembayaran.no_rekening')
             ->leftJoin('tb_daftar_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.id_lapangan', '=', 'tb_lapangan.id')
             ->where('tb_lapangan.id', $lapanganId->id)
@@ -42,16 +42,21 @@ class PembayaranController extends Controller
         $dataDaftarJenisPembayaranLapangan->delete();
         
         for($counter= 0; $counter < count($request->nama_metode_pembayaran); $counter++){
-            $addDataDaftarJenisPembayaranLapangan = new DaftarJenisPembayaran;
-            $addDataDaftarJenisPembayaranLapangan->id_lapangan = $lapanganId->id;
-            $addDataDaftarJenisPembayaranLapangan->nama_jenis_pembayaran = $request->nama_metode_pembayaran[$counter];
-            $addDataDaftarJenisPembayaranLapangan->atas_nama = $request->atas_nama[$counter];
-            $addDataDaftarJenisPembayaranLapangan->no_rekening = $request->no_rek_virtual_account[$counter];
-            $addDataDaftarJenisPembayaranLapangan->save();
+            DaftarJenisPembayaran::updateOrCreate(['tb_daftar_jenis_pembayaran.id' => $request->daftar_jenis_pembayaran_id[$counter],
+                'id_lapangan' => $lapanganId->id, 
+                'nama_jenis_pembayaran' => $request->nama_metode_pembayaran[$counter], 
+                'atas_nama' => $request->atas_nama[$counter],
+                'no_rekening' => $request->no_rek_virtual_account[$counter]], 
+                [
+                'id_lapangan' => $lapanganId->id, 
+                'nama_jenis_pembayaran' => $request->nama_metode_pembayaran[$counter], 
+                'atas_nama' => $request->atas_nama[$counter],
+                'no_rekening' => $request->no_rek_virtual_account[$counter]
+                ]);
 
         }
-
         return response()->json('success');
+        
     }
 
     public function getDaftarJenisPembayaran($idLapangan){
