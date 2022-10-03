@@ -21,6 +21,10 @@ class PembayaranController extends Controller
         $this->middleware('auth');
     }
 
+    public function addPaymentMethod(){
+        return view('pemilik_lapangan.pemilik_lapangan_add_payment_method');
+    }
+
     public function getDaftarJenisPembayaran($idLapangan){
         $dataDaftarJenisPembayaranLapangan = DB::table('tb_lapangan')->select('tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama', 
         'tb_daftar_jenis_pembayaran.no_rekening')
