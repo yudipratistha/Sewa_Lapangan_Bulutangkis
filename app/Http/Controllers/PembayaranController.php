@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Booking;
 use App\Models\Lapangan;
 use App\Models\Pembayaran;
+use App\Models\DaftarJenisPembayaran;
 use App\Models\RiwayatStatusPembayaran;
 use App\Services\Midtrans\CreateSnapTokenService; 
 
@@ -21,8 +22,36 @@ class PembayaranController extends Controller
         $this->middleware('auth');
     }
 
-    public function addPaymentMethod(){
-        return view('pemilik_lapangan.pemilik_lapangan_add_payment_method');
+    public function listPaymentMethodPemilikLapangan(){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataDaftarJenisPembayaranLapangan = DB::table('tb_lapangan')->select('tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama', 
+            'tb_daftar_jenis_pembayaran.no_rekening')
+            ->leftJoin('tb_daftar_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_lapangan.id', $lapanganId->id)
+            ->get();
+            
+        return view('pemilik_lapangan.pemilik_lapangan_list_payment_method', compact('lapanganId', 'dataDaftarJenisPembayaranLapangan'));
+    }
+
+    public function updatePaymentMethodPemilikLapangan(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataDaftarJenisPembayaranLapangan = DB::table('tb_daftar_jenis_pembayaran')
+            ->where('tb_daftar_jenis_pembayaran.id_lapangan', $lapanganId->id);
+        $dataDaftarJenisPembayaranLapangan->delete();
+        
+        for($counter= 0; $counter < count($request->nama_metode_pembayaran); $counter++){
+            $addDataDaftarJenisPembayaranLapangan = new DaftarJenisPembayaran;
+            $addDataDaftarJenisPembayaranLapangan->id_lapangan = $lapanganId->id;
+            $addDataDaftarJenisPembayaranLapangan->nama_jenis_pembayaran = $request->nama_metode_pembayaran[$counter];
+            $addDataDaftarJenisPembayaranLapangan->atas_nama = $request->atas_nama[$counter];
+            $addDataDaftarJenisPembayaranLapangan->no_rekening = $request->no_rek_virtual_account[$counter];
+            $addDataDaftarJenisPembayaranLapangan->save();
+
+        }
+
+        return response()->json('success');
     }
 
     public function getDaftarJenisPembayaran($idLapangan){

@@ -30,26 +30,52 @@
                                 <div class="card">
                                     <div class="card-header">
                                         <!-- <h5 class="pull-left">Material tab with color</h5> -->
-                                        <h5 class="pull-left">Tambah Metode Pembayaran</h5>
+                                        <h5 class="pull-left">Daftar Metode Pembayaran</h5>
                                     </div>
                                     <div class="card-body">
                                         <fieldset>
-                                            <form class="f1" id="data-payment-method" action="" method="POST">
+                                            <form id="data-payment-method" action="" method="POST">
                                                 @csrf
-                                                <div class="row g-2 mb-2 form-payment-method">
-                                                    <div class="col-md-4 payment-method-name-div">
-                                                        <label class="form-label" for="">Nama Metode Pembayaran 1</label>
-                                                        <input class="form-control payment-method" type="text" name="nama_metode_pembayaran[]" placeholder="..." required="">                                                        
-                                                    </div>
-                                                    <div class="col-md-4 atas-nama-div">
-                                                        <label class="form-label">Atas Nama 1</label>
-                                                        <input class="form-control" name="atas_nama[]" type="text" value="" placeholder="..." required="">
-                                                    </div>
-                                                    <div class="col-md-4 no-rek-virtual-account">
-                                                        <label class="form-label">Nomor Rekening / Virtual Account / E-Wallet 1</label>
-                                                        <input class="form-control" name="no_rek_virtual_account[]" type="number" value="" placeholder="..." required="">
-                                                    </div>
-                                                </div>
+                                                @for ($counter= 0; $counter < count($dataDaftarJenisPembayaranLapangan); $counter++)
+                                                    @if($counter <= 0)
+                                                        <div class="row g-2 mb-2 form-payment-method">
+                                                            <div class="col-md-4 payment-method-name-div">
+                                                                <label class="form-label" for="">Nama Metode Pembayaran 1</label>
+                                                                <input class="form-control payment-method" type="text" name="nama_metode_pembayaran[]" placeholder="..." value="{{$dataDaftarJenisPembayaranLapangan[$counter]->nama_jenis_pembayaran}}" required="">                                                        
+                                                            </div>
+                                                            <div class="col-md-4 atas-nama-div">
+                                                                <label class="form-label">Atas Nama 1</label>
+                                                                <input class="form-control" name="atas_nama[]" type="text" placeholder="..." value="{{$dataDaftarJenisPembayaranLapangan[$counter]->atas_nama}}" required="">
+                                                            </div>
+                                                            <div class="col-md-4 no-rek-virtual-account">
+                                                                <label class="form-label">Nomor Rekening / Virtual Account / E-Wallet 1</label>
+                                                                <input class="form-control" name="no_rek_virtual_account[]" type="number" placeholder="..." value="{{$dataDaftarJenisPembayaranLapangan[$counter]->no_rekening}}" required="">
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <div class="row g-2 mb-2 form-payment-method">
+                                                            <div class="col-md-4 payment-method-name-div">
+                                                                <label class="form-label payment-method-name-label" for="">Nama Metode Pembayaran {{$counter+1}}</label>
+                                                                <input class="form-control payment-method" type="text" name="nama_metode_pembayaran[]" value="{{$dataDaftarJenisPembayaranLapangan[$counter]->nama_jenis_pembayaran}}" placeholder="..." required="">
+                                                            </div>
+                                                            <div class="col-md-4 atas-nama-div">
+                                                                <label class="form-label atas-nama-label" for="">Atas Nama {{$counter+1}}</label>
+                                                                <input class="form-control" type="text" name="atas_nama[]" placeholder="..." value="{{$dataDaftarJenisPembayaranLapangan[$counter]->atas_nama}}" required="">
+                                                            </div>
+                                                            <div class="col-md-4 mt-2 px-0 ps-1 no-rek-virtual-account-div">
+                                                                <label class="form-label no-rek-virtual-account-label">Nomor Rekening / Virtual Account / E-Wallet {{$counter+1}}</label>
+                                                                <div class="row">
+                                                                    <div class="col-md-11 pe-3">
+                                                                        <input class="form-control no-rek-virtual-account" name="no_rek_virtual_account[]" type="number" value="{{$dataDaftarJenisPembayaranLapangan[$counter]->no_rekening}}" placeholder="..." required="">
+                                                                    </div>
+                                                                    <div class="col-md-1">
+                                                                        <button type="button" class="btn btn-outline-danger pull-right delete-row-payment-method" style="width: 37px; padding-top: 5px; padding-left: 0px; padding-right: 0px; padding-bottom: 4px;" data-bs-original-title="" title=""><i class="fa fa-trash" style="font-size:20px;"></i></button>                    
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endif
+                                                @endfor
                                                 <div class="row g-2 mb-2 button-div">
                                                     <div class="col-md-12" style="text-align: right;">
                                                         <button type="button" id="add-payment-method" class="btn btn-outline-info btn-sm">Tambah Metode Pembayaran</button>
@@ -113,16 +139,16 @@
 
         $('#data-payment-method').on("click", ".delete-row-payment-method", function(e){
             e.stopPropagation();
-            var prevElementLength = $(this).parent().parent().parent().parent().prevUntil('.form-group').length;
+            var prevElementLength = $(this).parent().parent().parent().parent().prevUntil('.payment-method-name-div').length;
             var nextElementLength = $(this).parent().parent().parent().parent().nextUntil('.button-div').length;
             var nextElement = $(this).parent().parent().parent().parent().nextUntil('.button-div');
-
+            
             for(let totalPaymentMethod= 0; totalPaymentMethod< nextElementLength; totalPaymentMethod++){
                 var totalPaymentMethodNext = totalPaymentMethod + prevElementLength;
                 
-                $(nextElement[totalPaymentMethod]).find('.payment-method-name-label').text('Nama Metode Pembayaran '+ totalPaymentMethod)
-                $(nextElement[totalPaymentMethod]).find('.atas-nama-label').text('Atas Nama '+ totalPaymentMethod)
-                $(nextElement[totalPaymentMethod]).find('.no-rek-virtual-account-label').text('Nomor Rekening / Virtual Account / E-Wallet '+ totalPaymentMethod)
+                $(nextElement[totalPaymentMethod]).find('.payment-method-name-label').text('Nama Metode Pembayaran '+ totalPaymentMethodNext)
+                $(nextElement[totalPaymentMethod]).find('.atas-nama-label').text('Atas Nama '+ totalPaymentMethodNext)
+                $(nextElement[totalPaymentMethod]).find('.no-rek-virtual-account-label').text('Nomor Rekening / Virtual Account / E-Wallet '+ totalPaymentMethodNext)
             }
 
             $(this).parent().parent().parent().parent().remove();
@@ -142,7 +168,7 @@
                 formData.append('_token', '{{ csrf_token() }}');
                 return $.ajax({
                     type: "POST", 
-                    url: "",
+                    url: "{{route('pemilikLapangan.updatePaymentMethodPemilikLapangan')}}",
                     processData: false,
                     contentType: false,
                     cache: false,
@@ -212,5 +238,17 @@
             }
         })
     }
+
+    // $.ajax({
+    //     url: "{{'pemilikLapangan.getDataPaymentMethodPemilikLapangan'}}",
+    //     method: "GET",
+    //     dataType: 'json',
+    //     success: function(data){
+            
+    //     },
+    //     error: function(data){
+    //         console.log("asdsad", data)
+    //     }
+    // });
 </script>
 @endsection

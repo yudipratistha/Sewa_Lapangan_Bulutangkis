@@ -25,7 +25,7 @@
                     <li class="dropdown"><a class="nav-link menu-title" href="javascript:void(0)"><i data-feather="user"></i><span>Manajemen Lapangan</span></a>
                       <ul class="nav-submenu menu-content">
                         <li><a href="{{route('pemilikLapangan.profil')}}">Edit Profil Lapangan</a></li>
-                        <li><a href="{{route('pemilikLapangan.addPaymentMethod')}}">Tambah Metode Pembayaran</a></li>
+                        <li><a href="{{route('pemilikLapangan.listPaymentMethodPemilikLapangan')}}">Daftar Metode Pembayaran</a></li>
                       </ul>
                     </li>
                     <li class="dropdown "><a class="nav-link menu-title link-nav {{ isset($activeMenu) ? 'active' : '' }}" href="{{route('pemilikLapangan.riwayatPenyewaan')}}"><i class="icofont icofont-history" style="margin-right: 15px;vertical-align: bottom;float: none;margin-left: -3px;font-size: 21px;"></i><span>Riwayat Penyewaan</span></a></li>
