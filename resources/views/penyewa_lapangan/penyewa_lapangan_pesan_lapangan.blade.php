@@ -60,6 +60,24 @@
                                             <th style="padding-left: 0px;">{{$dataLapangan->nama_lapangan}}</th>
                                         </tr>
                                         <tr>
+                                            <td scope="row" style="width: 145px;padding-left: 0px;padding-right: 0px;">Jenis Booking <span class="pull-right">:&nbsp;</span></td>
+                                            <th style="padding-left: 0px;">
+                                                @if($jenisBooking === "bulanan")<span class="fw-bold" id="jenis-booking">Bulanan</span>
+                                                @elseif($jenisBooking === "perjam")<span class="fw-bold" id="jenis-booking">Per Jam</span>
+                                                @endif
+                                            </th>
+                                        </tr>
+                                        @if($jenisBooking === "bulanan")
+                                            <tr>
+                                                <td scope="row" style="width: 145px;padding-left: 0px;padding-right: 0px;">Total Durasi (Jam) <span class="pull-right">:&nbsp;</span></td>
+                                                <th style="padding-left: 0px;"><span class="fw-bold" id="">-</span></th>
+                                            </tr>
+                                            <tr>
+                                                <td scope="row" style="width: 145px;padding-left: 0px;padding-right: 0px;">Sisa Durasi (Jam) <span class="pull-right">:&nbsp;</span></td>
+                                                <th style="padding-left: 0px;"><span class="fw-bold" id="">-</span></th>
+                                            </tr>
+                                        @endif
+                                        <tr>
                                             <td scope="row" style="width: 145px;padding-left: 0px;padding-right: 0px;">Tanggal Booking <span class="pull-right">:&nbsp;</span></td>
                                             <th style="padding-left: 0px;"><span class="fw-bold" id="tgl-booking">-</span></th>
                                         </tr>
@@ -185,7 +203,7 @@
 <script src="{{url('/assets/js/sweet-alert/sweetalert.min.js')}}"></script>
 <script src="{{url('/assets/js/datatable/datatables/jquery.dataTables.min.js')}}"></script>
 <script src="{{url('/assets/js/datepicker/date-time-picker/moment.min.js')}}"></script>
-<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+<!-- <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script> -->
 
 <!-- <script>
     const payButton = document.querySelector('#pay-button');
@@ -217,9 +235,10 @@
 
 <script>
     var jumlah_court = {!! json_encode($dataLapangan->jumlah_court) !!}
-    console.log(jumlah_court)
+    
     var harga_per_jam = {!! json_encode($dataLapangan->harga_per_jam) !!}
     var date; 
+    var orderData = {};
     var total_biaya = 0;
 
     for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
@@ -245,6 +264,21 @@
         onSelect: function(dateText) {
             $('#tgl-booking').empty().append(dateText);
             date = dateText;
+
+            if(orderData[date] === undefined){
+                orderData[date]= []
+            }
+
+            for(let index = 0; index < Object.keys(orderData).length; ++index){
+                for(let index2 = 0; index2 < orderData[date].length; ++index2){
+                    var orderDataArr = orderData[date][index2];
+
+                    if(Object.keys(orderData)[index] === date){
+                        console.log(orderDataArr)
+                    }
+                }
+            }
+            
             $.ajax({
                 url: "{{route('penyewaLapangan.getAllDataLapangan', $dataLapangan->lapangan_id)}}",
                 method: "POST",
@@ -274,8 +308,23 @@
 
     $('.table-responsive').on('change', 'input[type="checkbox"]', function() {
         if($(this).prop("checked") === true){
+            // Object.assign(orderData[date], JSON.parse($(this).val()));
+            orderData[date].push(JSON.parse($(this).val()));
+            // console.log(orderData)
             total_biaya += harga_per_jam;
         }else{
+            var orderDataCancel = JSON.parse($(this).val());
+
+            for(let index = 0; index < Object.keys(orderData).length; ++index){
+                for(let index2 = 0; index2 < orderData[date].length; ++index2){
+                    var orderDataArr = orderData[date][index2];
+
+                    if(Object.keys(orderData)[index] === date && orderDataArr.court === orderDataCancel.court && orderDataArr.jam === orderDataCancel.jam){
+                        orderData[date].splice(index2, 1);
+                    }
+                }
+            }
+
             total_biaya -= harga_per_jam;
         }
         $('#total-harga').empty().append(total_biaya);
@@ -294,6 +343,7 @@
     
     function pesanLapangan(){
         var pilihPembayaran = $(".pilih-pembayaran").children('.radio').children('input').filter(":checked").val();
+
 		swal.fire({
 			title: "Konfirmasi Sewa Lapangan?",
 			icon: "warning",
@@ -303,7 +353,7 @@
             preConfirm: (login) => {
                 return $.ajax({
                     type: "POST", 
-                    url: "{{route('penyewaLapangan.storeBookingLapangan')}}",
+                    url: "{{route('penyewaLapangan.storeBookingLapanganPerJam')}}",
                     datatype : "json", 
                     data: $("#check-book-time").serialize() + "&tglBooking="+date + "&totalBiaya="+total_biaya + "&pilihPembayaran="+pilihPembayaran + "&lapanganId="+{{$dataLapangan->lapangan_id}}, 
                     success: function(data){
@@ -348,14 +398,16 @@
         $(".pilih-pembayaran").removeClass("invalid-pilih-pembayaran");
     });
 
-    $.ajax({
-        type: "GET", 
-        url: "{{route('penyewaLapangan.getDaftarJenisPembayaran', $dataLapangan->lapangan_id)}}",
-        datatype : "json", 
-        success: function(data){
-            console.log(data)
-        }
-    })
+    // $.ajax({
+    //     type: "GET", 
+    //     url: "{{route('penyewaLapangan.getDaftarJenisPembayaran', $dataLapangan->lapangan_id)}}",
+    //     datatype : "json", 
+    //     success: function(data){
+    //         // console.log(data)
+    //     }
+    // });
+
+    console.log(location.pathname);
 
 </script>
 

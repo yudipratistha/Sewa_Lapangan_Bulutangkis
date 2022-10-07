@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Booking;
 use App\Models\Lapangan;
 use App\Models\StatusLapangan;
+use App\Models\PaketSewaBulanan;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -222,7 +223,39 @@ class LapanganController extends Controller
         }
     }
 
-    public function pesanLapangan($idLapangan){
+    public function pesanLapanganBulanan($idLapangan){
+        $dataLapangan = DB::table('tb_lapangan')->select('tb_lapangan.id as lapangan_id', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.jumlah_court','tb_lapangan.harga_per_jam',
+        'tb_riwayat_status_pembayaran.status_pembayaran')
+        ->leftJoin('tb_booking', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+        ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
+        ->leftJoin('tb_riwayat_status_pembayaran', function($join){
+            $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
+            ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran GROUP BY tb_riwayat_status_pembayaran.id_pembayaran)');
+        })
+        ->where('tb_lapangan.id', $idLapangan)
+        ->first();
+        
+        $dataBookUser = DB::table('tb_booking')->select('tb_riwayat_status_pembayaran.status_pembayaran')
+            ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
+            ->leftJoin('tb_riwayat_status_pembayaran', function($join){
+                $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
+                ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
+            })
+            ->where('tb_booking.id_pengguna', Auth::user()->id)
+            ->first();
+
+        $dataDaftarJenisPembayaranLapangan = DB::table('tb_lapangan')->select('tb_daftar_jenis_pembayaran.id AS daftar_jenis_pembayaran_id', 'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama', 
+        'tb_daftar_jenis_pembayaran.no_rekening')
+        ->leftJoin('tb_daftar_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.id_lapangan', '=', 'tb_lapangan.id')
+        ->where('tb_lapangan.id', $idLapangan)
+        ->get();
+        
+        $jenisBooking = "bulanan";
+
+        return view('penyewa_lapangan.penyewa_lapangan_pesan_lapangan', compact('idLapangan', 'dataLapangan', 'dataBookUser', 'dataDaftarJenisPembayaranLapangan', 'jenisBooking'));
+    }
+
+    public function pesanLapanganPerJam($idLapangan){
         $dataLapangan = DB::table('tb_lapangan')->select('tb_lapangan.id as lapangan_id', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.jumlah_court','tb_lapangan.harga_per_jam',
         'tb_riwayat_status_pembayaran.status_pembayaran')
         ->leftJoin('tb_booking', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
@@ -352,5 +385,34 @@ class LapanganController extends Controller
             }
             return response()->json($dataLapanganArr); 
         }
+    }
+
+    public function manajemenPaketBulananPemilik(){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataPaketSewaBulanan = DB::table('tb_lapangan')->select('tb_paket_sewa_bulanan.id AS paket_sewa_bulanan_id', 'tb_paket_sewa_bulanan.total_durasi_jam', 
+            'tb_paket_sewa_bulanan.total_harga')
+            ->leftJoin('tb_paket_sewa_bulanan', 'tb_paket_sewa_bulanan.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_lapangan.id', $lapanganId->id)
+            ->get();
+
+        return view('pemilik_lapangan.pemilik_lapangan_manajemen_paket_bulanan', compact('dataPaketSewaBulanan'));
+    }
+
+    public function updateOrCreatePaketBulananPemilik(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+        
+        PaketSewaBulanan::updateOrCreate([
+            'tb_paket_sewa_bulanan.id' => $request->paket_sewa_bulanan_id,
+            'id_lapangan' => $lapanganId->id, 
+            'total_durasi_jam' => $request->total_durasi_waktu_jam, 
+            'total_harga' => $request->total_harga
+        ],[
+            'id_lapangan' => $lapanganId->id, 
+            'total_durasi_jam' => $request->total_durasi_waktu_jam, 
+            'total_harga' => $request->total_harga
+        ]);
+
+        return response()->json('success');
     }
 }

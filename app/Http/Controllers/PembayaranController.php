@@ -42,17 +42,19 @@ class PembayaranController extends Controller
         $dataDaftarJenisPembayaranLapangan->delete();
         
         for($counter= 0; $counter < count($request->nama_metode_pembayaran); $counter++){
-            DaftarJenisPembayaran::updateOrCreate(['tb_daftar_jenis_pembayaran.id' => $request->daftar_jenis_pembayaran_id[$counter],
-                'id_lapangan' => $lapanganId->id, 
-                'nama_jenis_pembayaran' => $request->nama_metode_pembayaran[$counter], 
-                'atas_nama' => $request->atas_nama[$counter],
-                'no_rekening' => $request->no_rek_virtual_account[$counter]], 
-                [
-                'id_lapangan' => $lapanganId->id, 
-                'nama_jenis_pembayaran' => $request->nama_metode_pembayaran[$counter], 
-                'atas_nama' => $request->atas_nama[$counter],
-                'no_rekening' => $request->no_rek_virtual_account[$counter]
-                ]);
+            DaftarJenisPembayaran::updateOrCreate([
+                    'tb_daftar_jenis_pembayaran.id' => $request->daftar_jenis_pembayaran_id[$counter],
+                    'id_lapangan' => $lapanganId->id, 
+                    'nama_jenis_pembayaran' => $request->nama_metode_pembayaran[$counter], 
+                    'atas_nama' => $request->atas_nama[$counter],
+                    'no_rekening' => $request->no_rek_virtual_account[$counter]
+                ],[
+                    'id_lapangan' => $lapanganId->id, 
+                    'nama_jenis_pembayaran' => $request->nama_metode_pembayaran[$counter], 
+                    'atas_nama' => $request->atas_nama[$counter],
+                    'no_rekening' => $request->no_rek_virtual_account[$counter]
+                ]
+            );
 
         }
         return response()->json('success');

@@ -25,7 +25,7 @@ class BookingController extends Controller
         $this->middleware('auth');
     }
 
-    public function storeBookingLapangan(Request $request){
+    public function storeBookingLapanganPerJam(Request $request){
         $currentDate = date('d-m-Y');
         $errorTextJamBooking = '';
         $errorTextPembayaran = '';

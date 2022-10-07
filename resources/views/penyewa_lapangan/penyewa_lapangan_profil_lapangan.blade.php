@@ -117,7 +117,8 @@
                                 <input type="hidden" class="form-control" id="lat-location-lapangan" name="lat_alamat_pemilik_lapangan">
                                 <input type="hidden" class="form-control" id="lng-location-lapangan" name="lng_alamat_pemilik_lapangan">
                             </div>   
-                            <a href="{{route('penyewaLapangan.pesanLapangan', [$dataLapangan->lapangan_id, str_replace(' ', '-', strtolower($dataLapangan->nama_lapangan))])}}"><button type="button" class="btn btn-square btn-outline-blue mt-1" style="float:right;">Pesan Sekarang!</button></a>
+                            <!-- <a href="{{route('penyewaLapangan.pesanLapanganPerJam', [$dataLapangan->lapangan_id, str_replace(' ', '-', strtolower($dataLapangan->nama_lapangan))])}}"><button type="button" class="btn btn-square btn-outline-blue mt-1" style="float:right;">Pesan Sekarang!</button></a> -->
+                            <button type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#modal-jenis-booking" data-bs-original-title="" title="" class="btn btn-square btn-outline-blue mt-1" style="float:right;">Pilih Jenis Booking</button>
                         </div>
                     </div>
                 </div>
@@ -172,6 +173,50 @@
         </div>
         <!-- footer start-->
         @include('layouts.footer')
+    </div>
+</div>
+
+<!-- Modal Jenis Booking-->
+<div class="modal fade" id="modal-jenis-booking" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center d-block">
+                <h4 class="modal-title ">Pilih Jenis Booking</h3>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card paket-bulanan-card">
+                            <div class="pilih-jenis-booking media p-20" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);cursor: pointer;">
+                                <div class="media-body">
+                                    <h6 class="mt-0">Paket Bulanan</h6>
+                                </div>
+                                <div class="radio radio-primary me-3" style="display: contents;">
+                                    <input id="radio30" type="radio" name="pilih_pembayaran" value="bulanan">
+                                    <label for="radio30"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card pilih-jenis-booking-card">
+                            <div class="pilih-jenis-booking media p-20" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);cursor: pointer;">
+                                <div class="media-body">
+                                    <h6 class="mt-0">Paket Per Jam</h6>
+                                </div>
+                                <div class="radio radio-primary me-3" style="display: contents;">
+                                    <input id="radio30" type="radio" name="pilih_pembayaran" value="perjam">
+                                    <label for="radio30"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-square btn-outline-light txt-dark" data-bs-dismiss="modal">Close</button>
+                <button type="button" onClick="pesanLapangan()" class="btn btn-square btn-outline-blue">Konfirmasi Jenis Booking</button>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
@@ -258,6 +303,44 @@
     }).addTo(map);
     
     L.marker(latlngview).addTo(map);
+
+    $(".pilih-jenis-booking").on("click", function(){
+        $(this).children('.radio').children('input').prop('checked', true);
+        
+        $(".pilih-jenis-booking-card").removeClass("invalid-pilih-jenis-booking-card");
+        $(".pilih-jenis-booking").removeClass("invalid-pilih-jenis-booking");
+    });
+
+    function pesanLapangan(){
+        var pilihPembayaran = $(".pilih-jenis-booking").children('.radio').children('input').filter(":checked").val();
+
+        if(pilihPembayaran === "bulanan"){
+            Swal.fire({
+                title: 'Konfirmasi Jenis Sewa Bulanan?',
+			    icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: 'Pesan Sekarang!',
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    window.location.href = "{{route('penyewaLapangan.pesanLapanganBulanan', [$dataLapangan->lapangan_id, str_replace(' ', '-', strtolower($dataLapangan->nama_lapangan))])}}";
+                }
+            });
+            
+        }else if(pilihPembayaran === "perjam"){
+            Swal.fire({
+                title: 'Konfirmasi Jenis Sewa Per Jam?',
+			    icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: 'Pesan Sekarang!',
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    window.location.href = "{{route('penyewaLapangan.pesanLapanganPerJam', [$dataLapangan->lapangan_id, str_replace(' ', '-', strtolower($dataLapangan->nama_lapangan))])}}";
+                }
+            });
+        }
+    }
 </script>
 
 @endsection

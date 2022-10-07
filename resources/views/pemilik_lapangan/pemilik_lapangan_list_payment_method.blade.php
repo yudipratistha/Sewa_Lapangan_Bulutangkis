@@ -187,41 +187,6 @@
                                 var errorMsg = $('');
 
                                 $.each(xhr.responseJSON.errors, function (i, field) {
-                                    // if(i === 'nama_periode'){
-                                    //     $("#error-msg-nama-periode").remove();
-                                    //     $("#nama-periode").addClass("is-invalid");
-                                    //     $('#nama-periode-div').append('<div id="error-msg-nama-periode" class="text-danger">Input nama periode tidak boleh kosong!</div>');
-                                    // }
-                                    // if(i === 'excelFile'){
-                                    //     $("#error-msg-excel-file").remove();
-                                    //     $("#excel-file").addClass("is-invalid");
-                                    //     $('#excel-file-div').append('<div id="error-msg-excel-file" class="text-danger">Input file excel tidak boleh kosong!</div>');
-                                    // }
-                                    if(i.substr(0, i.indexOf(".")) === 'nama_metode_pembayaran'){
-                                        var elementHadiahNameDiv = $('.hadiah-name-div')[i.substr(i.indexOf(".") + 1)];
-                                        var indexElementHadiah = Number(i.substr(i.indexOf(".") + 1)) + 1;
-
-                                        $(elementHadiahNameDiv).find(".error-msg-hadiah-name").remove();
-                                        $(elementHadiahNameDiv).find('input').addClass("is-invalid");
-                                        $(elementHadiahNameDiv).append('<div class="text-danger error-msg-hadiah-name">Input hadiah '+indexElementHadiah+' tidak boleh kosong!</div>');
-                                        
-                                    }
-                                    if(i.substr(0, i.indexOf(".")) === 'atas_nama'){
-                                        var elementHadiahQtyDiv = $('.hadiah-qty-div')[i.substr(i.indexOf(".") + 1)];
-                                        var indexElementQtyHadiah = Number(i.substr(i.indexOf(".") + 1)) + 1;
-
-                                        $(elementHadiahQtyDiv).find(".error-msg-hadiah-qty").remove();
-                                        $(elementHadiahQtyDiv).find('input').addClass("is-invalid");
-                                        $(elementHadiahQtyDiv).append('<div class="text-danger error-msg-hadiah-qty">Input qty hadiah '+indexElementQtyHadiah+' tidak boleh kosong!</div>');
-                                    }
-                                    if(i.substr(0, i.indexOf(".")) === 'no_rek_virtual_account'){
-                                        var elementHadiahQtyDiv = $('.hadiah-qty-div')[i.substr(i.indexOf(".") + 1)];
-                                        var indexElementQtyHadiah = Number(i.substr(i.indexOf(".") + 1)) + 1;
-
-                                        $(elementHadiahQtyDiv).find(".error-msg-hadiah-qty").remove();
-                                        $(elementHadiahQtyDiv).find('input').addClass("is-invalid");
-                                        $(elementHadiahQtyDiv).append('<div class="text-danger error-msg-hadiah-qty">Input qty hadiah '+indexElementQtyHadiah+' tidak boleh kosong!</div>');
-                                    }
                                 });
                             });
                         }else{
@@ -241,17 +206,5 @@
             }
         })
     }
-
-    // $.ajax({
-    //     url: "{{'pemilikLapangan.getDataPaymentMethodPemilikLapangan'}}",
-    //     method: "GET",
-    //     dataType: 'json',
-    //     success: function(data){
-            
-    //     },
-    //     error: function(data){
-    //         console.log("asdsad", data)
-    //     }
-    // });
 </script>
 @endsection

@@ -55,6 +55,9 @@ Route::group(['prefix' => 'pemilik-lapangan/'], function(){
         Route::get('list-payment-method', 'PembayaranController@listPaymentMethodPemilikLapangan')->name('pemilikLapangan.listPaymentMethodPemilikLapangan');
         Route::post('update-payment-method', 'PembayaranController@updatePaymentMethodPemilikLapangan')->name('pemilikLapangan.updatePaymentMethodPemilikLapangan');
 
+        Route::get('manajemen-paket-sewa-bulanan', 'LapanganController@manajemenPaketBulananPemilik')->name('pemilikLapangan.manajemenPaketBulananPemilikLapangan');
+        Route::post('update-or-create-paket-sewa-bulanan', 'LapanganController@updateOrCreatePaketBulananPemilik')->name('pemilikLapangan.updateOrCreatePaketBulananPemilik');
+
         Route::get('profil', 'ProfilController@pemilikLapanganProfil')->name('pemilikLapangan.profil');
         Route::post('update-profil', 'ProfilController@pemilikLapanganUpdateProfil')->name('pemilikLapangan.updateProfil');
 
@@ -76,10 +79,14 @@ Route::group(['prefix' => 'penyewa-lapangan/'], function(){
 
         Route::get('profil-lapangan/{id}/{lapanganName}', 'LapanganController@profilLapangan')->name('penyewaLapangan.profilLapangan');
         Route::post('profil-lapangan/{idLapangan}', 'LapanganController@getDataProfilLapangan')->name('penyewaLapangan.getDataProfilLapangan');
+        // Route::get('')
 
-        Route::get('pesan-lapangan/{id}/{lapanganName}', 'LapanganController@pesanLapangan')->name('penyewaLapangan.pesanLapangan');
-        Route::post('store-pesan-lapangan', 'BookingController@storeBookingLapangan')->name('penyewaLapangan.storeBookingLapangan');
-    
+        Route::get('pesan-lapangan-bulanan/{id}/{lapanganName}', 'LapanganController@pesanLapanganBulanan')->name('penyewaLapangan.pesanLapanganBulanan');
+        Route::post('store-pesan-lapangan-bulanan', 'BookingController@storeBookingLapanganBulanan')->name('penyewaLapangan.storeBookingLapanganBulanan');
+
+        Route::get('pesan-lapangan-per-jam/{id}/{lapanganName}', 'LapanganController@pesanLapanganPerJam')->name('penyewaLapangan.pesanLapanganPerJam');
+        Route::post('store-pesan-lapangan-per-jam', 'BookingController@storeBookingLapanganPerJam')->name('penyewaLapangan.storeBookingLapanganPerJam');
+
         route::get('get-data-daftar-jenis-pembayaran/{lapanganId}', 'PembayaranController@getDaftarJenisPembayaran')->name('penyewaLapangan.getDaftarJenisPembayaran');
         route::get('menunggu-pembayaran', 'PembayaranController@menungguPembayaranPenyewaIndex')->name('penyewaLapangan.menungguPembayaranPenyewaIndex');
         route::get('get-pembayaran-detail', 'PembayaranController@getPembayaranDetail')->name('penyewaLapangan.getPembayaranDetail');
