@@ -249,10 +249,16 @@ class LapanganController extends Controller
         ->leftJoin('tb_daftar_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.id_lapangan', '=', 'tb_lapangan.id')
         ->where('tb_lapangan.id', $idLapangan)
         ->get();
+
+        $dataPaketSewaBulanan = DB::table('tb_lapangan')->select('tb_paket_sewa_bulanan.id AS paket_sewa_bulanan_id', 'tb_paket_sewa_bulanan.total_durasi_jam', 
+            'tb_paket_sewa_bulanan.total_harga')
+            ->leftJoin('tb_paket_sewa_bulanan', 'tb_paket_sewa_bulanan.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_lapangan.id', $idLapangan)
+            ->get();
         
         $jenisBooking = "bulanan";
 
-        return view('penyewa_lapangan.penyewa_lapangan_pesan_lapangan', compact('idLapangan', 'dataLapangan', 'dataBookUser', 'dataDaftarJenisPembayaranLapangan', 'jenisBooking'));
+        return view('penyewa_lapangan.penyewa_lapangan_pesan_lapangan_bulanan', compact('idLapangan', 'dataLapangan', 'dataBookUser', 'dataDaftarJenisPembayaranLapangan', 'jenisBooking', 'dataPaketSewaBulanan'));
     }
 
     public function pesanLapanganPerJam($idLapangan){
@@ -281,6 +287,7 @@ class LapanganController extends Controller
         ->leftJoin('tb_daftar_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.id_lapangan', '=', 'tb_lapangan.id')
         ->where('tb_lapangan.id', $idLapangan)
         ->get();
+
         // dd($dataBookUser);
         // $snapToken = $dataLapangan->snap_token;
         // if (empty($snapToken)) {
@@ -294,13 +301,13 @@ class LapanganController extends Controller
         //     $pembayaran->save();
         // }
         
-        return view('penyewa_lapangan.penyewa_lapangan_pesan_lapangan', compact('idLapangan', 'dataLapangan', 'dataBookUser', 'dataDaftarJenisPembayaranLapangan'));
+        return view('penyewa_lapangan.penyewa_lapangan_pesan_lapangan_per_jam', compact('idLapangan', 'dataLapangan', 'dataBookUser', 'dataDaftarJenisPembayaranLapangan'));
     }
 
     public function getAllDataLapangan(Request $request){
         $currentDate = date('d-m-Y');
         
-        if($currentDate <= $request->tanggal){
+        if(date('Y-m-d', strtotime($currentDate)) <= date('Y-m-d', strtotime($request->tanggal))){
             $dataLapangan = Lapangan::select('tb_lapangan.id as lapangan_id', 'tb_lapangan.buka_dari_jam', 'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court')
                 ->find($request->idLapangan);
 

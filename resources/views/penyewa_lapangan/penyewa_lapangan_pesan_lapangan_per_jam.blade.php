@@ -4,7 +4,7 @@
 
 @section('plugin_css')
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/dataTables.checkboxes.css')}}">
-<link rel="stylesheet" type="text/css" href="{{url('/assets/css/date-picker.css')}}">
+<link rel="stylesheet" type="text/css" href="{{url('/assets/css/jquery-ui.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/sweetalert2.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/datatables.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/photoswipe.css')}}">
@@ -62,21 +62,9 @@
                                         <tr>
                                             <td scope="row" style="width: 145px;padding-left: 0px;padding-right: 0px;">Jenis Booking <span class="pull-right">:&nbsp;</span></td>
                                             <th style="padding-left: 0px;">
-                                                @if($jenisBooking === "bulanan")<span class="fw-bold" id="jenis-booking">Bulanan</span>
-                                                @elseif($jenisBooking === "perjam")<span class="fw-bold" id="jenis-booking">Per Jam</span>
-                                                @endif
+                                                <span class="fw-bold" id="jenis-booking">Per Jam</span>
                                             </th>
                                         </tr>
-                                        @if($jenisBooking === "bulanan")
-                                            <tr>
-                                                <td scope="row" style="width: 145px;padding-left: 0px;padding-right: 0px;">Total Durasi (Jam) <span class="pull-right">:&nbsp;</span></td>
-                                                <th style="padding-left: 0px;"><span class="fw-bold" id="">-</span></th>
-                                            </tr>
-                                            <tr>
-                                                <td scope="row" style="width: 145px;padding-left: 0px;padding-right: 0px;">Sisa Durasi (Jam) <span class="pull-right">:&nbsp;</span></td>
-                                                <th style="padding-left: 0px;"><span class="fw-bold" id="">-</span></th>
-                                            </tr>
-                                        @endif
                                         <tr>
                                             <td scope="row" style="width: 145px;padding-left: 0px;padding-right: 0px;">Tanggal Booking <span class="pull-right">:&nbsp;</span></td>
                                             <th style="padding-left: 0px;"><span class="fw-bold" id="tgl-booking">-</span></th>
@@ -198,7 +186,7 @@
 @endsection
 
 @section('plugin_js')
-<script src="{{url('/assets/js/datepicker/date-picker/datepicker.js')}}"></script>
+<script src="{{url('/assets/js/datepicker/date-picker-jquery-ui/jquery-ui.js')}}"></script>
 <script src="{{url('/assets/js/datepicker/date-picker/datepicker.en.js')}}"></script>
 <script src="{{url('/assets/js/sweet-alert/sweetalert.min.js')}}"></script>
 <script src="{{url('/assets/js/datatable/datatables/jquery.dataTables.min.js')}}"></script>
@@ -234,16 +222,18 @@
 </script> -->
 
 <script>
-    var jumlah_court = {!! json_encode($dataLapangan->jumlah_court) !!}
+    var jumlah_court = {!! json_encode($dataLapangan->jumlah_court) !!};
     
-    var harga_per_jam = {!! json_encode($dataLapangan->harga_per_jam) !!}
+    var harga_per_jam = {!! json_encode($dataLapangan->harga_per_jam) !!};
+
     var date; 
+    var availableDates = [];
     var orderData = {};
     var total_biaya = 0;
 
     for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
         $('#table-court-'+courtCount).DataTable({
-            "processing": true,
+            processing: true,
             bFilter: false,
             dom: 'tip',
             order: [1, "asc"],
@@ -256,29 +246,16 @@
     }
    
     $('input[type="checkbox"]').prop('checked', false);
+
     $('#tanggal').datepicker({
-        language: 'en',
-        dateFormat: 'dd-mm-yyyy',
+        dateFormat: 'dd-mm-yy',
+        showOtherMonths: true,
         minDate: new Date(),
         autoclose: true,
         onSelect: function(dateText) {
             $('#tgl-booking').empty().append(dateText);
             date = dateText;
 
-            if(orderData[date] === undefined){
-                orderData[date]= []
-            }
-
-            for(let index = 0; index < Object.keys(orderData).length; ++index){
-                for(let index2 = 0; index2 < orderData[date].length; ++index2){
-                    var orderDataArr = orderData[date][index2];
-
-                    if(Object.keys(orderData)[index] === date){
-                        console.log(orderDataArr)
-                    }
-                }
-            }
-            
             $.ajax({
                 url: "{{route('penyewaLapangan.getAllDataLapangan', $dataLapangan->lapangan_id)}}",
                 method: "POST",
@@ -292,11 +269,24 @@
                         $('#table-court-'+courtCount).DataTable().clear().draw();
                         $('#table-court-'+courtCount).DataTable().rows.add(data['court_'+courtCount]);
                         $('#table-court-'+courtCount).DataTable().columns.adjust().draw();
-
+                        // 
                         // $('#table-court-'+courtCount).rows().nodes().to$().find('input[type="checkbox"]').each(function(){
-                        //     console.log(this)
+                        //     
                         // });
                     }
+
+                    $(document).on('draw.dt', function () {
+                        if(orderData[date] !== undefined){
+                            for(let index = 0; index < Object.keys(orderData).length; ++index){
+                                for(let index2 = 0; index2 < orderData[date].length; ++index2){
+                                    var orderDataArr = orderData[date][index2];
+                                    if(Object.keys(orderData)[index] === date){
+                                        $("input[value*='"+JSON.stringify(orderDataArr)+"']").prop('checked', true);
+                                    }
+                                }
+                            }
+                        }
+                    });
                 },
                 error: function(xhr, ajaxOptions, thrownError){
                     console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
@@ -304,38 +294,48 @@
             });
             return $('#tanggal').trigger('change');
         }
-    }).datepicker('dateFormat', 'dd-mm-yyyy').data('datepicker').selectDate(new Date());
+    }).datepicker('setDate', new Date());
+    $('.ui-datepicker-current-day').click();
 
     $('.table-responsive').on('change', 'input[type="checkbox"]', function() {
         if($(this).prop("checked") === true){
+            if(orderData[date] === undefined){
+                orderData[date]= [];
+            }
+
             // Object.assign(orderData[date], JSON.parse($(this).val()));
             orderData[date].push(JSON.parse($(this).val()));
-            // console.log(orderData)
             total_biaya += harga_per_jam;
         }else{
             var orderDataCancel = JSON.parse($(this).val());
+            
+            if (orderData[date].length === 1) {
+                delete orderData[date];
+            }
+            if(orderData[date] !== undefined){
+                for(let index = 0; index < Object.keys(orderData).length; ++index){
+                    
+                    for(let index2 = 0; index2 < orderData[date].length; ++index2){
+                        var orderDataArr = orderData[date][index2];
 
-            for(let index = 0; index < Object.keys(orderData).length; ++index){
-                for(let index2 = 0; index2 < orderData[date].length; ++index2){
-                    var orderDataArr = orderData[date][index2];
-
-                    if(Object.keys(orderData)[index] === date && orderDataArr.court === orderDataCancel.court && orderDataArr.jam === orderDataCancel.jam){
-                        orderData[date].splice(index2, 1);
+                        if(Object.keys(orderData)[index] === date && orderDataArr.court === orderDataCancel.court && orderDataArr.jam === orderDataCancel.jam){
+                            orderData[date].splice(index2, 1);
+                        }
                     }
                 }
             }
-
             total_biaya -= harga_per_jam;
         }
-        $('#total-harga').empty().append(total_biaya);
 
+        $('#total-harga').empty().append(total_biaya);
+        
         for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
             $('#table-court-'+courtCount).children().children().children().first().removeAttr('style');
             $('#table-court-'+courtCount).children('tbody').children().find("td:first").removeAttr('style');
             $('#table-court-'+courtCount).children('tbody').children('tr:last').find("td:first").removeAttr('style');
         }
     });
-
+    
     $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
         $.fn.dataTable.tables({ visible: true, api: true}).columns.adjust();
     });
@@ -343,7 +343,7 @@
     
     function pesanLapangan(){
         var pilihPembayaran = $(".pilih-pembayaran").children('.radio').children('input').filter(":checked").val();
-
+        var url = 
 		swal.fire({
 			title: "Konfirmasi Sewa Lapangan?",
 			icon: "warning",
@@ -355,7 +355,14 @@
                     type: "POST", 
                     url: "{{route('penyewaLapangan.storeBookingLapanganPerJam')}}",
                     datatype : "json", 
-                    data: $("#check-book-time").serialize() + "&tglBooking="+date + "&totalBiaya="+total_biaya + "&pilihPembayaran="+pilihPembayaran + "&lapanganId="+{{$dataLapangan->lapangan_id}}, 
+                    
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "orderData": orderData,
+                        "tglBooking": date,
+                        "pilihPembayaran": pilihPembayaran,
+                        "lapanganId": {{$dataLapangan->lapangan_id}}
+                    }, 
                     success: function(data){
                         
                     },
@@ -407,7 +414,7 @@
     //     }
     // });
 
-    console.log(location.pathname);
+    console.log(window.location.pathname);
 
 </script>
 

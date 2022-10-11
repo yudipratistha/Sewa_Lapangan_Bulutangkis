@@ -3,7 +3,7 @@
 @section('title', 'Pemilik Lapangan Dashboard')
 
 @section('plugin_css')
-<link rel="stylesheet" type="text/css" href="{{url('/assets/css/date-picker.css')}}">
+<link rel="stylesheet" type="text/css" href="{{url('/assets/css/jquery-ui.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/sweetalert2.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/datatables.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/photoswipe.css')}}">
@@ -222,8 +222,7 @@
 @endsection
 
 @section('plugin_js')
-<script src="{{url('/assets/js/datepicker/date-picker/datepicker.js')}}"></script>
-<script src="{{url('/assets/js/datepicker/date-picker/datepicker.en.js')}}"></script>
+<script src="{{url('/assets/js/datepicker/date-picker-jquery-ui/jquery-ui.js')}}"></script>
 <script src="{{url('/assets/js/sweet-alert/sweetalert.min.js')}}"></script>
 <script src="{{url('/assets/js/datatable/datatables/jquery.dataTables.min.js')}}"></script>
 <script src="{{url('/assets/js/datepicker/date-time-picker/moment.min.js')}}"></script>
@@ -252,8 +251,7 @@
     });
 
     $('#tanggal').datepicker({
-        language: 'en',
-        dateFormat: 'dd-mm-yyyy',
+        dateFormat: 'dd-mm-yy',
         minDate: new Date(),
         autoclose: true,
         onSelect: function(dateText) {
@@ -281,7 +279,8 @@
             });
             return $('#tanggal').trigger('change');
         }
-    }).datepicker('dateFormat', 'dd-mm-yyyy').data('datepicker').selectDate(new Date());
+    }).datepicker('setDate', new Date());
+    $('.ui-datepicker-current-day').click();
 
     var dataProfilPemilikLapanganLat = "{{$dataLapangan->titik_koordinat_lat}}";
     var dataProfilPemilikLapanganLng = "{{$dataLapangan->titik_koordinat_lng}}";

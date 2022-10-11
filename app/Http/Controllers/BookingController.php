@@ -29,10 +29,10 @@ class BookingController extends Controller
         $currentDate = date('d-m-Y');
         $errorTextJamBooking = '';
         $errorTextPembayaran = '';
-        
+        $totalOrder = 0;
         // if(!isset($request->checkBook)) dd($request->checkBook);
         
-        if($request->tglBooking <= $currentDate){
+        if($request->tglBooking >= $currentDate){
             $dataBookArr = array();
 
             $dataLapangan = DB::table('tb_lapangan')->select('tb_lapangan.harga_per_jam', 'tb_riwayat_status_pembayaran.status_pembayaran')
@@ -48,12 +48,15 @@ class BookingController extends Controller
             if($dataLapangan->status_pembayaran === 'Belum Lunas'){
                 return response()->json(['error' => "Ada data pembayaran belum lunas"], 400);
             }else{
-                if(isset($request->checkBook) && $request->pilihPembayaran !== "undefined"){
+                if(isset($request->orderData) && $request->pilihPembayaran !== "undefined"){
+                    foreach($request->orderData as $orderDataKey => $orderDataVal){
+                        $totalOrder += count($request->orderData[$orderDataKey]);
+                        $totalHargaBookingLapangan =  $totalOrder * $dataLapangan->harga_per_jam;
+                    }
                     
-                    $totalHargaBookingLapangan = count($request->checkBook) * $dataLapangan->harga_per_jam;
-
                     $pembayaran = new Pembayaran;
                     $pembayaran->id_daftar_jenis_pembayaran = $request->pilihPembayaran;
+                    $pembayaran->jenis_booking = 'per_jam';
                     $pembayaran->total_biaya = $totalHargaBookingLapangan;
                     $pembayaran->save();
 
@@ -63,26 +66,101 @@ class BookingController extends Controller
                     $riwayatStatusPembayaran->save();
 
                     PembayaranLimitTimeJob::dispatch($pembayaran);
-
-                    foreach($request->checkBook as $checkBookKey => $checkBookVal){
-                        $dataBook = json_decode($checkBookVal);
-                        $jam = explode(" - ", $dataBook->jam);
-                        array_push($dataBookArr, array(
-                            'id_pengguna' => Auth::user()->id,
-                            'id_lapangan' => $dataBook->lapangan_id,
-                            'id_pembayaran' => $pembayaran->id,
-                            'jam_mulai' => $jam[0],
-                            'jam_selesai' => $jam[1],
-                            'court' => $dataBook->court,
-                            'tgl_booking' => date('Y-m-d', strtotime($request->tglBooking))
-                        ));
+                    
+                    foreach($request->orderData as $orderDataKey => $orderDataVal){
+                        foreach($orderDataVal as $bookingDataKey => $bookingDataVal){
+                            $jam = explode(" - ", $bookingDataVal['jam']);
+                            array_push($dataBookArr, array(
+                                'id_pengguna' => Auth::user()->id,
+                                'id_lapangan' => $bookingDataVal['lapangan_id'],
+                                'id_pembayaran' => $pembayaran->id,
+                                'jam_mulai' => $jam[0],
+                                'jam_selesai' => $jam[1],
+                                'court' => $bookingDataVal['court'],
+                                'tgl_booking' => date('Y-m-d', strtotime($orderDataKey))
+                            ));
+                        }
                     }
                     Booking::insert($dataBookArr);
                     
-                    return response()->json($totalHargaBookingLapangan);
+                    return response()->json('success');
                 }
                 
-                if(!isset($request->checkBook)){
+                if(!isset($request->orderData)){
+                    $errorTextJamBooking = "Jam booking belum dipilih!";
+                }
+                if($request->pilihPembayaran === "undefined"){
+                    $errorTextPembayaran = "Pilih pembayaran belum dipilih!";
+                }
+                
+                if(isset($errorTextJamBooking) || isset($errorTextPembayaran)){
+                    return response()->json(['errorTextJamBooking' => $errorTextJamBooking, 'errorTextPembayaran' => $errorTextPembayaran], 400);
+                } 
+                
+            }
+        }
+    }
+
+    public function storeBookingLapanganBulanan(Request $request){
+        $currentDate = date('d-m-Y');
+        $errorTextJamBooking = '';
+        $errorTextPembayaran = '';
+        // dd($request->orderData);
+        // if(!isset($request->checkBook)) dd($request->checkBook);
+        
+        if($request->tglBooking >= $currentDate){
+            $dataBookArr = array();
+
+            $dataLapangan = DB::table('tb_lapangan')->select('tb_lapangan.harga_per_jam', 'tb_paket_sewa_bulanan.total_durasi_jam', 
+            'tb_paket_sewa_bulanan.total_harga AS total_harga_paket_bulanan', 'tb_riwayat_status_pembayaran.status_pembayaran')
+                ->leftJoin('tb_paket_sewa_bulanan', 'tb_paket_sewa_bulanan.id_lapangan', '=', 'tb_lapangan.id')
+                ->leftJoin('tb_booking', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+                ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
+                ->leftJoin('tb_riwayat_status_pembayaran', function($join){
+                    $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
+                    ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
+                })
+                ->where('tb_lapangan.id', $request->lapanganId)
+                ->first();
+
+            if($dataLapangan->status_pembayaran === 'Belum Lunas'){
+                return response()->json(['error' => "Ada data pembayaran belum lunas"], 400);
+            }else{
+                if(isset($request->orderData) && $request->pilihPembayaran !== "undefined"){
+                    $pembayaran = new Pembayaran;
+                    $pembayaran->id_daftar_jenis_pembayaran = $request->pilihPembayaran;
+                    $pembayaran->jenis_booking = 'bulanan';
+                    $pembayaran->total_biaya = $dataLapangan->total_harga_paket_bulanan;
+                    $pembayaran->save();
+
+                    $riwayatStatusPembayaran = new RiwayatStatusPembayaran;
+                    $riwayatStatusPembayaran->id_pembayaran = $pembayaran->id;
+                    $riwayatStatusPembayaran->status_pembayaran = 'Belum Lunas';
+                    $riwayatStatusPembayaran->save();
+
+                    PembayaranLimitTimeJob::dispatch($pembayaran);
+                    
+                    foreach($request->orderData as $orderDataKey => $orderDataVal){
+                        foreach($orderDataVal as $bookingDataKey => $bookingDataVal){
+                            $jam = explode(" - ", $bookingDataVal['jam']);
+                            array_push($dataBookArr, array(
+                                'id_pengguna' => Auth::user()->id,
+                                'id_lapangan' => $bookingDataVal['lapangan_id'],
+                                'id_pembayaran' => $pembayaran->id,
+                                'jam_mulai' => $jam[0],
+                                'jam_selesai' => $jam[1],
+                                'court' => $bookingDataVal['court'],
+                                'tgl_booking' => date('Y-m-d', strtotime($orderDataKey))
+                            ));
+                        }
+                    }
+                    
+                    Booking::insert($dataBookArr);
+                    
+                    return response()->json('success');
+                }
+                
+                if(!isset($request->orderData)){
                     $errorTextJamBooking = "Jam booking belum dipilih!";
                 }
                 if($request->pilihPembayaran === "undefined"){
