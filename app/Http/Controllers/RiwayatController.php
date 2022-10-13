@@ -65,7 +65,7 @@ class RiwayatController extends Controller
         ->groupBy('tb_pembayaran.id')
         ->get()->count();
         
-        $dataBooking = DB::table('tb_booking')->select('tb_pembayaran.id AS id_pembayaran', 'tb_pengguna.name', 'tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 'tb_riwayat_status_pembayaran.status_pembayaran')
+        $dataBooking = DB::table('tb_booking')->select('tb_pengguna.id AS id_pengguna', 'tb_pembayaran.id AS id_pembayaran', 'tb_pengguna.name', 'tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 'tb_riwayat_status_pembayaran.status_pembayaran')
         ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')   
         ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
         ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')

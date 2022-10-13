@@ -243,7 +243,7 @@
     console.log(dataPaketSewaBulanan.total_durasi_jam)
     $('#total-durasi').empty().append(dataPaketSewaBulanan.total_durasi_jam);
     $('#sisa-durasi').empty().append(dataPaketSewaBulanan.total_durasi_jam);
-    // $('#tgl-booking').empty().append(dataPaketSewaBulanan->total_harga);
+    $('#total-harga').empty().append(dataPaketSewaBulanan.total_harga);
 
     for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
         $('#table-court-'+courtCount).DataTable({

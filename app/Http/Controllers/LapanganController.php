@@ -410,10 +410,7 @@ class LapanganController extends Controller
         $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
         
         PaketSewaBulanan::updateOrCreate([
-            'tb_paket_sewa_bulanan.id' => $request->paket_sewa_bulanan_id,
-            'id_lapangan' => $lapanganId->id, 
-            'total_durasi_jam' => $request->total_durasi_waktu_jam, 
-            'total_harga' => $request->total_harga
+            'tb_paket_sewa_bulanan.id' => $request->paket_sewa_bulanan_id
         ],[
             'id_lapangan' => $lapanganId->id, 
             'total_durasi_jam' => $request->total_durasi_waktu_jam, 

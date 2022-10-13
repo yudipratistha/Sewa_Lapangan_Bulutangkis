@@ -3,7 +3,7 @@
 @section('title', 'Pemilik Lapangan Dashboard')
 
 @section('plugin_css')
-<link rel="stylesheet" type="text/css" href="{{url('/assets/css/date-picker.css')}}">
+<link rel="stylesheet" type="text/css" href="{{url('/assets/css/jquery-ui.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/sweetalert2.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/datatables.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/photoswipe.css')}}">
@@ -211,8 +211,7 @@
 @endsection
 
 @section('plugin_js')
-<script src="{{url('/assets/js/datepicker/date-picker/datepicker.js')}}"></script>
-<script src="{{url('/assets/js/datepicker/date-picker/datepicker.en.js')}}"></script>
+<script src="{{url('/assets/js/datepicker/date-picker-jquery-ui/jquery-ui.js')}}"></script>
 <script src="{{url('/assets/js/sweet-alert/sweetalert.min.js')}}"></script>
 <script src="{{url('/assets/js/datatable/datatables/jquery.dataTables.min.js')}}"></script>
 <script src="{{url('/assets/js/datepicker/date-time-picker/moment.min.js')}}"></script>
@@ -238,6 +237,10 @@
 
     $('body').on('hidden.bs.modal', '.modal', function () {
         $('#data-profil-penyewa-modal').find('.modal-footer').children('button').slice(-2).remove();
+
+        if($('#data-profil-penyewa-modal').find('#update-status-pembayaran').val() !== null){
+            $('#data-profil-penyewa-modal').find('#update-status-pembayaran').val('')
+        }
     });
 
     var date; 
@@ -257,8 +260,7 @@
     // }
 
     $('#tanggal').datepicker({
-        language: 'en',
-        dateFormat: 'dd-mm-yyyy',
+        dateFormat: 'dd-mm-yy',
         minDate: new Date(),
         autoclose: true,
         onSelect: function(dateText) {
@@ -285,7 +287,8 @@
             });
             return $('#tanggal').trigger('change');
         }
-    }).datepicker('dateFormat', 'dd-mm-yyyy').data('datepicker').selectDate(new Date());
+    }).datepicker('setDate', new Date());
+    $('.ui-datepicker-current-day').click();
 
     $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
         $.fn.dataTable.tables({ visible: true, api: true}).columns.adjust();
@@ -336,6 +339,11 @@
                 if(data[0].status_pembayaran === 'DP' || data[0].status_pembayaran === 'Lunas'){
                     $("#update-status-pembayaran").val(data[0].status_pembayaran).change();
                 }
+
+                if(data[0].status_pembayaran === 'Batal'){
+                    $("#update-status-pembayaran").val(data[0].status_pembayaran).change();
+                }
+
                 $('#data-profil-penyewa-modal').find('.modal-footer').children('button').after('\
                     <button type="button" onclick="tolakPenyewaan('+data[0].pembayaran_id+')" class="btn btn-square btn-outline-warning">Tolak</button>\
                     <button type="button" onclick="terimaPenyewaan('+data[0].pembayaran_id+')" class="btn btn-square btn-outline-primary">Terima</button>'
@@ -427,7 +435,7 @@
             link = link.replace(':id', pembayaranId);
             
             swal.fire({
-                title: "Terima Pesanan?",
+                title: "Terima Penyewaan?",
                 text: "Status pembayaran penyewa akan diperbaharui!",
                 icon: "warning",
                 showCancelButton: true,
@@ -444,13 +452,13 @@
                             
                         },
                         error: function(data){
-                            swal.fire({title:"Ticket Failed to Approved!", text:"This ticket was not approved successfully", icon:"error"});
+                            swal.fire({title:"Terima Penyewaan Gagal!", text:"Terima penyewaan gagal di proses.", icon:"error"});
                         }
                     }); 
                 } 
             }).then((result) => {
                 if(result.value){
-                    swal.fire({title:"Ticket Approved!", text:"This ticket has been approved on tickets list", icon:"success"})
+                    swal.fire({title:"Terima Penyewaan Berhasil!", text:"Status penyewaan telah berhasil di perbarui.", icon:"success"})
                     .then(function(){ 
                         window.location.href = "";
                     });
@@ -487,18 +495,18 @@
                         type: "POST", 
                         url: link,
                         datatype : "json", 
-                        data: {'pembayaranId':pembayaranId, "_token": "{{ csrf_token() }}"},
+                        data: {'pembayaranId':pembayaranId, "_token": "{{ csrf_token() }}", 'statusPembayaran': $("#update-status-pembayaran").val()},
                         success: function(data){
                             
                         },
                         error: function(data){
-                            swal.fire({title:"Ticket Failed to Approved!", text:"This ticket was not approved successfully", icon:"error"});
+                            swal.fire({title:"Tolak Penyewaan Gagal!", text:"Tolak penyewaan gagal di proses.", icon:"error"});
                         }
                     }); 
                 } 
             }).then((result) => {
                 if(result.value){
-                    swal.fire({title:"Ticket Approved!", text:"This ticket has been approved on tickets list", icon:"success"})
+                    swal.fire({title:"Tolak Penyewaan Berhasil!", text:"Status penyewaan telah berhasil di perbarui.", icon:"success"})
                     .then(function(){ 
                         window.location.href = "";
                     });
