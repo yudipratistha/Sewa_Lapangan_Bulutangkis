@@ -29,7 +29,14 @@
                         <li><a href="{{route('pemilikLapangan.manajemenPaketBulananPemilikLapangan')}}">Manajemen Paket Bulanan</a></li>
                       </ul>
                     </li>
-                    <li class="dropdown "><a class="nav-link menu-title link-nav {{ isset($activeMenu) ? 'active' : '' }}" href="{{route('pemilikLapangan.riwayatPenyewaan')}}"><i class="icofont icofont-history" style="margin-right: 15px;vertical-align: bottom;float: none;margin-left: -3px;font-size: 21px;"></i><span>Riwayat Penyewaan</span></a></li>
+                    <li class="dropdown "><a class="nav-link menu-title {{ isset($activeMenu) ? 'active' : '' }}" href="javascript:void(0)"><i class="icofont icofont-history" style="margin-right: 15px;vertical-align: bottom;float: none;margin-left: -3px;font-size: 21px;"></i><span>Reports</span></a>
+                      <ul class="nav-submenu menu-content">
+                        <li><a href="{{route('pemilikLapangan.riwayatPenyewaan')}}">Riwayat Penyewaan</a></li>
+                        <li><a href="{{route('pemilikLapangan.pemilikLapanganRiwayatTotalPemasukan')}}">Total Pemasukan</a></li>
+                        <li><a href="{{route('pemilikLapangan.pemilikLapanganRiwayatPenggunaBookingTerbanyak')}}">Riwayat Pengguna Booking Terbanyak</a></li>
+                        <li><a href="{{route('pemilikLapangan.pemilikLapanganRiwayatBookingJamTerbanyak')}}">Riwayat Booking Jam Terbanyak</a></li>
+                      </ul>
+                    </li>
                   
                   @elseif (Auth::user()->user_status == 3)
                     <li class="dropdown"><a class="nav-link menu-title link-nav" href="{{route('penyewaLapangan.dashboard')}}"><i data-feather="home"></i><span>Dashboard</span></a></li>

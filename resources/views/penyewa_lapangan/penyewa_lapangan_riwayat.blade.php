@@ -87,6 +87,105 @@
         @include('layouts.footer')
     </div>
 </div>
+
+<!-- Modal Booking Counting-->
+<div class="modal fade" id="modal-booking-counting" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center d-block">
+                <h4 class="modal-title ">Invoice</h3>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="card-body">
+                <div class="col-sm-12">
+                    <div class="card pilih-pembayaran-card" style="border: 0;">
+                        <div class="card-header pt-2 pb-2 mb-3" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
+                            <h5 id='nama-lapangan-invc'></h5>
+                            <i class="fa fa-map-marker" style="margin-right: 5px;"></i><p id='alamat-lapangan-invc' style="display: inline-block;"></p>
+                        </div>
+                        <div class="card-body" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
+                            <h6 class="mb-0">Jadwal Booking</h6>
+                            <hr style="border-top: 1px dashed;"/>
+                            <div id="booking-counting">
+                            </div>
+                        </div>
+
+                        <div class="card-body mt-4" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
+                            <h6 class="mb-0">Ringkasan Pembayaran</h6>
+                            <hr style="border-top: 1px dashed;"/>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="card" style="border: 0;margin-bottom: 7px;">
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <p>Jenis Sewa</p>
+                                            </div>
+                                            <div>
+                                                <p id="jenis-sewa">-</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="card" style="border: 0;margin-bottom: 7px;">
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <p>Cara Pembayaran</p>
+                                            </div>
+                                            <div>
+                                                <p id="cara-pembayaran">-</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="card" style="border: 0;margin-bottom: 7px;">
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <p>Status Pembayaran</p>
+                                            </div>
+                                            <div>
+                                                <p id="status-pembayaran">-</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="card" style="border: 0;margin-bottom: 7px;">
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <p>Biaya Sewa</p>
+                                            </div>
+                                            <div>
+                                                <p>Rp<span id="biaya-sewa">-</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="card" style="border: 0;margin-bottom: 7px;">
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <p>Total</p>
+                                            </div>
+                                            <div>
+                                                <p>Rp<span id="total-biaya-sewa">-</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-square btn-outline-light txt-dark" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('plugin_js')
@@ -174,40 +273,40 @@
                 { "data": "tgl_booking", "orderable": true, "width": "14%" },
                 { "data": "nama_lapangan" },
                 { "data": "status_pembayaran", "orderable": true, "width": "13%" },
-                { "defaultContent": "", "orderable": false, "width": "10%" }
+                { "defaultContent": "", "orderable": false, "width": "10%",
+                    render: function (data, type, row) { 
+                        if(row.status_pembayaran === "Lunas" || row.status_pembayaran === "DP"){
+                            return '<button type="button" class="btn btn-outline-primary" id="view-data-penyewaan-invoice" style="width: 30px; padding-top: 5px; padding-left: 0px; padding-right: 0px; padding-bottom: 2px; margin-right:5px;"><i class="icofont icofont-ui-note" style="font-size:20px;"></i></button>'
+                        }
+                    }
+                },
         ],
         order: [[ 0, "asc" ]],
         fixedColumns:{left: 1},
         initComplete:function( settings, json){
-            // $("div.dataTables_length").append('&nbsp<span onclick="approveTicket()" class="btn btn-pill btn-outline-secondary btn-air-secondary btn-sm">Approve Ticket</span>');
-            // $('#data-ergonomic_length').appendTo('#length-data-ergonomic');
-            // $('#data-ergonomic_info').appendTo('#pagination-data-ergonomic');
-            // $('#data-ergonomic_paginate').appendTo('#pagination-data-ergonomic');
-            // $('#data-ergonomic tbody').on('click', "#edit-data-ergonomic", function() {
-            //     let row = $(this).parents('tr')[0];
-            //     console.log(table.row(row).data().ssp_time_id);
-                
-            //     $('#edit-body-data-ergonomic').append('<input type="hidden" id="ticket-id" name="ticket_id" value="'+table.row(row).data().ssp_ticket_id+'">\
-            //         <input type="hidden" id="time-id" name="time_id" value="'+table.row(row).data().ssp_time_id+'">');
+            $('#data-riwayat-penyewa_length').appendTo('#length-data-riwayat-penyewa');
+            $('#data-riwayat-penyewa_filter').appendTo('#length-data-riwayat-penyewa');
+            $('#data-riwayat-penyewa_info').appendTo('#pagination-data-riwayat-penyewa');
+            $('#data-riwayat-penyewa_paginate').appendTo('#pagination-data-riwayat-penyewa');
+            $('#data-riwayat-penyewa tbody').on('click', "#view-data-penyewaan-invoice", function() {
+                let row = $(this).parents('tr')[0];
+                console.log(table.row(row).data());
 
-            //     Object.keys(table.row(row).data()).forEach(function(item, index) {
-            //         if(index >= 6){
-            //             $('#edit-body-data-ergonomic').append('\
-            //                 <div class="form-group row" id="job-analyst-div">\
-            //                     <label class="col-xl-3 col-sm-4 col-form-label">'+ucwords(item.replace(/_/g, " "))+'</label>\
-            //                     <div class="col-xl-9 col-sm-8">\
-            //                         <input type="text" class="form-control" id="'+item.replace(/_/g, "-")+'" name="'+item+'" placeholder="'+ucwords(item.replace(/_/g, " "))+'..." value="'+table.row(row).data()[item]+'">\
-            //                     </div>\
-            //                 </div>');
-            //         }
-            //     })
-            //     $('#editDataErgonomic').modal('show');
-            // });
+                link = "{{route('penyewaLapangan.getInvoice', ':pembayaranId')}}";
+                link = link.replace(":pembayaranId", table.row(row).data().pembayaran_id);
 
-            // $('#data-ergonomic tbody').on('click', "#delete-data-ergonomic", function() {
-            //     let row = $(this).parents('tr')[0];
-            //     deleteDataErgonomic(table.row(row).data().ssp_time_id);
-            // });
+                $.ajax({
+                    url: link,
+                    method: "GET",
+                    dataType: 'json',
+                    success: function(data){
+                        bookingCounting(data)
+                    },
+                    error: function(data){
+                        console.log("asdsad", data)
+                    }
+                });
+            });
         }
     });
     table.on('order.dt search.dt', function () {
@@ -238,5 +337,125 @@
         $('#data-riwayat-penyewa').DataTable().ajax.reload();
     });
 
+    function bubbleSort(arr) {
+        var len = arr.length;
+
+        for (var i = 0; i < len ; i++) {
+            for(var j = 0 ; j < len - i - 1; j++){
+                if (arr[j] > arr[j + 1]) {
+                    // swap
+                    var temp = arr[j];
+                    arr[j] = arr[j+1];
+                    arr[j + 1] = temp;
+                }
+            }
+        }
+        return arr;
+    }
+
+    function dynamicSort(property) {
+        var sortOrder = 1;
+        if(property[0] === "-") {
+            sortOrder = -1;
+            property = property.substr(1);
+        }
+        return function (a,b) {
+            var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+            return result * sortOrder;
+        }
+    }
+
+    $('body').on('hidden.bs.modal', '#modal-booking-counting', function () {
+        $('#booking-counting').children().remove();
+    });
+
+    function bookingCounting(orderData){
+        
+        var courtStatus= false;
+        var bookingTime = {};
+        const orderDataSort = Object.keys(orderData).sort().reduce((obj, key) => { 
+                obj[key] = orderData[key]; 
+                return obj;
+            }, 
+            {}
+        );
+
+        if(Object.keys(orderDataSort).length !== 0){
+            for(let index = 0; index < Object.keys(orderDataSort).length; ++index){
+                orderDataSort[Object.keys(orderDataSort)[index]].sort(dynamicSort("court"))
+                for(let index2 = 0; index2 < orderDataSort[Object.keys(orderDataSort)[index]].length; ++index2){
+                    var orderDataArr = orderDataSort[Object.keys(orderDataSort)[index]][index2];
+                    var orderJam = orderDataArr.jam_mulai.substring(0, 5) +' - '+ orderDataArr.jam_selesai.substring(0, 5);
+                    var hargaPerJam = orderDataArr.harga_per_jam;
+                    var jenisBooking = orderDataArr.jenis_booking;
+                    var caraPembayaran = orderDataArr.nama_jenis_pembayaran;
+                    var statusPembayaran = orderDataArr.status_pembayaran;
+                    var totalBiaya = orderDataArr.total_biaya;
+                    var namaLapangan = orderDataArr.nama_lapangan;
+                    var alamatLapangan = orderDataArr.alamat_lapangan;
+                    
+                    if(index2 === 0 || Object.keys(bookingTime).includes((orderDataArr.court+'-'+Object.keys(orderDataSort)[index]).toString()) === false){
+                        courtStatus = true;
+                    }else{
+                        courtStatus = false;
+                    }
+
+                    if(bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]] === undefined){
+                        bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]]= [];
+                    }
+
+                    bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]].push(orderJam);
+                    bubbleSort(bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]]);
+
+                    if(courtStatus === true){
+                        let dateConvert = new Date(Object.keys(orderDataSort)[index].split('-')[0] + '/' + Object.keys(orderDataSort)[index].split('-')[1] + '/' + Object.keys(orderDataSort)[index].split('-')[2]);
+                        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+
+                        // console.log(orderDataArr.court)
+                        // console.log(dateConvert.toLocaleDateString('id', options))
+
+                        $("#booking-counting").append('\
+                            <span style="font-size: 15px;font-weight: bold;">Court '+orderDataArr.court+'</span>\
+                            <p style="margin-top: 10px;">'+dateConvert.toLocaleDateString('id', options)+'</p>\
+                            <div id="booking-hour-counting-'+orderDataArr.court+'-'+Object.keys(orderDataSort)[index]+'" class="row booking-hour-counting">\
+                            </div>\
+                        ');
+                    }
+                }
+            }
+
+            // console.log(bookingTime)
+            $.each(bookingTime, function(index, value) {
+                // console.log(value);
+                $.each(value, function(bookingTimeIndex, bookingTimeValue){
+                    // console.log(bookingTimeValue);
+                    $('#booking-hour-counting-'+index).append('\
+                        <div class="col-sm-12">\
+                            <div class="card" style="border: 0;margin-bottom: 7px;">\
+                                <div class="media" style="background-color: azure;border-radius: 5px;border-left: 5px gray solid;padding: 3px 5px 0px 5px;">\
+                                    <div class="media-body">\
+                                        <p>'+bookingTimeValue+'</p>\
+                                    </div>\
+                                    <div>\
+                                        <p>'+((jenisBooking === 'per_jam') ? hargaPerJam : 'Harga Sudah Disesuaikan!')+'</p>\
+                                    </div>\
+                                </div>\
+                            </div>\
+                        </div>\
+                    ');
+                });
+                $('#booking-hour-counting-'+index).children().last().append('<hr/>');
+            }); 
+            
+            $('#nama-lapangan-invc').empty().append(namaLapangan);
+            $('#alamat-lapangan-invc').empty().append(alamatLapangan);
+            $('#jenis-sewa').empty().append(((jenisBooking === 'per_jam') ? 'Per Jam' : 'Bulanan'));
+            $('#cara-pembayaran').empty().append(caraPembayaran);
+            $('#status-pembayaran').empty().append(statusPembayaran);
+            $('#biaya-sewa').empty().append(totalBiaya);
+            $('#total-biaya-sewa').empty().append(totalBiaya);
+            $('#modal-booking-counting').modal('show');
+        }
+    }
 </script>
 @endsection

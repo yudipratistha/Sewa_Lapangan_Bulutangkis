@@ -65,10 +65,10 @@
                                                 <span class="fw-bold" id="jenis-booking">Per Jam</span>
                                             </th>
                                         </tr>
-                                        <tr>
+                                        <!-- <tr>
                                             <td scope="row" style="width: 145px;padding-left: 0px;padding-right: 0px;">Tanggal Booking <span class="pull-right">:&nbsp;</span></td>
                                             <th style="padding-left: 0px;"><span class="fw-bold" id="tgl-booking">-</span></th>
-                                        </tr>
+                                        </tr> -->
                                         <tr>
                                             <td scope="row" style="width: 145px;padding-left: 0px;padding-right: 0px;">Total <span class="pull-right">:&nbsp;</span></td>
                                             <th style="padding-left: 0px;">Rp<span class="fw-bold" id="total-harga">-</span></th>
@@ -86,7 +86,8 @@
                                     <span class="btn btn-secondary" style="cursor: not-allowed;background-color: #90b4cd !important;border-color: #90b4cd !important;"></i>Ada pembayaran yang belum lunas!</button>
                                     <!-- <button type="button" onClick="pesanLapangan()" class="btn btn-square btn-outline-blue">Konfirmasi Sewa</button> -->
                                 @else
-                                    <button type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#modal-metode-pembayaran" data-bs-original-title="" title="" class="btn btn-square btn-outline-blue">Pilih Pembayaran</button>
+                                    <button type="button" onClick="bookingCounting()" class="btn btn-square btn-outline-blue">Checkout</button>
+                                    <!-- <button type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#modal-metode-pembayaran" data-bs-original-title="" title="" class="btn btn-square btn-outline-blue">Pilih Pembayaran</button> -->
                                     <!-- <button type="button" id="pay-button" class="btn btn-square btn-outline-blue">Pilih Pembayaran</button> -->
                                 @endif
                                 <!-- <button type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#modal-metode-pembayaran" data-bs-original-title="" title="" class="btn btn-square btn-outline-blue">Pilih Pembayaran</button> -->
@@ -149,12 +150,88 @@
     </div>
 </div>
 
-<!-- Modal Metode Pembayaran-->
-<div class="modal fade" id="modal-metode-pembayaran" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<!-- Modal Booking Counting-->
+<div class="modal fade" id="modal-booking-counting" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-md" role="document">
         <div class="modal-content">
             <div class="modal-header text-center d-block">
-                <h4 class="modal-title ">Pembayaran</h3>
+                <h4 class="modal-title ">Review Booking</h3>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="card-body">
+                <div class="col-sm-12">
+                    <div class="card pilih-pembayaran-card" style="border: 0;">
+                        <div class="card-header pt-2 pb-2 mb-3" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
+                            <h5>Lapangan Bulu Tangkis Pak Tomo</h5>
+                            <i class="fa fa-map-marker" style="margin-right: 5px;"></i><p style="display: inline-block;">Jl. Bung Tomo 1</p>
+                        </div>
+                        <div class="card-body" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
+                            <h6 class="mb-0">Jadwal Booking</h6>
+                            <hr style="border-top: 1px dashed;"/>
+                            <div id="booking-counting">
+                            </div>
+                        </div>
+
+                        <div class="card-body mt-4" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
+                            <h6 class="mb-0">Ringkasan Pembayaran</h6>
+                            <hr style="border-top: 1px dashed;"/>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="card" style="border: 0;margin-bottom: 7px;">
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <p>Jenis Sewa</p>
+                                            </div>
+                                            <div>
+                                                <p>Per Jam</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="card" style="border: 0;margin-bottom: 7px;">
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <p>Biaya Sewa</p>
+                                            </div>
+                                            <div>
+                                                <p>Rp<span id="biaya-sewa">-</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="card" style="border: 0;margin-bottom: 7px;">
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <p>Total</p>
+                                            </div>
+                                            <div>
+                                                <p>Rp<span id="total-biaya-sewa">-</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-square btn-outline-light txt-dark" data-bs-dismiss="modal">Close</button>
+                <button type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#modal-metode-pembayaran" data-bs-original-title="" title="" class="btn btn-square btn-outline-blue">Pilih Pembayaran</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Metode Pembayaran-->
+<div class="modal fade" id="modal-metode-pembayaran" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="background: rgba(98, 98, 98, 0.7);">
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center d-block">
+                <h4 class="modal-title ">Pilih Metode Pembayaran</h3>
                 <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="card-body">
@@ -187,7 +264,6 @@
 
 @section('plugin_js')
 <script src="{{url('/assets/js/datepicker/date-picker-jquery-ui/jquery-ui.js')}}"></script>
-<script src="{{url('/assets/js/datepicker/date-picker/datepicker.en.js')}}"></script>
 <script src="{{url('/assets/js/sweet-alert/sweetalert.min.js')}}"></script>
 <script src="{{url('/assets/js/datatable/datatables/jquery.dataTables.min.js')}}"></script>
 <script src="{{url('/assets/js/datepicker/date-time-picker/moment.min.js')}}"></script>
@@ -231,6 +307,13 @@
     var orderData = {};
     var total_biaya = 0;
 
+    $.datepicker.setDefaults(
+        $.extend(
+            {'dateFormat':'dd-mm-yy'},
+            $.datepicker.regional['id']
+        )
+    );
+
     for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
         $('#table-court-'+courtCount).DataTable({
             processing: true,
@@ -253,7 +336,7 @@
         minDate: new Date(),
         autoclose: true,
         onSelect: function(dateText) {
-            $('#tgl-booking').empty().append(dateText);
+            // $('#tgl-booking').empty().append(dateText);
             date = dateText;
 
             $.ajax({
@@ -339,6 +422,114 @@
     $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
         $.fn.dataTable.tables({ visible: true, api: true}).columns.adjust();
     });
+
+    function bubbleSort(arr) {
+        var len = arr.length;
+
+        for (var i = 0; i < len ; i++) {
+            for(var j = 0 ; j < len - i - 1; j++){
+                if (arr[j] > arr[j + 1]) {
+                    // swap
+                    var temp = arr[j];
+                    arr[j] = arr[j+1];
+                    arr[j + 1] = temp;
+                }
+            }
+        }
+        return arr;
+    }
+
+    function dynamicSort(property) {
+        var sortOrder = 1;
+        if(property[0] === "-") {
+            sortOrder = -1;
+            property = property.substr(1);
+        }
+        return function (a,b) {
+            var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+            return result * sortOrder;
+        }
+    }
+
+    $('body').on('hidden.bs.modal', '#modal-booking-counting', function () {
+        $('#booking-counting').children().remove();
+    });
+
+
+    function bookingCounting(){
+        var courtStatus= false;
+        var bookingTime = {};
+        const orderDataSort = Object.keys(orderData).sort().reduce((obj, key) => { 
+                obj[key] = orderData[key]; 
+                return obj;
+            }, 
+            {}
+        );
+
+        if(Object.keys(orderDataSort).length !== 0){
+            for(let index = 0; index < Object.keys(orderDataSort).length; ++index){
+                orderDataSort[Object.keys(orderDataSort)[index]].sort(dynamicSort("court"))
+                for(let index2 = 0; index2 < orderDataSort[Object.keys(orderDataSort)[index]].length; ++index2){
+                    var orderDataArr = orderDataSort[Object.keys(orderDataSort)[index]][index2];
+                    
+                    if(index2 === 0 || Object.keys(bookingTime).includes((orderDataArr.court+'-'+Object.keys(orderDataSort)[index]).toString()) === false){
+                        courtStatus = true;
+                    }else{
+                        courtStatus = false;
+                    }
+
+                    if(bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]] === undefined){
+                        bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]]= [];
+                    }
+
+                    bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]].push(orderDataArr.jam)
+                    bubbleSort(bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]])
+
+                    if(courtStatus === true){
+                        let dateConvert = new Date(Object.keys(orderDataSort)[index].split('-')[2] + '/' + Object.keys(orderDataSort)[index].split('-')[1] + '/' + Object.keys(orderDataSort)[index].split('-')[0]);
+                        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+
+                        // console.log(orderDataArr.court)
+                        // console.log(dateConvert.toLocaleDateString('id', options))
+
+                        $("#booking-counting").append('\
+                                <span style="font-size: 15px;font-weight: bold;">Court '+orderDataArr.court+'</span>\
+                                <p style="margin-top: 10px;">'+dateConvert.toLocaleDateString('id', options)+'</p>\
+                                <div id="booking-hour-counting-'+orderDataArr.court+'-'+Object.keys(orderDataSort)[index]+'" class="row booking-hour-counting">\
+                                </div>\
+                        ');
+                    }
+                }
+            }
+
+            console.log(orderDataSort)
+            $.each(bookingTime, function(index, value) {
+                // console.log(value);
+                $.each(value, function(bookingTimeIndex, bookingTimeValue){
+                    console.log(bookingTimeValue);
+                        $('#booking-hour-counting-'+index).append('\
+                        <div class="col-sm-12">\
+                            <div class="card" style="border: 0;margin-bottom: 7px;">\
+                                <div class="media" style="background-color: azure;border-radius: 5px;border-left: 5px gray solid;padding: 3px 5px 0px 5px;">\
+                                    <div class="media-body">\
+                                        <p>'+bookingTimeValue+'</p>\
+                                    </div>\
+                                    <div>\
+                                        <p>Rp'+harga_per_jam+'</p>\
+                                    </div>\
+                                </div>\
+                            </div>\
+                        </div>\
+                    ');
+                });
+                $('#booking-hour-counting-'+index).children().last().append('<hr/>');
+            }); 
+            
+            $('#biaya-sewa').empty().append(total_biaya);
+            $('#total-biaya-sewa').empty().append(total_biaya);
+            $('#modal-booking-counting').modal('show');
+        }
+    }
 
     
     function pesanLapangan(){

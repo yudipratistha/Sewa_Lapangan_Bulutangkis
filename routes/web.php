@@ -63,6 +63,15 @@ Route::group(['prefix' => 'pemilik-lapangan/'], function(){
 
         Route::get('riwayat-penyewaan', 'RiwayatController@pemilikLapanganRiwayatPenyewaan')->name('pemilikLapangan.riwayatPenyewaan');
         Route::post('data-riwayat-penyewaan/', 'RiwayatController@getDataRiwayatPenyewaanPemilikLapangan')->name('pemilikLapangan.getDataRiwayatPenyewaanPemilikLapangan');
+
+        Route::get('riwayat-penyewaan-total-pemasukan', 'RiwayatController@pemilikLapanganRiwayatTotalPemasukan')->name('pemilikLapangan.pemilikLapanganRiwayatTotalPemasukan');
+        Route::post('data-riwayat-penyewaan-total-pemasukan/', 'RiwayatController@getDataRiwayatTotalPemasukanPemilikLapangan')->name('pemilikLapangan.getDataRiwayatTotalPemasukanPemilikLapangan');
+
+        Route::get('riwayat-penyewaan-pengguna-booking-terbanyak', 'RiwayatController@pemilikLapanganRiwayatPenggunaBookingTerbanyak')->name('pemilikLapangan.pemilikLapanganRiwayatPenggunaBookingTerbanyak');
+        Route::post('data-riwayat-penyewaan-pengguna-booking-terbanyak/', 'RiwayatController@getDataRiwayatPenggunaBookingTerbanyakPemilikLapangan')->name('pemilikLapangan.getDataRiwayatPenggunaBookingTerbanyakPemilikLapangan');
+
+        Route::get('riwayat-penyewaan-booking-jam-terbanyak', 'RiwayatController@pemilikLapanganRiwayatBookingJamTerbanyak')->name('pemilikLapangan.pemilikLapanganRiwayatBookingJamTerbanyak');
+        Route::post('data-riwayat-penyewaan-booking-jam-terbanyak/', 'RiwayatController@getDataRiwayatBookingJamTerbanyakPemilikLapangan')->name('pemilikLapangan.getDataRiwayatBookingJamTerbanyakPemilikLapangan');
     });
 });
  
@@ -98,5 +107,7 @@ Route::group(['prefix' => 'penyewa-lapangan/'], function(){
     
         Route::get('riwayat-penyewaan', 'RiwayatController@penyewaLapanganRiwayatPenyewaan')->name('penyewaLapangan.riwayatPenyewaan');
         Route::post('data-riwayat-penyewaan', 'RiwayatController@getDataRiwayatPenyewaLapangan')->name('penyewaLapangan.getDataRiwayatPenyewaLapangan');
+
+        Route::get('get-invoice/{pembayaranId}', 'RiwayatController@getPenyewaLapanganInvoice')->name('penyewaLapangan.getInvoice');
     });
 });
