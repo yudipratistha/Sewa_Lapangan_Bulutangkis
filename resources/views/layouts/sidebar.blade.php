@@ -34,7 +34,7 @@
                         <li><a href="{{route('pemilikLapangan.riwayatPenyewaan')}}">Riwayat Penyewaan</a></li>
                         <li><a href="{{route('pemilikLapangan.pemilikLapanganRiwayatTotalPemasukan')}}">Total Pemasukan</a></li>
                         <li><a href="{{route('pemilikLapangan.pemilikLapanganRiwayatPenggunaBookingTerbanyak')}}">Riwayat Pengguna Booking Terbanyak</a></li>
-                        <li><a href="{{route('pemilikLapangan.pemilikLapanganRiwayatBookingJamTerbanyak')}}">Riwayat Booking Jam Terbanyak</a></li>
+                        <!-- <li><a href="{{route('pemilikLapangan.pemilikLapanganRiwayatBookingJamTerbanyak')}}">Riwayat Booking Jam Terbanyak</a></li> -->
                       </ul>
                     </li>
                   

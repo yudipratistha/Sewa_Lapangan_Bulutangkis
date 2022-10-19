@@ -78,12 +78,12 @@
         data: {"_token": "{{ csrf_token() }}"},
         success: function(data) {
             var dataLabels = data.map(function(e) {
-                return e.monthly;
+                return e.weekly_start_end;
             });
             var dataCharts = data.map(function(e) {
-                return e.total_pemasukan;
+                return e.total_booking;
             });
-            console.log(data)
+
             var dom = document.getElementById('chart-container');
             var myChart = echarts.init(dom, null, {
             renderer: 'canvas',
@@ -94,62 +94,50 @@
             var option;
 
             option = {
-            title: {
-                text: 'Total Pemasukan',
-                subtext: 'Per Tiga Bulan',
-                left: 'center'
-            },
-            tooltip: {
-                trigger: 'item',
-                valueFormatter: (value) => 'Rp' + value.toFixed(0)
-                // formatter: '{a} <br/> Bulan {b}\nRp.{c}',
-            },
-            //   legend: {
-            //     orient: 'vertical',
-            //     left: 'left'
-            //   },
-            series: [
-                {
-                name: 'Total Pemasukan Per Bulan',
-                type: 'pie',
-                radius: '50%',
-                left: 'center',
-                width: 800,
-                data: data,
-                // tooltip:{
-                //     show:false
-                // },
-                label: {
-                    alignTo: 'edge',
-                    formatter: '{name|Bulan {b}}\n{time|Rp.{c}}',
-                    minMargin: 5,
-                    edgeDistance: 10,
-                    lineHeight: 15,
-                    rich: {
-                    time: {
-                        fontSize: 10,
-                        color: '#999'
-                    }
+                height: '75%',
+                title: {
+                    text: 'Riwayat Total Pemasukan',
+                    left: 'center',
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function (params) {
+                        console.log(params)
+                        return '<div style="margin: 0px 0 0;line-height:1;">\
+                                <div style="font-size:14px;color:#666;font-weight:400;line-height:1;">Total Pemasukan Per Bulan</div>\
+                                <div style="margin: 10px 0 0;line-height:1;">\
+                                    <div style="margin: 0px 0 0;line-height:1;">\
+                                        '+params[0].marker+'\
+                                        <span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">Total Booking '+params[0].value+' </span>\
+                                        <span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">Total Pemasukan Rp'+params[0].data.total_pemasukan+'</span>\
+                                        <div style="clear:both"></div>\
+                                    </div>\
+                                    <div style="clear:both"></div>\
+                                </div>\
+                                <div style="clear:both"></div>\
+                            </div>';
                     }
                 },
-                labelLine: {
-                    length: 15,
-                    length2: 0,
-                    maxSurfaceAngle: 80
+                
+                xAxis: {
+                    type: "category",
+                    name: 'Per Minggu',
+                    nameLocation: 'middle',
+                    nameGap: 40,
+                    data: dataLabels,
                 },
-                labelLayout: function (params) {
-                    const isLeft = params.labelRect.x < myChart.getWidth() / 2;
-                    const points = params.labelLinePoints;
-                    // Update the end point.
-                    points[2][0] = isLeft
-                    ? params.labelRect.x
-                    : params.labelRect.x + params.labelRect.width;
-                    return {
-                    labelLinePoints: points
-                    };
+                yAxis: {
+                    type: 'value',
+                    name: 'Total Booking Per Minggu',
+                    nameLocation: 'middle',
+                    nameGap: 40,
                 },
-                }
-            ]
+                series: [
+                    {
+                        data: data,
+                        type: 'line',
+                    }
+                ]
             };
 
             if (option && typeof option === 'object') {

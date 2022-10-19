@@ -72,12 +72,29 @@
 <script type="text/javascript" src="{{url('/assets/js/chart/echarts/echarts.min.js')}}"></script>
 
 <script type="text/javascript">
+    function dynamicSort(property) {
+        var sortOrder = 1;
+        if(property[0] === "-") {
+            sortOrder = -1;
+            property = property.substr(1);
+        }
+        return function (a,b) {
+            var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+            return result * sortOrder;
+        }
+    }
+
     $.ajax({
         type: "POST",
         url: "{{route('pemilikLapangan.getDataRiwayatPenggunaBookingTerbanyakPemilikLapangan')}}",
         data: {"_token": "{{ csrf_token() }}"},
         success: function(data) {
-            console.log(data)
+            data.sort(dynamicSort("value"))
+
+            var dataLabels = data.map(function(e) {
+                return e.name;
+            });
+
             var dom = document.getElementById('chart-container');
             var myChart = echarts.init(dom, null, {
             renderer: 'canvas',
@@ -88,78 +105,48 @@
             var option;
 
             option = {
+                height: '80%',
             title: {
-                text: 'Total Pengguna Booking Terbanyak',
-                subtext: 'Per Tiga Bulan',
-                left: 'center'
+                text: 'Riwayat Pengguna Terbanyak',
+                left: 'center',
             },
-            tooltip: {
-                trigger: 'item',
-                // valueFormatter: (nama_pengguna) => 'Total Booking ' + nama_pengguna.toFixed(0)
-                formatter: function(d) {
-                    console.log(d)
-                    return '<div style="margin: 0px 0 0;line-height:1;">\
-                            <div style="font-size:14px;color:#666;font-weight:400;line-height:1;">Total Pengguna Booking Terbanyak Per Bulan</div>\
-                            <div style="margin: 10px 0 0;line-height:1;">\
-                                <div style="margin: 0px 0 0;line-height:1;">\
-                                    <span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#91cc75;"></span>\
-                                    <span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">Atas Nama '+d.data.nama_pengguna+'</span>\
-                                    <span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">Total Booking '+d.data.value+'</span>\
-                                    <div style="clear:both"></div>\
-                                </div>\
-                                <div style="clear:both"></div>\
-                            </div>\
-                            <div style="clear:both"></div>\
-                        </div>';
+            grid: { containLabel: true },
+            xAxis: { 
+                name: 'Total Booking', 
+                nameLocation: 'middle',
+                nameGap: 40, 
+            },
+            yAxis: { 
+                type: 'category', 
+                
+                nameGap: 10,
+                data: dataLabels,
+            },
+            visualMap: {
+                show: false,
+                min: 0,
+                max: 100,
+                // Map the score column to color
+                dimension: 0,
+                inRange: {
+                color: ['#65B581', '#FFCE34', '#FD665F']
                 }
             },
-            //   legend: {
-            //     orient: 'vertical',
-            //     left: 'left'
-            //   },
             series: [
                 {
-                name: 'Total Pemasukan Per Bulan',
-                type: 'pie',
-                radius: '50%',
-                left: 'center',
-                width: 800,
+                type: 'bar',
                 data: data,
-                // tooltip:{
-                //     show:false
-                // },
+                barMinWidth: 10,
+                barMaxWidth: 70,
                 label: {
-                    alignTo: 'edge',
-                    formatter: '{name|Total Booking {c}}\n{time|Bulan {b}}',
-                    minMargin: 5,
-                    edgeDistance: 10,
-                    lineHeight: 15,
-                    rich: {
-                    time: {
-                        fontSize: 10,
-                        color: '#999'
-                    }
-                    }
-                },
-                labelLine: {
-                    length: 15,
-                    length2: 0,
-                    maxSurfaceAngle: 80
-                },
-                labelLayout: function (params) {
-                    const isLeft = params.labelRect.x < myChart.getWidth() / 2;
-                    const points = params.labelLinePoints;
-                    // Update the end point.
-                    points[2][0] = isLeft
-                    ? params.labelRect.x
-                    : params.labelRect.x + params.labelRect.width;
-                    return {
-                    labelLinePoints: points
-                    };
-                },
+                    show: true,
+                    position: 'right',
+                    formatter: 'Total Booking: {@amount}'
+                }
                 }
             ]
             };
+
 
             if (option && typeof option === 'object') {
             myChart.setOption(option);
