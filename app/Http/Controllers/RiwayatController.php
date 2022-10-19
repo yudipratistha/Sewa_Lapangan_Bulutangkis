@@ -164,6 +164,8 @@ class RiwayatController extends Controller
             tb_riwayat_status_pembayaran.`status_pembayaran` != \'Belum Lunas\' && tb_riwayat_status_pembayaran.`status_pembayaran` != \'Proses\')
             
             GROUP BY FROM_DAYS(TO_DAYS(tb_pembayaran.created_at) -MOD(TO_DAYS(tb_pembayaran.created_at) -1, 7))
+            ORDER BY VALUE DESC
+            LIMIT 5
         ');
 
         return response()->json($totalPenggunaBookingTerbanyak);

@@ -106,50 +106,49 @@
 
             option = {
                 height: '80%',
-            title: {
-                text: 'Riwayat Pengguna Terbanyak',
-                left: 'center',
-            },
-            grid: { containLabel: true },
-            xAxis: { 
-                name: 'Total Booking', 
-                nameLocation: 'middle',
-                nameGap: 40, 
-            },
-            yAxis: { 
-                type: 'category', 
-                
-                nameGap: 10,
-                data: dataLabels,
-            },
-            visualMap: {
-                show: false,
-                min: 0,
-                max: 100,
-                // Map the score column to color
-                dimension: 0,
-                inRange: {
-                color: ['#65B581', '#FFCE34', '#FD665F']
-                }
-            },
-            series: [
-                {
-                type: 'bar',
-                data: data,
-                barMinWidth: 10,
-                barMaxWidth: 70,
-                label: {
-                    show: true,
-                    position: 'right',
-                    formatter: 'Total Booking: {@amount}'
-                }
-                }
-            ]
+                title: {
+                    text: 'Riwayat Pengguna Terbanyak',
+                    left: 'center',
+                },
+                grid: { containLabel: true },
+                xAxis: { 
+                    name: 'Total Booking', 
+                    nameLocation: 'middle',
+                    nameGap: 40, 
+                },
+                yAxis: { 
+                    type: 'category', 
+                    nameGap: 10,
+                    data: dataLabels,
+                },
+                visualMap: {
+                    show: false,
+                    min: 0,
+                    max: 100,
+                    // Map the score column to color
+                    dimension: 0,
+                    inRange: {
+                    color: ['#65B581', '#FFCE34', '#FD665F']
+                    }
+                },
+                series: [
+                    {
+                    type: 'bar',
+                    data: data,
+                    barMinWidth: 10,
+                    barMaxWidth: 70,
+                    label: {
+                        show: true,
+                        position: 'right',
+                        formatter: 'Total Booking: {@amount}'
+                    }
+                    }
+                ]
             };
 
 
             if (option && typeof option === 'object') {
-            myChart.setOption(option);
+                myChart.setOption(option);
             }
 
             window.addEventListener('resize', myChart.resize);

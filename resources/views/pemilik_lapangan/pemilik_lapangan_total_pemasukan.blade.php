@@ -121,9 +121,13 @@
                 
                 xAxis: {
                     type: "category",
+                    boundaryGap: false,
+                    axisLabel: {
+                        rotate: 25,
+                    },
                     name: 'Per Minggu',
-                    nameLocation: 'middle',
-                    nameGap: 40,
+                    // nameLocation: 'middle',
+                    // nameGap: 70,
                     data: dataLabels,
                 },
                 yAxis: {
