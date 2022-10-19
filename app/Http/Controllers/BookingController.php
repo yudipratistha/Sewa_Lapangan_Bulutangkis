@@ -77,7 +77,8 @@ class BookingController extends Controller
                                 'jam_mulai' => $jam[0],
                                 'jam_selesai' => $jam[1],
                                 'court' => $bookingDataVal['court'],
-                                'tgl_booking' => date('Y-m-d', strtotime($orderDataKey))
+                                'tgl_booking' => date('Y-m-d', strtotime($orderDataKey)),
+                                'harga_per_jam' => $dataLapangan->harga_per_jam
                             ));
                         }
                     }
