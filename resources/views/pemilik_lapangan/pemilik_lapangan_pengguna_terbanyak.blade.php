@@ -84,6 +84,12 @@
         }
     }
 
+    const formatter = new Intl.NumberFormat('id', {
+        style: 'currency',
+        currency: 'IDR',
+        maximumFractionDigits: 0,
+    });
+
     $.ajax({
         type: "POST",
         url: "{{route('pemilikLapangan.getDataRiwayatPenggunaBookingTerbanyakPemilikLapangan')}}",
@@ -115,6 +121,14 @@
                     name: 'Total Booking', 
                     nameLocation: 'middle',
                     nameGap: 40, 
+                    axisLabel: {
+                        interval: 0,
+                        formatter: function (value) {
+                            if (Math.floor(value) === value) {
+                                return formatter.format(value);
+                            }
+                        }
+                    }
                 },
                 yAxis: { 
                     type: 'category', 
@@ -131,8 +145,7 @@
                     color: ['#65B581', '#FFCE34', '#FD665F']
                     }
                 },
-                series: [
-                    {
+                series: [{
                     type: 'bar',
                     data: data,
                     barMinWidth: 10,
@@ -140,10 +153,11 @@
                     label: {
                         show: true,
                         position: 'right',
-                        formatter: 'Total Booking: {@amount}'
+                        formatter: function(d) {
+                            return 'Total Biaya Booking: '+formatter.format(d.data.value)
+                        }
                     }
-                    }
-                ]
+                }]
             };
 
 

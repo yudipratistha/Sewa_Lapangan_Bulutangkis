@@ -79,7 +79,7 @@
                                         </tr>
                                         <tr>
                                             <td scope="row" style="width: 145px;padding-left: 0px;padding-right: 0px;">Total <span class="pull-right">:&nbsp;</span></td>
-                                            <th style="padding-left: 0px;">Rp<span class="fw-bold" id="total-harga">-</span></th>
+                                            <th style="padding-left: 0px;"><span class="fw-bold" id="total-harga">-</span></th>
                                         </tr>
                                         <!-- <tr>
                                             <td scope="row" style="width: 145px;padding-left: 0px;padding-right: 0px;">Pilih Pembayaran <span class="pull-right">:&nbsp;</span></td>
@@ -203,7 +203,7 @@
                                                 <p>Biaya Sewa</p>
                                             </div>
                                             <div>
-                                                <p>Rp<span id="biaya-sewa">-</span></p>
+                                                <p><span id="biaya-sewa">-</span></p>
                                             </div>
                                         </div>
                                     </div>
@@ -216,7 +216,7 @@
                                                 <p>Total</p>
                                             </div>
                                             <div>
-                                                <p>Rp<span id="total-biaya-sewa">-</span></p>
+                                                <p><span id="total-biaya-sewa">-</span></p>
                                             </div>
                                         </div>
                                     </div>
@@ -318,6 +318,12 @@
     var orderData = {};
     var sisaDurasi = dataPaketSewaBulanan.total_durasi_jam;
 
+    const formatter = new Intl.NumberFormat('id', {
+        style: 'currency',
+        currency: 'IDR',
+        maximumFractionDigits: 0,
+    });
+
     $.datepicker.setDefaults(
         $.extend(
             {'dateFormat':'dd-mm-yy'},
@@ -328,7 +334,7 @@
     console.log(dataPaketSewaBulanan.total_durasi_jam)
     $('#total-durasi').empty().append(dataPaketSewaBulanan.total_durasi_jam);
     $('#sisa-durasi').empty().append(dataPaketSewaBulanan.total_durasi_jam);
-    $('#total-harga').empty().append(dataPaketSewaBulanan.total_harga);
+    $('#total-harga').empty().append(formatter.format(dataPaketSewaBulanan.total_harga));
 
     for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
         $('#table-court-'+courtCount).DataTable({
@@ -598,8 +604,8 @@
                 $('#booking-hour-counting-'+index).children().last().append('<hr/>');
             }); 
             
-            $('#biaya-sewa').empty().append(dataPaketSewaBulanan.total_harga);
-            $('#total-biaya-sewa').empty().append(dataPaketSewaBulanan.total_harga);
+            $('#biaya-sewa').empty().append(formatter.format(dataPaketSewaBulanan.total_harga));
+            $('#total-biaya-sewa').empty().append(formatter.format(dataPaketSewaBulanan.total_harga));
             $('#modal-booking-counting').modal('show');
         }
     }

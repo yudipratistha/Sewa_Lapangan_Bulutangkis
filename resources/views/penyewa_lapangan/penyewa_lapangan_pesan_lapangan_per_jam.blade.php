@@ -71,7 +71,7 @@
                                         </tr> -->
                                         <tr>
                                             <td scope="row" style="width: 145px;padding-left: 0px;padding-right: 0px;">Total <span class="pull-right">:&nbsp;</span></td>
-                                            <th style="padding-left: 0px;">Rp<span class="fw-bold" id="total-harga">-</span></th>
+                                            <th style="padding-left: 0px;"><span class="fw-bold" id="total-harga">Rp-</span></th>
                                         </tr>
                                         <!-- <tr>
                                             <td scope="row" style="width: 145px;padding-left: 0px;padding-right: 0px;">Pilih Pembayaran <span class="pull-right">:&nbsp;</span></td>
@@ -195,7 +195,7 @@
                                                 <p>Biaya Sewa</p>
                                             </div>
                                             <div>
-                                                <p>Rp<span id="biaya-sewa">-</span></p>
+                                                <p><span id="biaya-sewa">-</span></p>
                                             </div>
                                         </div>
                                     </div>
@@ -208,7 +208,7 @@
                                                 <p>Total</p>
                                             </div>
                                             <div>
-                                                <p>Rp<span id="total-biaya-sewa">-</span></p>
+                                                <p><span id="total-biaya-sewa">-</span></p>
                                             </div>
                                         </div>
                                     </div>
@@ -306,6 +306,12 @@
     var availableDates = [];
     var orderData = {};
     var total_biaya = 0;
+
+    const formatter = new Intl.NumberFormat('id', {
+        style: 'currency',
+        currency: 'IDR',
+        maximumFractionDigits: 0,
+    });
 
     $.datepicker.setDefaults(
         $.extend(
@@ -410,7 +416,7 @@
             total_biaya -= harga_per_jam;
         }
 
-        $('#total-harga').empty().append(total_biaya);
+        $('#total-harga').empty().append(formatter.format(total_biaya));
         
         for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
             $('#table-court-'+courtCount).children().children().children().first().removeAttr('style');
@@ -515,7 +521,7 @@
                                         <p>'+bookingTimeValue+'</p>\
                                     </div>\
                                     <div>\
-                                        <p>Rp'+harga_per_jam+'</p>\
+                                        <p>'+formatter.format(harga_per_jam)+'</p>\
                                     </div>\
                                 </div>\
                             </div>\
@@ -525,8 +531,8 @@
                 $('#booking-hour-counting-'+index).children().last().append('<hr/>');
             }); 
             
-            $('#biaya-sewa').empty().append(total_biaya);
-            $('#total-biaya-sewa').empty().append(total_biaya);
+            $('#biaya-sewa').empty().append(formatter.format(total_biaya));
+            $('#total-biaya-sewa').empty().append(formatter.format(total_biaya));
             $('#modal-booking-counting').modal('show');
         }
     }

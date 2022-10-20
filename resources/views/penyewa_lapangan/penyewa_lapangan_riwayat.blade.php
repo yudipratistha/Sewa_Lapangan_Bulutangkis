@@ -157,7 +157,7 @@
                                                 <p>Biaya Sewa</p>
                                             </div>
                                             <div>
-                                                <p>Rp<span id="biaya-sewa">-</span></p>
+                                                <p><span id="biaya-sewa">-</span></p>
                                             </div>
                                         </div>
                                     </div>
@@ -170,7 +170,7 @@
                                                 <p>Total</p>
                                             </div>
                                             <div>
-                                                <p>Rp<span id="total-biaya-sewa">-</span></p>
+                                                <p><span id="total-biaya-sewa">-</span></p>
                                             </div>
                                         </div>
                                     </div>
@@ -364,6 +364,12 @@
             return result * sortOrder;
         }
     }
+    
+    const formatter = new Intl.NumberFormat('id', {
+        style: 'currency',
+        currency: 'IDR',
+        maximumFractionDigits: 0,
+    });
 
     $('body').on('hidden.bs.modal', '#modal-booking-counting', function () {
         $('#booking-counting').children().remove();
@@ -437,7 +443,7 @@
                                         <p>'+bookingTimeValue+'</p>\
                                     </div>\
                                     <div>\
-                                        <p>'+((jenisBooking === 'per_jam') ? hargaPerJam : 'Harga Sudah Disesuaikan!')+'</p>\
+                                        <p>'+((jenisBooking === 'per_jam') ? formatter.format(hargaPerJam) : 'Harga Sudah Disesuaikan!')+'</p>\
                                     </div>\
                                 </div>\
                             </div>\
@@ -452,8 +458,8 @@
             $('#jenis-sewa').empty().append(((jenisBooking === 'per_jam') ? 'Per Jam' : 'Bulanan'));
             $('#cara-pembayaran').empty().append(caraPembayaran);
             $('#status-pembayaran').empty().append(statusPembayaran);
-            $('#biaya-sewa').empty().append(totalBiaya);
-            $('#total-biaya-sewa').empty().append(totalBiaya);
+            $('#biaya-sewa').empty().append(formatter.format(totalBiaya));
+            $('#total-biaya-sewa').empty().append(formatter.format(totalBiaya));
             $('#modal-booking-counting').modal('show');
         }
     }

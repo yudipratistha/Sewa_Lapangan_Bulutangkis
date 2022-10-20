@@ -72,6 +72,12 @@
 <script src="{{url('/assets/js/chart/echarts/echarts.min.js')}}"></script>
 
 <script>
+    const formatter = new Intl.NumberFormat('id', {
+        style: 'currency',
+        currency: 'IDR',
+        maximumFractionDigits: 0,
+    });
+
     $.ajax({
         type: "POST",
         url: "{{route('pemilikLapangan.getDataRiwayatTotalPemasukanPemilikLapangan')}}",
@@ -109,7 +115,7 @@
                                     <div style="margin: 0px 0 0;line-height:1;">\
                                         '+params[0].marker+'\
                                         <span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">Rentang: '+params[0].data.weekly_start_end+'</span><br/>\
-                                        <span style="margin-top:10px; display: inline-block; margin-left:20px;font-size:14px;color:#666;font-weight:900">Total Pemasukan: Rp'+params[0].data.value+'</span>\
+                                        <span style="margin-top:10px; display: inline-block; margin-left:20px;font-size:14px;color:#666;font-weight:900">Total Pemasukan: '+formatter.format(params[0].data.value)+'</span>\
                                         <div style="clear:both"></div>\
                                     </div>\
                                     <div style="clear:both"></div>\
@@ -140,7 +146,7 @@
                         interval: 0,
                         formatter: function (value) {
                             if (Math.floor(value) === value) {
-                                return 'Rp'+ value;
+                                return formatter.format(value);
                             }
                         }
                     }

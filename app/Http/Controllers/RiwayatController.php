@@ -163,7 +163,7 @@ class RiwayatController extends Controller
             WHERE tb_booking.id_lapangan = '.$dataLapangan->lapangan_id.'  && DATE(tb_pembayaran.created_at) > (NOW() - INTERVAL 1 MONTH) && (tb_riwayat_status_pembayaran.`status_pembayaran` != \'Batal\' && 
             tb_riwayat_status_pembayaran.`status_pembayaran` != \'Belum Lunas\' && tb_riwayat_status_pembayaran.`status_pembayaran` != \'Proses\')
             
-            GROUP BY FROM_DAYS(TO_DAYS(tb_pembayaran.created_at) -MOD(TO_DAYS(tb_pembayaran.created_at) -1, 7))
+            GROUP BY tb_pengguna.id
             ORDER BY VALUE DESC
             LIMIT 5
         ');
