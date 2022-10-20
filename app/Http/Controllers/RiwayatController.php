@@ -109,7 +109,7 @@ class RiwayatController extends Controller
     }
 
     public function getDataRiwayatTotalPemasukanPemilikLapangan(Request $request){
-        (!isset($request->filterMonth) && !isset($request->filterYear)) ? $queryFilter = "DATE(tb_pembayaran.`created_at`) > (NOW() - INTERVAL 1 MONTH)" : $queryFilter = "YEAR(tb_pembayaran.created_at) = ".$request->filterYear." && MONTH(tb_pembayaran.created_at) = ". $request->filterMonth;
+        (!isset($request->filterMonth) && !isset($request->filterYear)) ? $queryFilter = "YEAR(tb_pembayaran.created_at) = YEAR(NOW()) && MONTH(tb_pembayaran.created_at) = MONTH(NOW())" : $queryFilter = "YEAR(tb_pembayaran.created_at) = ".$request->filterYear." && MONTH(tb_pembayaran.created_at) = ". $request->filterMonth;
 
         $dataLapangan = Lapangan::with(['User' => function ($query) {$query->select('tb_pengguna.id AS lapangan_id', 'tb_pengguna.name', 'tb_pengguna.nomor_telepon'); }])
             ->select(['tb_lapangan.id as lapangan_id', 'tb_lapangan.id_pengguna', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.buka_dari_hari', 
@@ -143,7 +143,7 @@ class RiwayatController extends Controller
     }
 
     public function getDataRiwayatPenggunaBookingTerbanyakPemilikLapangan(Request $request){
-        (!isset($request->filterMonth) && !isset($request->filterYear)) ? $queryFilter = "DATE(tb_pembayaran.`created_at`) > (NOW() - INTERVAL 1 MONTH)" : $queryFilter = "YEAR(tb_pembayaran.created_at) = ".$request->filterYear." && MONTH(tb_pembayaran.created_at) = ". $request->filterMonth;
+        (!isset($request->filterMonth) && !isset($request->filterYear)) ? $queryFilter = "YEAR(tb_pembayaran.created_at) = YEAR(NOW()) && MONTH(tb_pembayaran.created_at) = MONTH(NOW())" : $queryFilter = "YEAR(tb_pembayaran.created_at) = ".$request->filterYear." && MONTH(tb_pembayaran.created_at) = ". $request->filterMonth;
 
         $dataLapangan = Lapangan::with(['User' => function ($query) {$query->select('tb_pengguna.id AS lapangan_id', 'tb_pengguna.name', 'tb_pengguna.nomor_telepon'); }])
             ->select(['tb_lapangan.id as lapangan_id', 'tb_lapangan.id_pengguna', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.buka_dari_hari', 
