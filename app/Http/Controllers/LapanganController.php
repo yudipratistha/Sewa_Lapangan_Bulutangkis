@@ -122,9 +122,16 @@ class LapanganController extends Controller
 
     public function profilLapangan($idLapangan){
 
-        $dataLapangan = Lapangan::select('tb_lapangan.id as lapangan_id', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.buka_dari_jam', 'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court', 'tb_lapangan.titik_koordinat_lat', 'tb_lapangan.titik_koordinat_lng', 'foto_lapangan_1', 'foto_lapangan_2', 'foto_lapangan_3')
-                ->find($idLapangan);
-
+        $dataLapangan = DB::table('tb_lapangan')->selectRaw(
+            'tb_lapangan.id as lapangan_id, tb_lapangan.nama_lapangan, tb_lapangan.alamat_lapangan,
+            tb_lapangan.buka_dari_jam, tb_lapangan.buka_sampai_jam, tb_lapangan.jumlah_court,
+            tb_lapangan.titik_koordinat_lat, tb_lapangan.titik_koordinat_lng, foto_lapangan_1, foto_lapangan_2, foto_lapangan_3,
+            IFNULL(tb_paket_sewa_bulanan.id, "Tidak Tersedia") as status_paket_bulanan'
+            )
+        ->leftJoin('tb_paket_sewa_bulanan', 'tb_paket_sewa_bulanan.id_lapangan', '=', 'tb_lapangan.id')
+        ->where('tb_lapangan.id', $idLapangan)
+        ->first();
+        // dd($dataLapangan->status_paket_bulanan);
         // $dataLapanganBooking = DB::table('tb_booking')->select('tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court')
         //                 ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
         //                 ->where('tb_lapangan.id', $idLapangan)->where('tb_booking.tgl_booking', '2022-05-19')

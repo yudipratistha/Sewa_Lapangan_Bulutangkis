@@ -187,17 +187,19 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-sm-12">
-                        <div class="card paket-bulanan-card">
-                            <div class="pilih-jenis-booking media p-20" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);cursor: pointer;">
-                                <div class="media-body">
-                                    <h6 class="mt-0">Paket Bulanan</h6>
-                                </div>
-                                <div class="radio radio-primary me-3" style="display: contents;">
-                                    <input id="radio30" type="radio" name="pilih_pembayaran" value="bulanan">
-                                    <label for="radio30"></label>
+                        @if($dataLapangan->status_paket_bulanan !== "Tidak Tersedia")
+                            <div class="card paket-bulanan-card">
+                                <div class="pilih-jenis-booking media p-20" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);cursor: pointer;">
+                                    <div class="media-body">
+                                        <h6 class="mt-0">Paket Bulanan</h6>
+                                    </div>
+                                    <div class="radio radio-primary me-3" style="display: contents;">
+                                        <input id="radio30" type="radio" name="pilih_pembayaran" value="bulanan">
+                                        <label for="radio30"></label>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        @endif
                         <div class="card pilih-jenis-booking-card">
                             <div class="pilih-jenis-booking media p-20" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);cursor: pointer;">
                                 <div class="media-body">
