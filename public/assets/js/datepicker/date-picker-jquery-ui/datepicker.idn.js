@@ -14,7 +14,7 @@
 "use strict";
 
 datepicker.regional.id = {
-	closeText: "Close",
+	closeText: "Selesai",
 	prevText: "Previous",
 	nextText: "Next",
 	currentText: "Hari ini",

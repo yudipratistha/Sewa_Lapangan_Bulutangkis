@@ -275,9 +275,9 @@
                 { "data": "status_pembayaran", "orderable": true, "width": "13%" },
                 { "defaultContent": "", "orderable": false, "width": "10%",
                     render: function (data, type, row) { 
-                        if(row.status_pembayaran === "Lunas" || row.status_pembayaran === "DP"){
+                        // if(row.status_pembayaran === "Lunas" || row.status_pembayaran === "DP"){
                             return '<button type="button" class="btn btn-outline-primary" id="view-data-penyewaan-invoice" style="width: 30px; padding-top: 5px; padding-left: 0px; padding-right: 0px; padding-bottom: 2px; margin-right:5px;"><i class="icofont icofont-ui-note" style="font-size:20px;"></i></button>'
-                        }
+                        // }
                     }
                 },
         ],
