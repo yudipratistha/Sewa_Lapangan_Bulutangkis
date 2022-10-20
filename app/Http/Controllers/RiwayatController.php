@@ -117,7 +117,7 @@ class RiwayatController extends Controller
 
         $totalPemasukan = DB::select('
         SELECT CONCAT(FROM_DAYS(TO_DAYS(tb_pembayaran.created_at) -MOD(TO_DAYS(tb_pembayaran.created_at) -1, 7)), \' - \',
-        STR_TO_DATE(CONCAT(YEARWEEK(tb_pembayaran.created_at), \'Sunday\'), \'%X%V %W\') + INTERVAL 6 DAY) AS weekly_start_end, COUNT(tb_pembayaran.id) AS value, SUM(tb_pembayaran.`total_biaya`) AS total_pemasukan
+        STR_TO_DATE(CONCAT(YEARWEEK(tb_pembayaran.created_at), \'Sunday\'), \'%X%V %W\') + INTERVAL 6 DAY) AS weekly_start_end, COUNT(tb_pembayaran.id) AS total_transaksi, SUM(tb_pembayaran.`total_biaya`) AS value
         FROM (
             SELECT *
             FROM tb_booking

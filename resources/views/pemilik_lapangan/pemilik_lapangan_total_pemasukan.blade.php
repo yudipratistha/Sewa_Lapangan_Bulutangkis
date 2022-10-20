@@ -108,8 +108,8 @@
                                 <div style="margin: 10px 0 0;line-height:1;">\
                                     <div style="margin: 0px 0 0;line-height:1;">\
                                         '+params[0].marker+'\
-                                        <span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">Total Booking '+params[0].value+' </span>\
-                                        <span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">Total Pemasukan Rp'+params[0].data.total_pemasukan+'</span>\
+                                        <span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">Total Booking '+params[0].total_transaksi+' </span>\
+                                        <span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">Total Pemasukan Rp'+params[0].data.value+'</span>\
                                         <div style="clear:both"></div>\
                                     </div>\
                                     <div style="clear:both"></div>\
@@ -132,9 +132,9 @@
                 },
                 yAxis: {
                     type: 'value',
-                    name: 'Total Booking Per Minggu',
-                    nameLocation: 'middle',
-                    nameGap: 40,
+                    // name: 'Total Booking Per Minggu',
+                    // nameLocation: 'middle',
+                    // nameGap: 60,
                 },
                 series: [
                     {
