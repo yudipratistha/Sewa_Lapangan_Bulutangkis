@@ -116,23 +116,24 @@ class RiwayatController extends Controller
             'tb_lapangan.buka_sampai_hari', 'tb_lapangan.titik_koordinat_lat', 'tb_lapangan.titik_koordinat_lng', 'tb_lapangan.buka_dari_jam', 
             'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court'])
             ->first();
-        // dd($request->filterMonthYear);
+            
         $totalPemasukan = DB::select('
-        SELECT CONCAT(FROM_DAYS(TO_DAYS(tb_pembayaran.created_at) -MOD(TO_DAYS(tb_pembayaran.created_at) -1, 7)), \' - \',
-        STR_TO_DATE(CONCAT(YEARWEEK(tb_pembayaran.created_at), \'Sunday\'), \'%X%V %W\') + INTERVAL 6 DAY) AS weekly_start_end, COUNT(tb_pembayaran.id) AS total_transaksi, SUM(tb_pembayaran.`total_biaya`) AS value
-        FROM (
-            SELECT *
-            FROM tb_booking
-            GROUP BY tb_booking.`id_pembayaran`
-        ) AS tb_booking 
-        LEFT JOIN tb_lapangan ON tb_booking.id_lapangan = tb_lapangan.id
-        LEFT JOIN tb_pembayaran ON tb_booking.id_pembayaran = tb_pembayaran.id
-        LEFT JOIN tb_riwayat_status_pembayaran ON tb_riwayat_status_pembayaran.`id_pembayaran` =  tb_pembayaran.id 
-            AND tb_riwayat_status_pembayaran.`id` IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran GROUP BY tb_riwayat_status_pembayaran.id_pembayaran)
-        WHERE tb_booking.id_lapangan = '.$dataLapangan->lapangan_id.' && '.$queryFilter.' && (tb_riwayat_status_pembayaran.`status_pembayaran` != \'Batal\' && 
-        tb_riwayat_status_pembayaran.`status_pembayaran` != \'Belum Lunas\' && tb_riwayat_status_pembayaran.`status_pembayaran` != \'Proses\')
-        
-        GROUP BY FROM_DAYS(TO_DAYS(tb_pembayaran.created_at) -MOD(TO_DAYS(tb_pembayaran.created_at) -1, 7))
+            SELECT COUNT(tb_pembayaran.id) AS total_booking, 
+                CONCAT(DATE_FORMAT(tb_pembayaran.created_at, \'%e-%m-%Y\'), \' - \', DATE_FORMAT(DATE_ADD(tb_pembayaran.created_at, INTERVAL 7 DAY), \'%e-%m-%Y\')) AS weekly_start_end , 
+                SUM(tb_pembayaran.`total_biaya`) AS value
+            FROM (
+                SELECT *
+                FROM tb_booking
+                GROUP BY tb_booking.`id_pembayaran`
+            ) AS tb_booking 
+            LEFT JOIN tb_lapangan ON tb_booking.id_lapangan = tb_lapangan.id
+            LEFT JOIN tb_pembayaran ON tb_booking.id_pembayaran = tb_pembayaran.id
+            LEFT JOIN tb_riwayat_status_pembayaran ON tb_riwayat_status_pembayaran.`id_pembayaran` =  tb_pembayaran.id 
+                AND tb_riwayat_status_pembayaran.`id` IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran GROUP BY tb_riwayat_status_pembayaran.id_pembayaran)
+            WHERE tb_booking.id_lapangan = '.$dataLapangan->lapangan_id.' && '.$queryFilter.' && (tb_riwayat_status_pembayaran.`status_pembayaran` != \'Batal\' && 
+            tb_riwayat_status_pembayaran.`status_pembayaran` != \'Belum Lunas\' && tb_riwayat_status_pembayaran.`status_pembayaran` != \'Proses\')
+
+            GROUP BY FROM_DAYS(TO_DAYS(tb_pembayaran.created_at) -MOD(TO_DAYS(tb_pembayaran.created_at) -1, 7))
         ');
 
         return response()->json($totalPemasukan);
