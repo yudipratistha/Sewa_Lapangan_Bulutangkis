@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -20,6 +21,6 @@ class FieldOwner
             return $next($request);
         }
    
-        return redirect('home')->with('error',"You don't have admin access.");
+        return response("You don't have Field Owner access.", 404);
     }
 }

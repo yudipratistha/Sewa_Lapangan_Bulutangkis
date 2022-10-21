@@ -33,15 +33,19 @@ Route::group(['prefix' => '/'], function(){
 });
 
 
-Route::group(['prefix' => '', 'middleware' => 'userStatus'], function(){
-    Route::get('/', 'HomeController@index')->name('index');
-});
+Route::get('/', function () {
+    if(Auth::user()->user_status == 2){
+        return redirect()->route('pemilikLapangan.dashboard');
+    }else if(Auth::user()->user_status == 3){
+        return redirect()->route('penyewaLapangan.dashboard');
+    }
+})->middleware(['auth']);
 
 
 Route::group(['prefix' => 'pemilik-lapangan/'], function(){
     Route::post('register', 'Auth\AuthController@createPemilikLapangan')->name('pemilikLapangan.register');
     
-    Route::group(['prefix' => '', 'middleware' => 'userStatus'], function(){
+    Route::group(['prefix' => '', 'middleware' => 'fieldOwner'], function(){
         Route::get('dashboard', 'HomeController@pemilikLapanganHome')->name('pemilikLapangan.dashboard');
         
         Route::post('get-data-lapangan-pemilik/{lapangan_id}', 'LapanganController@getDataLapanganPemilik')->name('pemilikLapangan.getDataLapanganPemilik');
@@ -78,7 +82,7 @@ Route::group(['prefix' => 'pemilik-lapangan/'], function(){
 Route::group(['prefix' => 'penyewa-lapangan/'], function(){
     Route::post('register', 'Auth\AuthController@createPenyewaLapangan')->name('penyewaLapangan.register');
     
-    Route::group(['prefix' => '', 'middleware' => 'userStatus'], function(){
+    Route::group(['prefix' => '', 'middleware' => 'tenantUser'], function(){
         Route::get('dashboard', 'HomeController@penyewaLapanganHome')->name('penyewaLapangan.dashboard');
 
         Route::post('get-all-data-lapangan/{idLapangan}', 'LapanganController@getAllDataLapangan')->name('penyewaLapangan.getAllDataLapangan');

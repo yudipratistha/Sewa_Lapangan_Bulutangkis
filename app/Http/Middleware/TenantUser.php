@@ -20,6 +20,6 @@ class TenantUser
             return $next($request);
         }
    
-        return redirect('home')->with('error',"You don't have admin access.");
+        return response("You don't have Tenant User access.", 404);
     }
 }
