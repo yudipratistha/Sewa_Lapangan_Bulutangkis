@@ -57,7 +57,7 @@
                 <div class="row">
                     <div class="col-sm-6">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{route('index')}}">Home</a></li>
+                            <li class="breadcrumb-item"><a href="{{route('penyewaLapangan.dashboard')}}">Home</a></li>
                             <li class="breadcrumb-item active">Profil Lapangan</li>
                         </ol>
                     </div>

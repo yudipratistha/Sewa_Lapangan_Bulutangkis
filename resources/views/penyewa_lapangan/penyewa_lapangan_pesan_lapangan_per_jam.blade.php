@@ -45,7 +45,7 @@
                     <div class="col-sm-6">
                         <h3>{{$dataLapangan->nama_lapangan}}</h3>
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{route('index')}}">Home</a></li>
+                            <li class="breadcrumb-item"><a href="{{route('penyewaLapangan.dashboard')}}">Home</a></li>
                             <li class="breadcrumb-item"><a href="{{route('penyewaLapangan.profilLapangan', [$dataLapangan->lapangan_id, str_replace(' ', '-', strtolower($dataLapangan->nama_lapangan))])}}">Profil Lapangan</a></li>
                             <li class="breadcrumb-item active">Pesan Lapangan</li>
                         </ol>
