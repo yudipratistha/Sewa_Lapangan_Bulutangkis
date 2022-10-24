@@ -33,8 +33,7 @@
                                         <h5 class="pull-left">Edit Profil Pemilik Lapangan</h5>
                                     </div>
                                     <div class="card-body">
-                                    <img src="">
-                                        <form method="POST" action="{{ route('pemilikLapangan.updateProfil') }}">
+                                        <form id="update-lapangan-profile" method="POST">
                                             @csrf
                                             <div class="form-group">
                                                 <label class="form-label">Nama Lapangan</label>
@@ -308,5 +307,52 @@
             $('#job-lng-location').val(lng).trigger('change');
         }
 
+        function updateProfilLapangan(){
+            swal.fire({
+                title: "Perbarui Profil Lapangan?",
+                text: "Apakah anda ingin perbarui profil lapangan?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "Simpan",
+                showLoaderOnConfirm: true,
+                preConfirm: (login) => {  
+                    var form = $("#update-lapangan-profile").get(0)
+                    return $.ajax({
+                        type: "POST", 
+                        url: "{{route('pemilikLapangan.updateProfil')}}",
+                        processData: false,
+                        contentType: false,
+                        cache: false,
+                        data: new FormData(form), 
+                        success: function(data) {
+                            var request = 'success';
+                        },
+                        error: function(xhr, status, error){
+                            if(xhr.responseText.search("Call to a member function getRealPath() on null")){
+                                $(document).ready(function (){
+                                    // console.log(xhr.responseJSON.errors)
+                                    swal.fire({title:"Ticket failed Update!", text: "This ticket failed to updated!", icon:"error"});
+                                    var errorMsg = $('');
+                                    
+                                    $.each(xhr.responseJSON.errors, function (i, field) {
+                                        
+                                    });
+                                });
+                            }else{
+                                console.log(xhr)
+                            }
+                        }
+                    });
+                }                    
+            }).then((result) => {
+            console.log("sadsa ", result.value)
+                if(result.value){
+                swal.fire({title:"Perbauri Profil Lapangan Berhasil!", icon:"success"})
+                .then(function(){ 
+                    window.location.reload();
+                });
+                }
+            })
+        }
 </script>
 @endsection

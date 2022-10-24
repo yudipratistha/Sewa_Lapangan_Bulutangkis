@@ -63,7 +63,7 @@ Route::group(['prefix' => 'pemilik-lapangan/'], function(){
         Route::post('update-or-create-paket-sewa-bulanan', 'LapanganController@updateOrCreatePaketBulananPemilik')->name('pemilikLapangan.updateOrCreatePaketBulananPemilik');
 
         Route::get('profil', 'ProfilController@pemilikLapanganProfil')->name('pemilikLapangan.profil');
-        Route::post('update-profil', 'ProfilController@pemilikLapanganUpdateProfil')->name('pemilikLapangan.updateProfil');
+        Route::post('update-profil-lapangan', 'ProfilController@pemilikLapanganUpdateProfil')->name('pemilikLapangan.updateProfil');
 
         Route::get('riwayat-penyewaan', 'RiwayatController@pemilikLapanganRiwayatPenyewaan')->name('pemilikLapangan.riwayatPenyewaan');
         Route::post('data-riwayat-penyewaan/', 'RiwayatController@getDataRiwayatPenyewaanPemilikLapangan')->name('pemilikLapangan.getDataRiwayatPenyewaanPemilikLapangan');
@@ -92,7 +92,6 @@ Route::group(['prefix' => 'penyewa-lapangan/'], function(){
 
         Route::get('profil-lapangan/{id}/{lapanganName}', 'LapanganController@profilLapangan')->name('penyewaLapangan.profilLapangan');
         Route::post('profil-lapangan/{idLapangan}', 'LapanganController@getDataProfilLapangan')->name('penyewaLapangan.getDataProfilLapangan');
-        // Route::get('')
 
         Route::get('pesan-lapangan-bulanan/{id}/{lapanganName}', 'LapanganController@pesanLapanganBulanan')->name('penyewaLapangan.pesanLapanganBulanan');
         Route::post('store-pesan-lapangan-bulanan', 'BookingController@storeBookingLapanganBulanan')->name('penyewaLapangan.storeBookingLapanganBulanan');

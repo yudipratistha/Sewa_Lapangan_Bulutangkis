@@ -115,6 +115,7 @@ class RiwayatController extends Controller
             ->select(['tb_lapangan.id as lapangan_id', 'tb_lapangan.id_pengguna', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.buka_dari_hari', 
             'tb_lapangan.buka_sampai_hari', 'tb_lapangan.titik_koordinat_lat', 'tb_lapangan.titik_koordinat_lng', 'tb_lapangan.buka_dari_jam', 
             'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court'])
+            ->where('tb_lapangan.id_pengguna', Auth::user()->id)
             ->first();
             
         $totalPemasukan = DB::select('
@@ -151,6 +152,7 @@ class RiwayatController extends Controller
             ->select(['tb_lapangan.id as lapangan_id', 'tb_lapangan.id_pengguna', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.buka_dari_hari', 
             'tb_lapangan.buka_sampai_hari', 'tb_lapangan.titik_koordinat_lat', 'tb_lapangan.titik_koordinat_lng', 'tb_lapangan.buka_dari_jam', 
             'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court'])
+            ->where('tb_lapangan.id_pengguna', Auth::user()->id)
             ->first();
             
         $totalPenggunaBookingTerbanyak = DB::select('
