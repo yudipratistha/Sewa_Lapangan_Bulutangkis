@@ -237,8 +237,8 @@
                                             <div style="height:360px;width:100%;" id="map-container">
                                                 <div style="height: 100%; width: 100%; position: relative;z-index: 0;" id="map"></div>
                                             </div>
-                                            <input type="hidden" class="form-control" id="job-lat-location" name="lat_alamat_pemilik_lapangan">
-                                            <input type="hidden" class="form-control" id="job-lng-location" name="lng_alamat_pemilik_lapangan">
+                                            <input type="hidden" class="form-control" id="lat-location-lapangan" name="lat_alamat_pemilik_lapangan">
+                                            <input type="hidden" class="form-control" id="lng-location-lapangan" name="lng_alamat_pemilik_lapangan">
                                         </div>
                                         <div class="form-group" id="job-description-div">
                                             <label class="form-label">Alamat Tertulis</label>
@@ -318,7 +318,7 @@
     });
 
 
-    var latlngview = L.latLng($('#job-lat-location').val(), $('#job-lng-location').val());
+    var latlngview = L.latLng($('#lat-location-lapangan').val(), $('#lng-location-lapangan').val());
     if(latlngview.lat == 0 && latlngview.lng == 0) latlngview = L.latLng('-8.660315332079342', '115.21636962890626');
     var map = L.map('map', {
         zoomControl:true,
@@ -332,7 +332,7 @@
         zoomOffset: -1,
         accessToken: 'pk.eyJ1IjoieXVkaXByYXRpc3RoYSIsImEiOiJjbDJ6cHpsZ2owMzQ3M2JtcDQxdzFhdDd5In0.lPuxJO3S88Xy70aZfF4dLQ'
     }).addTo(map);
-    var latlng = L.latLng($('#job-lat-location').val(), $('#job-lng-location').val());
+    var latlng = L.latLng($('#lat-location-lapangan').val(), $('#lng-location-lapangan').val());
     if(latlng != undefined){
         currentMarker = L.marker(latlng, {
             draggable: true
@@ -359,8 +359,8 @@
         });
     }
     function latLngInput(lat, lng){
-        $('#job-lat-location').val(lat).trigger('change');
-        $('#job-lng-location').val(lng).trigger('change');
+        $('#lat-location-lapangan').val(lat).trigger('change');
+        $('#lng-location-lapangan').val(lng).trigger('change');
     }
 
     $("a[href='#top-profilesecondary']").on('shown.bs.tab', function (e) {
