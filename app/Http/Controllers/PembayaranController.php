@@ -40,10 +40,10 @@ class PembayaranController extends Controller
         $dataDaftarJenisPembayaranLapangan = DB::table('tb_daftar_jenis_pembayaran')
             ->where('tb_daftar_jenis_pembayaran.id_lapangan', $lapanganId->id);
         $dataDaftarJenisPembayaranLapangan->delete();
-        
+        // dd($request->daftar_jenis_pembayaran_id);
         for($counter= 0; $counter < count($request->nama_metode_pembayaran); $counter++){
             DaftarJenisPembayaran::updateOrCreate([
-                    'tb_daftar_jenis_pembayaran.id' => $request->daftar_jenis_pembayaran_id[$counter],
+                    'tb_daftar_jenis_pembayaran.id' => isset($request->daftar_jenis_pembayaran_id[$counter]) ? $request->daftar_jenis_pembayaran_id[$counter] : 0,
                     'id_lapangan' => $lapanganId->id, 
                     'nama_jenis_pembayaran' => $request->nama_metode_pembayaran[$counter], 
                     'atas_nama' => $request->atas_nama[$counter],
