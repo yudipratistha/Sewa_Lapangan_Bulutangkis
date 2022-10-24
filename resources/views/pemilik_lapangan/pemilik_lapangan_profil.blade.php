@@ -33,7 +33,7 @@
                                         <h5 class="pull-left">Edit Profil Pemilik Lapangan</h5>
                                     </div>
                                     <div class="card-body">
-                                        <form id="update-lapangan-profile" method="POST">
+                                        <form id="update-lapangan-profile" method="POST" enctype="multipart/form-data">
                                             @csrf
                                             <div class="form-group">
                                                 <label class="form-label">Nama Lapangan</label>
@@ -84,19 +84,19 @@
                                                     <div class="col-md-4 img-up">
                                                         <div class="image-preview" id="image-preview-foto-lapangan-1"></div>
                                                         <label class="btn btn-primary">Upload
-                                                            <input type="file" class="upload-file img" value="foto_lapangan_1" style="width: 0px;height: 0px;overflow: hidden;">
+                                                            <input type="file" class="upload-file img" name="foto_lapangan_1" value="foto_lapangan_1" style="width: 0px;height: 0px;overflow: hidden;">
                                                         </label>
                                                     </div>
                                                     <div class="col-md-4 img-up">
                                                         <div class="image-preview" id="image-preview-foto-lapangan-2"></div>
                                                         <label class="btn btn-primary">Upload
-                                                            <input type="file" class="upload-file img" value="foto_lapangan_2" style="width: 0px;height: 0px;overflow: hidden;">
+                                                            <input type="file" class="upload-file img" name="foto_lapangan_2" value="foto_lapangan_2" style="width: 0px;height: 0px;overflow: hidden;">
                                                         </label>
                                                     </div>
                                                     <div class="col-md-4 img-up">
                                                         <div class="image-preview" id="image-preview-foto-lapangan-3"></div>
                                                         <label class="btn btn-primary">Upload
-                                                            <input type="file" class="upload-file img" value="foto_lapangan_3" style="width: 0px;height: 0px;overflow: hidden;">
+                                                            <input type="file" class="upload-file img" name="foto_lapangan_3" value="foto_lapangan_3" style="width: 0px;height: 0px;overflow: hidden;">
                                                         </label>
                                                     </div>
                                                 </div>
@@ -166,8 +166,8 @@
                                                 <div style="height:360px;width:100%;" id="map-container">
                                                     <div style="height: 100%; width: 100%; position: relative;z-index: 0;" id="map"></div>
                                                 </div>
-                                                <input type="hidden" class="form-control" id="lat-location-lapangan" name="lat_alamat_pemilik_lapangan">
-                                                <input type="hidden" class="form-control" id="lng-location-lapangan" name="lng_alamat_pemilik_lapangan">
+                                                <input type="hidden" class="form-control" id="lat-location-lapangan" name="lat_alamat_pemilik_lapangan" value="{{$dataProfilPemilikLapangan->titik_koordinat_lat}}">
+                                                <input type="hidden" class="form-control" id="lng-location-lapangan" name="lng_alamat_pemilik_lapangan" value="{{$dataProfilPemilikLapangan->titik_koordinat_lng}}">
                                             </div>
                                             <div class="form-group" id="job-description-div">
                                                 <label class="form-label">Alamat Tertulis</label>
@@ -192,7 +192,6 @@
 
 @section('plugin_js')
 <script src="{{url('/assets/js/datepicker/date-picker/datepicker.js')}}"></script>
-<script src="{{url('/assets/js/datepicker/date-picker/datepicker.en.js')}}"></script>
 <script src="{{url('/assets/js/sweet-alert/sweetalert.min.js')}}"></script>
 <script src="{{url('/assets/js/time-picker/jquery.timepicker.min.js')}}"></script>
 <!-- <script src="{{url('/assets/js/datepicker/date-time-picker/moment.min.js')}}"></script>
@@ -201,11 +200,6 @@
 <script src="{{url('/assets/js/leaflet/leaflet.js')}}"></script>
 <script src="{{url('/assets/js/leaflet/leaflet-gesture-handling.min.js')}}"></script>
 <script>
-    $('#tanggal').datepicker({
-        language: 'en',
-        dateFormat: 'dd-mm-yyyy',
-        minDate: new Date() 
-    });
 
     $("#buka-dari-jam").datetimepicker({
         datepicker: false,
@@ -241,118 +235,118 @@
     });
     $(document).on("click", "i.del" , function() {
         $(this).parent().remove();
-    // $(this).parent().find('.imagePreview').css("background-image","url('')");
     });
     
     $(document).on("change",".upload-file", function(){
         var uploadFile = $(this);
         var files = !!this.files ? this.files : [];
-        if (!files.length || !window.FileReader) return;
-            if (/^image/.test( files.type)){
-                var reader = new FileReader();
-                reader.readAsDataURL(files);
-    
-                reader.onloadend = function(){
+        if (!files.length || !window.FileReader) return; 
+        if (/^image/.test( files[0].type)){ 
+            var reader = new FileReader(); 
+            reader.readAsDataURL(files[0]); 
+
+            reader.onloadend = function(){
                 uploadFile.closest(".img-up").find('.image-preview').css("background-image", "url("+this.result+")");
             }
         }
     });
 
-        var dataProfilPemilikLapanganLat = "{{$dataProfilPemilikLapangan->titik_koordinat_lat}}";
-        var dataProfilPemilikLapanganLng = "{{$dataProfilPemilikLapangan->titik_koordinat_lng}}";
 
-        var latlngview = L.latLng(dataProfilPemilikLapanganLat, dataProfilPemilikLapanganLng);
-        
-        if(latlngview.lat === 0 && latlngview.lng === 0) latlngview = L.latLng('-8.660315332079342', '115.21636962890626');
-        var map = L.map('map', {
-            zoomControl:true,
-            gestureHandling: true
-        }).setView([latlngview.lat, latlngview.lng],17);
-        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-            maxZoom: 20,
-            id: 'mapbox/streets-v11',
-            tileSize: 512,
-            zoomOffset: -1,
-            accessToken: 'pk.eyJ1IjoieXVkaXByYXRpc3RoYSIsImEiOiJjbDJ6cHpsZ2owMzQ3M2JtcDQxdzFhdDd5In0.lPuxJO3S88Xy70aZfF4dLQ'
+    var dataProfilPemilikLapanganLat = "{{$dataProfilPemilikLapangan->titik_koordinat_lat}}";
+    var dataProfilPemilikLapanganLng = "{{$dataProfilPemilikLapangan->titik_koordinat_lng}}";
+
+    var latlngview = L.latLng(dataProfilPemilikLapanganLat, dataProfilPemilikLapanganLng);
+    
+    if(latlngview.lat === 0 && latlngview.lng === 0) latlngview = L.latLng('-8.660315332079342', '115.21636962890626');
+    var map = L.map('map', {
+        zoomControl:true,
+        gestureHandling: true
+    }).setView([latlngview.lat, latlngview.lng],17);
+    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        maxZoom: 20,
+        id: 'mapbox/streets-v11',
+        tileSize: 512,
+        zoomOffset: -1,
+        accessToken: 'pk.eyJ1IjoieXVkaXByYXRpc3RoYSIsImEiOiJjbDJ6cHpsZ2owMzQ3M2JtcDQxdzFhdDd5In0.lPuxJO3S88Xy70aZfF4dLQ'
+    }).addTo(map);
+    var latlng = L.latLng(dataProfilPemilikLapanganLat, dataProfilPemilikLapanganLng);
+    if(latlng != undefined){
+        currentMarker = L.marker(latlng, {
+            draggable: true
         }).addTo(map);
-        var latlng = L.latLng(dataProfilPemilikLapanganLat, dataProfilPemilikLapanganLng);
-        if(latlng != undefined){
-            currentMarker = L.marker(latlng, {
-                draggable: true
-            }).addTo(map);
-        }
-        var currentMarker;
-        map.on('click', function(e) {
-            if (currentMarker != undefined) {
-                map.removeLayer(currentMarker);
-            };
-            currentMarker = L.marker(e.latlng, {
-                draggable: true
-            }).addTo(map)
-            latLngInput(e.latlng.lat, e.latlng.lng)
-            currentMarker.on("dragend", function(ev) { 
-                var chagedPos = ev.target.getLatLng();
-                latLngInput(chagedPos.lat, chagedPos.lng)
-            });
+    }
+    var currentMarker;
+    map.on('click', function(e) {
+        if (currentMarker != undefined) {
+            map.removeLayer(currentMarker);
+        };
+        currentMarker = L.marker(e.latlng, {
+            draggable: true
+        }).addTo(map)
+        latLngInput(e.latlng.lat, e.latlng.lng)
+        currentMarker.on("dragend", function(ev) { 
+            var chagedPos = ev.target.getLatLng();
+            latLngInput(chagedPos.lat, chagedPos.lng)
         });
-        if(currentMarker != undefined){
-            currentMarker.on("dragend", function(ev) { 
-                var chagedPos = ev.target.getLatLng();
-                latLngInput(chagedPos.lat, chagedPos.lng)
-            });
-        }
-        function latLngInput(lat, lng){
-            $('#job-lat-location').val(lat).trigger('change');
-            $('#job-lng-location').val(lng).trigger('change');
-        }
+    });
+    if(currentMarker != undefined){
+        currentMarker.on("dragend", function(ev) { 
+            var chagedPos = ev.target.getLatLng();
+            latLngInput(chagedPos.lat, chagedPos.lng)
+        });
+    }
+    function latLngInput(lat, lng){
+        $('#lat-location-lapangan').val(lat).trigger('change');
+        $('#lng-location-lapangan').val(lng).trigger('change');
+    }
 
-        function updateProfilLapangan(){
-            swal.fire({
-                title: "Perbarui Profil Lapangan?",
-                text: "Apakah anda ingin perbarui profil lapangan?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: "Simpan",
-                showLoaderOnConfirm: true,
-                preConfirm: (login) => {  
-                    var form = $("#update-lapangan-profile").get(0)
-                    return $.ajax({
-                        type: "POST", 
-                        url: "{{route('pemilikLapangan.updateProfil')}}",
-                        processData: false,
-                        contentType: false,
-                        cache: false,
-                        data: new FormData(form), 
-                        success: function(data) {
-                            var request = 'success';
-                        },
-                        error: function(xhr, status, error){
-                            if(xhr.responseText.search("Call to a member function getRealPath() on null")){
-                                $(document).ready(function (){
-                                    // console.log(xhr.responseJSON.errors)
-                                    swal.fire({title:"Ticket failed Update!", text: "This ticket failed to updated!", icon:"error"});
-                                    var errorMsg = $('');
+    function updateProfilLapangan(){
+        swal.fire({
+            title: "Perbarui Profil Lapangan?",
+            text: "Apakah anda ingin perbarui profil lapangan?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: "Simpan",
+            showLoaderOnConfirm: true,
+            preConfirm: (login) => {  
+                var form = $("#update-lapangan-profile").get(0)
+                return $.ajax({
+                    type: "POST", 
+                    url: "{{route('pemilikLapangan.updateProfil')}}",
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    data: new FormData(form), 
+                    success: function(data) {
+                        var request = 'success';
+                    },
+                    error: function(xhr, status, error){
+                        if(xhr.responseText.search("Call to a member function getRealPath() on null")){
+                            $(document).ready(function (){
+                                // console.log(xhr.responseJSON.errors)
+                                swal.fire({title:"Ticket failed Update!", text: "This ticket failed to updated!", icon:"error"});
+                                var errorMsg = $('');
+                                
+                                $.each(xhr.responseJSON.errors, function (i, field) {
                                     
-                                    $.each(xhr.responseJSON.errors, function (i, field) {
-                                        
-                                    });
                                 });
-                            }else{
-                                console.log(xhr)
-                            }
+                            });
+                        }else{
+                            console.log(xhr)
                         }
-                    });
-                }                    
-            }).then((result) => {
-            console.log("sadsa ", result.value)
-                if(result.value){
-                swal.fire({title:"Perbauri Profil Lapangan Berhasil!", icon:"success"})
-                .then(function(){ 
-                    window.location.reload();
+                    }
                 });
-                }
-            })
-        }
+            }                    
+        }).then((result) => {
+        console.log("sadsa ", result.value)
+            if(result.value){
+            swal.fire({title:"Perbauri Profil Lapangan Berhasil!", icon:"success"})
+            .then(function(){ 
+                window.location.reload();
+            });
+            }
+        })
+    }
 </script>
 @endsection
