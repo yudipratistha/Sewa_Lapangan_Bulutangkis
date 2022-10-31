@@ -31399,11 +31399,11 @@ span.twitter-typeahead .tt-suggestion {
 .popup {
   text-align:center;
  }
-.popup .slideshow .image{ 
-  display:none; 
+.popup .slideshow .image{
+  display:none;
 }
-.popup .slideshow .image.active{ 
-  display:block; 
+.popup .slideshow .image.active{
+  display:block;
 }
 .popup .slideshow img {
   width:100%;
@@ -31415,9 +31415,25 @@ span.twitter-typeahead .tt-suggestion {
 .popup .cycle {
   padding:10px 0 20px;
 }
-.popup .cycle a.prev{ 
-  float:left; 
+.popup .cycle a.prev{
+  float:left;
 }
-.popup .cycle a.next{ 
-  float:right; 
+.popup .cycle a.next{
+  float:right;
+}
+
+.float {
+    position: fixed;
+    height: 55px;
+    width: 55px;
+    bottom: 103px;
+    right: 19px;
+  }
+.btn-add {
+border-radius: 10rem;
+padding-left: 1.5em;
+padding-right: 1.5em;
+display: flex;
+justify-content: center;
+align-items: center;
 }

@@ -24,7 +24,7 @@ class RiwayatController extends Controller
 
     public function getDataRiwayatPenyewaanPemilikLapangan(Request $request){
         $dataLapangan = Lapangan::select('tb_lapangan.id AS lapangan_id')->where('id_pengguna', Auth::user()->id)->first()->toArray();
-        
+
         $draw = $request->get('draw');
         $start = $request->get("start");
         $rowperpage = $request->get("length");
@@ -34,20 +34,22 @@ class RiwayatController extends Controller
         $order_arr = $request->get('order');
         $search_arr = $request->get('search');
 
-        // $columnIndex = $columnIndex_arr[0]['column']; 
+        // $columnIndex = $columnIndex_arr[0]['column'];
         // $columnName = $columnName_arr[$columnIndex]['data'];
         // $columnSortOrder = $order_arr[0]['dir'];
         // $searchValue = $search_arr['value'];
         // dd($request->filterTanggalStart);
-        $totalRecords = DB::table('tb_booking')->select('tb_pembayaran.id AS id_pembayaran', 'tb_pengguna.name', 'tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 'tb_riwayat_status_pembayaran.status_pembayaran')
-        ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')   
-        ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+        $totalRecords = DB::table('tb_booking')->select('tb_pembayaran.id AS id_pembayaran', 'tb_pengguna.name', 'tb_booking.tgl_booking', 'tb_detail_booking.jam_mulai', 'tb_detail_booking.jam_selesai', 'tb_courts.nomor_court', 'tb_riwayat_status_pembayaran.status_pembayaran')
+        ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
+        ->leftJoin('tb_detail_booking', 'tb_detail_booking.id_booking', '=', 'tb_booking.id')
+        ->leftJoin('tb_courts', 'tb_courts.id', '=', 'tb_booking.id_court')
+        ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
         ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
         ->leftJoin('tb_riwayat_status_pembayaran', function($join){
             $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
             ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran GROUP BY tb_riwayat_status_pembayaran.id_pembayaran)');
         })
-        ->where('tb_booking.id_lapangan', $dataLapangan['lapangan_id'])
+        ->where('tb_courts.id_lapangan', $dataLapangan['lapangan_id'])
         ->when(isset($request->filterTanggalStart), function ($query)  use ($request) {
             $query->whereBetween('tb_booking.tgl_booking', [date('Y-m-d', strtotime($request->filterTanggalStart)), date('Y-m-d', strtotime($request->filterTanggalEnd))]);
         })
@@ -64,16 +66,18 @@ class RiwayatController extends Controller
         })
         ->groupBy('tb_pembayaran.id')
         ->get()->count();
-        
-        $dataBooking = DB::table('tb_booking')->select('tb_pengguna.id AS id_pengguna', 'tb_pembayaran.id AS id_pembayaran', 'tb_pengguna.name', 'tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 'tb_riwayat_status_pembayaran.status_pembayaran')
-        ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')   
-        ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+
+        $dataBooking = DB::table('tb_booking')->select('tb_pengguna.id AS id_pengguna', 'tb_pembayaran.id AS id_pembayaran', 'tb_pengguna.name', 'tb_booking.tgl_booking', 'tb_detail_booking.jam_mulai', 'tb_detail_booking.jam_selesai', 'tb_courts.nomor_court', 'tb_riwayat_status_pembayaran.status_pembayaran')
+        ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
+        ->leftJoin('tb_detail_booking', 'tb_detail_booking.id_booking', '=', 'tb_booking.id')
+        ->leftJoin('tb_courts', 'tb_courts.id', '=', 'tb_booking.id_court')
+        ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
         ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
         ->leftJoin('tb_riwayat_status_pembayaran', function($join){
             $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
             ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran GROUP BY tb_riwayat_status_pembayaran.id_pembayaran)');
         })
-        ->where('tb_booking.id_lapangan', $dataLapangan['lapangan_id'])
+        ->where('tb_courts.id_lapangan', $dataLapangan['lapangan_id'])
         ->when(isset($request->filterTanggalStart), function ($query)  use ($request) {
             $query->whereBetween('tb_booking.tgl_booking', [date('Y-m-d', strtotime($request->filterTanggalStart)), date('Y-m-d', strtotime($request->filterTanggalEnd))]);
         })
@@ -93,7 +97,7 @@ class RiwayatController extends Controller
         ->skip($start)
         ->take($rowperpage)
         ->get();
-        
+
         $response = array(
             "draw" => intval($draw),
             "iTotalRecords" => $totalRecords,
@@ -112,29 +116,31 @@ class RiwayatController extends Controller
         (!isset($request->filterMonth) && !isset($request->filterYear)) ? $queryFilter = "YEAR(tb_pembayaran.created_at) = YEAR(NOW()) && MONTH(tb_pembayaran.created_at) = MONTH(NOW())" : $queryFilter = "YEAR(tb_pembayaran.created_at) = ".$request->filterYear." && MONTH(tb_pembayaran.created_at) = ". $request->filterMonth;
 
         $dataLapangan = Lapangan::with(['User' => function ($query) {$query->select('tb_pengguna.id AS lapangan_id', 'tb_pengguna.name', 'tb_pengguna.nomor_telepon'); }])
-            ->select(['tb_lapangan.id as lapangan_id', 'tb_lapangan.id_pengguna', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.buka_dari_hari', 
-            'tb_lapangan.buka_sampai_hari', 'tb_lapangan.titik_koordinat_lat', 'tb_lapangan.titik_koordinat_lng', 'tb_lapangan.buka_dari_jam', 
+            ->select(['tb_lapangan.id as lapangan_id', 'tb_lapangan.id_pengguna', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.buka_dari_hari',
+            'tb_lapangan.buka_sampai_hari', 'tb_lapangan.titik_koordinat_lat', 'tb_lapangan.titik_koordinat_lng', 'tb_lapangan.buka_dari_jam',
             'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court'])
             ->where('tb_lapangan.id_pengguna', Auth::user()->id)
             ->first();
-            
+
         $totalPemasukan = DB::select('
-            SELECT 	
-            CONCAT(DATE_FORMAT(STR_TO_DATE(CONCAT(YEARWEEK(tb_pembayaran.created_at), DAYNAME(DATE_SUB(CURRENT_DATE, INTERVAL DAYOFMONTH(CURRENT_DATE)-1 DAY))), "%X%V %W"), "%d-%m-%Y"), " - ", 
-            DATE_FORMAT(STR_TO_DATE(CONCAT(YEARWEEK(tb_pembayaran.created_at), DAYNAME(DATE_SUB(CURRENT_DATE, INTERVAL DAYOFMONTH(CURRENT_DATE)-1 DAY))), "%X%V %W") + INTERVAL 6 DAY, "%d-%m-%Y")) AS weekly_start_end , 
+            SELECT
+            CONCAT(DATE_FORMAT(STR_TO_DATE(CONCAT(YEARWEEK(tb_pembayaran.created_at), DAYNAME(DATE_SUB(CURRENT_DATE, INTERVAL DAYOFMONTH(CURRENT_DATE)-1 DAY))), "%X%V %W"), "%d-%m-%Y"), " - ",
+            DATE_FORMAT(STR_TO_DATE(CONCAT(YEARWEEK(tb_pembayaran.created_at), DAYNAME(DATE_SUB(CURRENT_DATE, INTERVAL DAYOFMONTH(CURRENT_DATE)-1 DAY))), "%X%V %W") + INTERVAL 6 DAY, "%d-%m-%Y")) AS weekly_start_end ,
                 COUNT(tb_pembayaran.id) AS total_transaksi, SUM(tb_pembayaran.`total_biaya`) AS value
             FROM (
                 SELECT *
                 FROM tb_booking
                 GROUP BY tb_booking.`id_pembayaran`
-            ) AS tb_booking 
-            LEFT JOIN tb_lapangan ON tb_booking.id_lapangan = tb_lapangan.id
+            ) AS tb_booking
+            LEFT JOIN tb_detail_booking ON tb_detail_booking.id_booking = tb_booking.id
+            LEFT JOIN tb_courts ON tb_courts.id = tb_booking.id_court
+            LEFT JOIN tb_lapangan ON tb_lapangan.id = tb_courts.id_lapangan
             LEFT JOIN tb_pembayaran ON tb_booking.id_pembayaran = tb_pembayaran.id
-            LEFT JOIN tb_riwayat_status_pembayaran ON tb_riwayat_status_pembayaran.`id_pembayaran` =  tb_pembayaran.id 
+            LEFT JOIN tb_riwayat_status_pembayaran ON tb_riwayat_status_pembayaran.`id_pembayaran` =  tb_pembayaran.id
                 AND tb_riwayat_status_pembayaran.`id` IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran GROUP BY tb_riwayat_status_pembayaran.id_pembayaran)
-            WHERE tb_booking.id_lapangan = '.$dataLapangan->lapangan_id.' && '.$queryFilter.' && (tb_riwayat_status_pembayaran.`status_pembayaran` != \'Batal\' && 
+            WHERE tb_courts.id_lapangan = '.$dataLapangan->lapangan_id.' && '.$queryFilter.' && (tb_riwayat_status_pembayaran.`status_pembayaran` != \'Batal\' &&
             tb_riwayat_status_pembayaran.`status_pembayaran` != \'Belum Lunas\' && tb_riwayat_status_pembayaran.`status_pembayaran` != \'Proses\')
-            
+
             GROUP BY FROM_DAYS(TO_DAYS(tb_pembayaran.created_at) -MOD(TO_DAYS(tb_pembayaran.created_at) -DAYOFWEEK(DATE_SUB(CURRENT_DATE, INTERVAL DAYOFMONTH(CURRENT_DATE)-1 DAY)), 7))
         ');
 
@@ -149,12 +155,12 @@ class RiwayatController extends Controller
         (!isset($request->filterMonth) && !isset($request->filterYear)) ? $queryFilter = "YEAR(tb_pembayaran.created_at) = YEAR(NOW()) && MONTH(tb_pembayaran.created_at) = MONTH(NOW())" : $queryFilter = "YEAR(tb_pembayaran.created_at) = ".$request->filterYear." && MONTH(tb_pembayaran.created_at) = ". $request->filterMonth;
 
         $dataLapangan = Lapangan::with(['User' => function ($query) {$query->select('tb_pengguna.id AS lapangan_id', 'tb_pengguna.name', 'tb_pengguna.nomor_telepon'); }])
-            ->select(['tb_lapangan.id as lapangan_id', 'tb_lapangan.id_pengguna', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.buka_dari_hari', 
-            'tb_lapangan.buka_sampai_hari', 'tb_lapangan.titik_koordinat_lat', 'tb_lapangan.titik_koordinat_lng', 'tb_lapangan.buka_dari_jam', 
+            ->select(['tb_lapangan.id as lapangan_id', 'tb_lapangan.id_pengguna', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.buka_dari_hari',
+            'tb_lapangan.buka_sampai_hari', 'tb_lapangan.titik_koordinat_lat', 'tb_lapangan.titik_koordinat_lng', 'tb_lapangan.buka_dari_jam',
             'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court'])
             ->where('tb_lapangan.id_pengguna', Auth::user()->id)
             ->first();
-            
+
         $totalPenggunaBookingTerbanyak = DB::select('
             SELECT CONCAT(FROM_DAYS(TO_DAYS(tb_pembayaran.created_at) -MOD(TO_DAYS(tb_pembayaran.created_at) -1, 7)), \' - \',
             STR_TO_DATE(CONCAT(YEARWEEK(tb_pembayaran.created_at), \'Sunday\'), \'%X%V %W\') + INTERVAL 6 DAY) AS weekly_start_end, COUNT(tb_pengguna.`id`) AS total_booking, SUM(tb_pembayaran.`total_biaya`) AS value, tb_pengguna.`name` as name
@@ -164,13 +170,15 @@ class RiwayatController extends Controller
                 GROUP BY tb_booking.`id_pembayaran`
             ) AS tb_booking
             LEFT JOIN tb_pengguna ON tb_pengguna.id = tb_booking.`id_pengguna`
-            LEFT JOIN tb_lapangan ON tb_booking.id_lapangan = tb_lapangan.id
+            LEFT JOIN tb_detail_booking ON tb_detail_booking.id_booking = tb_booking.id
+            LEFT JOIN tb_courts ON tb_courts.id = tb_booking.id_court
+            LEFT JOIN tb_lapangan ON tb_lapangan.id = tb_courts.id_lapangan
             LEFT JOIN tb_pembayaran ON tb_booking.id_pembayaran = tb_pembayaran.id
-            LEFT JOIN tb_riwayat_status_pembayaran ON tb_riwayat_status_pembayaran.`id_pembayaran` =  tb_pembayaran.id 
+            LEFT JOIN tb_riwayat_status_pembayaran ON tb_riwayat_status_pembayaran.`id_pembayaran` =  tb_pembayaran.id
             AND tb_riwayat_status_pembayaran.`id` IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran GROUP BY tb_riwayat_status_pembayaran.id_pembayaran)
-            WHERE tb_booking.id_lapangan = '.$dataLapangan->lapangan_id.' && '.$queryFilter.' && (tb_riwayat_status_pembayaran.`status_pembayaran` != \'Batal\' && 
-            tb_riwayat_status_pembayaran.`status_pembayaran` != \'Belum Lunas\' && tb_riwayat_status_pembayaran.`status_pembayaran` != \'Proses\') 
-            
+            WHERE tb_courts.id_lapangan = '.$dataLapangan->lapangan_id.' && '.$queryFilter.' && (tb_riwayat_status_pembayaran.`status_pembayaran` != \'Batal\' &&
+            tb_riwayat_status_pembayaran.`status_pembayaran` != \'Belum Lunas\' && tb_riwayat_status_pembayaran.`status_pembayaran` != \'Proses\')
+
             GROUP BY tb_pengguna.id
             ORDER BY VALUE DESC
             LIMIT 5
@@ -203,13 +211,15 @@ class RiwayatController extends Controller
         $order_arr = $request->get('order');
         $search_arr = $request->get('search');
 
-        // $columnIndex = $columnIndex_arr[0]['column']; 
+        // $columnIndex = $columnIndex_arr[0]['column'];
         // $columnName = $columnName_arr[$columnIndex]['data'];
         // $columnSortOrder = $order_arr[0]['dir'];
         // $searchValue = $search_arr['value'];
 
-        $totalRecords = DB::table('tb_booking')->select('tb_lapangan.nama_lapangan', 'tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 'tb_riwayat_status_pembayaran.status_pembayaran')
-            ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+        $totalRecords = DB::table('tb_booking')->select('tb_lapangan.nama_lapangan', 'tb_booking.tgl_booking', 'tb_detail_booking.jam_mulai', 'tb_detail_booking.jam_selesai', 'tb_courts.nomor_court', 'tb_riwayat_status_pembayaran.status_pembayaran')
+            ->leftJoin('tb_detail_booking', 'tb_detail_booking.id_booking', '=', 'tb_booking.id')
+            ->leftJoin('tb_courts', 'tb_courts.id', '=', 'tb_booking.id_court')
+            ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
             ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
             ->leftJoin('tb_riwayat_status_pembayaran', function($join){
                 $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
@@ -234,8 +244,10 @@ class RiwayatController extends Controller
         ->groupBy('tb_pembayaran.id')
         ->get();
 
-        $dataBooking = DB::table('tb_booking')->select('tb_pembayaran.id AS pembayaran_id', 'tb_lapangan.nama_lapangan', 'tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 'tb_riwayat_status_pembayaran.status_pembayaran')
-            ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+        $dataBooking = DB::table('tb_booking')->select('tb_pembayaran.id AS pembayaran_id', 'tb_lapangan.nama_lapangan', 'tb_booking.tgl_booking', 'tb_detail_booking.jam_mulai', 'tb_detail_booking.jam_selesai', 'tb_courts.nomor_court', 'tb_riwayat_status_pembayaran.status_pembayaran')
+            ->leftJoin('tb_detail_booking', 'tb_detail_booking.id_booking', '=', 'tb_booking.id')
+            ->leftJoin('tb_courts', 'tb_courts.id', '=', 'tb_booking.id_court')
+            ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
             ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
             ->leftJoin('tb_riwayat_status_pembayaran', function($join){
                 $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
@@ -261,8 +273,8 @@ class RiwayatController extends Controller
             ->skip($start)
             ->take($rowperpage)
             ->get();
-            
-            
+
+
         $response = array(
             "draw" => intval($draw),
             "iTotalRecords" => count($totalRecords),
@@ -275,10 +287,12 @@ class RiwayatController extends Controller
 
     public function getPenyewaLapanganInvoice(Request $request){
 
-        $getPenyewaLapanganInvoice = DB::table('tb_pengguna')->select('tb_lapangan.id AS lapangan_id', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 'tb_booking.harga_per_jam',
+        $getPenyewaLapanganInvoice = DB::table('tb_pengguna')->select('tb_lapangan.id AS lapangan_id', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_booking.tgl_booking', 'tb_detail_booking.jam_mulai', 'tb_detail_booking.jam_selesai', 'tb_courts.nomor_court', 'tb_detail_booking.harga_per_jam',
             'tb_pengguna.name', 'tb_pembayaran.jenis_booking', 'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_pembayaran.total_biaya', 'tb_pembayaran.id AS pembayaran_id', 'tb_riwayat_status_pembayaran.status_pembayaran')
             ->leftJoin('tb_booking', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
-            ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+            ->leftJoin('tb_detail_booking', 'tb_detail_booking.id_booking', '=', 'tb_booking.id')
+            ->leftJoin('tb_courts', 'tb_courts.id', '=', 'tb_booking.id_court')
+            ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
             ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
             ->leftJoin('tb_riwayat_status_pembayaran', function($join){
                 $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
@@ -287,7 +301,7 @@ class RiwayatController extends Controller
             ->leftJoin('tb_daftar_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.id', '=', 'tb_pembayaran.id_daftar_jenis_pembayaran')
             ->where('tb_booking.id_pengguna', Auth::user()->id)->where('tb_booking.id_pembayaran', $request->pembayaranId)
             ->get();
-            
+
         $dataPenyewaLapanganInvoice = array();
         $counter = 0;
 
@@ -305,7 +319,7 @@ class RiwayatController extends Controller
                 }
             }
         }
-        
+
         return response()->json($dataPenyewaLapanganInvoice);
     }
 }

@@ -8,7 +8,7 @@ use App\Models\Lapangan;
 use App\Models\Pembayaran;
 use App\Models\DaftarJenisPembayaran;
 use App\Models\RiwayatStatusPembayaran;
-use App\Services\Midtrans\CreateSnapTokenService; 
+use App\Services\Midtrans\CreateSnapTokenService;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,12 +25,12 @@ class PembayaranController extends Controller
     public function listPaymentMethodPemilikLapangan(){
         $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
-        $dataDaftarJenisPembayaranLapangan = DB::table('tb_lapangan')->select('tb_daftar_jenis_pembayaran.id AS daftar_jenis_pembayaran_id', 'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama', 
+        $dataDaftarJenisPembayaranLapangan = DB::table('tb_lapangan')->select('tb_daftar_jenis_pembayaran.id AS daftar_jenis_pembayaran_id', 'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama',
             'tb_daftar_jenis_pembayaran.no_rekening')
             ->leftJoin('tb_daftar_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.id_lapangan', '=', 'tb_lapangan.id')
             ->where('tb_lapangan.id', $lapanganId->id)
             ->get();
-            
+
         return view('pemilik_lapangan.pemilik_lapangan_list_payment_method', compact('lapanganId', 'dataDaftarJenisPembayaranLapangan'));
     }
 
@@ -44,13 +44,13 @@ class PembayaranController extends Controller
         for($counter= 0; $counter < count($request->nama_metode_pembayaran); $counter++){
             DaftarJenisPembayaran::updateOrCreate([
                     'tb_daftar_jenis_pembayaran.id' => isset($request->daftar_jenis_pembayaran_id[$counter]) ? $request->daftar_jenis_pembayaran_id[$counter] : 0,
-                    'id_lapangan' => $lapanganId->id, 
-                    'nama_jenis_pembayaran' => $request->nama_metode_pembayaran[$counter], 
+                    'id_lapangan' => $lapanganId->id,
+                    'nama_jenis_pembayaran' => $request->nama_metode_pembayaran[$counter],
                     'atas_nama' => $request->atas_nama[$counter],
                     'no_rekening' => $request->no_rek_virtual_account[$counter]
                 ],[
-                    'id_lapangan' => $lapanganId->id, 
-                    'nama_jenis_pembayaran' => $request->nama_metode_pembayaran[$counter], 
+                    'id_lapangan' => $lapanganId->id,
+                    'nama_jenis_pembayaran' => $request->nama_metode_pembayaran[$counter],
                     'atas_nama' => $request->atas_nama[$counter],
                     'no_rekening' => $request->no_rek_virtual_account[$counter]
                 ]
@@ -58,11 +58,11 @@ class PembayaranController extends Controller
 
         }
         return response()->json('success');
-        
+
     }
 
     public function getDaftarJenisPembayaran($idLapangan){
-        $dataDaftarJenisPembayaranLapangan = DB::table('tb_lapangan')->select('tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama', 
+        $dataDaftarJenisPembayaranLapangan = DB::table('tb_lapangan')->select('tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama',
         'tb_daftar_jenis_pembayaran.no_rekening')
         ->leftJoin('tb_daftar_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.id_lapangan', '=', 'tb_lapangan.id')
         ->where('tb_lapangan.id', $idLapangan)
@@ -70,13 +70,15 @@ class PembayaranController extends Controller
 
         return response()->json($dataDaftarJenisPembayaranLapangan);
     }
-    
+
     public function menungguPembayaranPenyewaIndex(){
-        $dataMenungguPembayaran = DB::table('tb_booking')->select('tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.foto_lapangan_1', 'tb_pengguna.name', 
-        'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama', 'tb_daftar_jenis_pembayaran.no_rekening', 'tb_booking.tgl_booking', 'tb_pembayaran.id AS pembayaran_id', 
+        $dataMenungguPembayaran = DB::table('tb_booking')->select('tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.foto_lapangan_1', 'tb_pengguna.name',
+        'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama', 'tb_daftar_jenis_pembayaran.no_rekening', 'tb_booking.tgl_booking', 'tb_pembayaran.id AS pembayaran_id',
         'tb_pembayaran.total_biaya', 'tb_pembayaran.created_at AS pembayaran_created_at')
-        ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')  
-        ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+        ->leftJoin('tb_detail_booking', 'tb_detail_booking.id_booking', '=', 'tb_booking.id')
+        ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
+        ->leftJoin('tb_courts', 'tb_courts.id', '=', 'tb_booking.id_court')
+        ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
         ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
         ->leftJoin('tb_daftar_jenis_pembayaran', 'tb_pembayaran.id_daftar_jenis_pembayaran', '=', 'tb_daftar_jenis_pembayaran.id')
         ->leftJoin('tb_riwayat_status_pembayaran', function($join){
@@ -91,74 +93,113 @@ class PembayaranController extends Controller
         // if (empty($snapToken)) {
         //     $pembayaran = Pembayaran::find($dataMenungguPembayaran->pembayaran_id);
         //     // Jika snap token masih NULL, buat token snap dan simpan ke database
-            
+
         //     $midtrans = new CreateSnapTokenService($dataMenungguPembayaran->pembayaran_id);
         //     $snapToken = $midtrans->getSnapToken();
         //     // dd($snapToken);
         //     $pembayaran->snap_token = $snapToken;
         //     $pembayaran->save();
         // }
-        
+
         $limitWaktuUploadBuktiTrx = date('Y-m-d H:i:s', strtotime('+10 minutes', strtotime(isset($dataMenungguPembayaran) ? $dataMenungguPembayaran->pembayaran_created_at : '')));
 
         return view('penyewa_lapangan.penyewa_lapangan_menunggu_pembayaran', compact('dataMenungguPembayaran', 'limitWaktuUploadBuktiTrx'));
     }
 
     public function getPembayaranDetail(){
-        $waktuBook = '';
-        $totalCourt= '';
+        $dataPembayaran = DB::table('tb_booking')->select('tb_lapangan.id AS lapangan_id', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_booking.tgl_booking', 'tb_detail_booking.jam_mulai', 'tb_detail_booking.jam_selesai', 'tb_courts.nomor_court', 'tb_detail_booking.harga_per_jam',
+            'tb_pengguna.name', 'tb_pembayaran.jenis_booking', 'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_pembayaran.total_biaya', 'tb_pembayaran.id AS pembayaran_id', 'tb_riwayat_status_pembayaran.status_pembayaran')
+            ->leftJoin('tb_detail_booking', 'tb_detail_booking.id_booking', '=', 'tb_booking.id')
+            ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
+            ->leftJoin('tb_courts', 'tb_courts.id', '=', 'tb_booking.id_court')
+            ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
+            ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
+            ->leftJoin('tb_riwayat_status_pembayaran', function($join){
+                $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
+                ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
+            })
+            ->leftJoin('tb_daftar_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.id', '=', 'tb_pembayaran.id_daftar_jenis_pembayaran')
+            ->where('tb_booking.id_pengguna', Auth::user()->id)->where('tb_riwayat_status_pembayaran.status_pembayaran', 'Belum Lunas')
+            ->get();
+
+        $dataPenyewaLapanganInvoice = array();
         $counter = 0;
 
-        $pembayaranDetail = DB::table('tb_booking')->select('tb_pengguna.name', 'tb_booking.tgl_booking', 'tb_booking.court', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 
-        'tb_pembayaran.total_biaya')
-        ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')  
-        ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
-        ->leftJoin('tb_daftar_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.id_lapangan', '=', 'tb_lapangan.id')
-        ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
-        ->leftJoin('tb_riwayat_status_pembayaran', function($join){
-            $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
-            ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
-        })
-        ->where('tb_booking.id_pengguna', Auth::user()->id)
-        ->where('tb_riwayat_status_pembayaran.status_pembayaran', 'Belum Lunas')
-        ->groupBy('tb_booking.id')
-        ->get();
-
-        foreach($pembayaranDetail as $pembayaranDetailKey => $pembayaranDetailValue){
-            $punctuation = '';
-            if(count($pembayaranDetail) > $counter+1 && count($pembayaranDetail) === 2){
-                $punctuation= ' & ';
-            }else if(count($pembayaranDetail) >= $counter+1 && count($pembayaranDetail)-3 !== $counter-1 && count($pembayaranDetail) !== $counter+1){
-                $punctuation= ', ';
-            }else if(count($pembayaranDetail) >= 2 && count($pembayaranDetail)-3 === $counter-1){
-                $punctuation= ' & ';
-            }
-            $waktuBook .= date('H:i', strtotime($pembayaranDetailValue->jam_mulai)) .'-'. date('H:i', strtotime($pembayaranDetailValue->jam_selesai)) . $punctuation;
-            $totalCourt .= $pembayaranDetailValue->court;
-
-            $counter++;
+        foreach($dataPembayaran as $dataPembayaranIndex => $dataPembayaranValue){
+            $dataPenyewaLapanganInvoice[$dataPembayaranValue->tgl_booking] = [];
         }
-        $totalCourt = preg_replace('/(.)\\1+/', '$1', $totalCourt);
-        $totalCourt = implode(', ', str_split($totalCourt));
-        $totalCourt = preg_replace('/,([^,]*)$/', ' &$1', $totalCourt);
 
-        $dataPembayaranDetailArr = array(
-            "nama_penyewa" => $pembayaranDetail[0]->name,
-            "tgl_penyewaan" => date("d-m-Y", strtotime($pembayaranDetail[0]->tgl_booking)),
-            "waktu_book" => $waktuBook,
-            "total_court" => $totalCourt,
-            "total_biaya" => $pembayaranDetail[0]->total_biaya
-        );
+        for($countDate= 0; $countDate < count($dataPenyewaLapanganInvoice); $countDate++){
+            foreach($dataPembayaran as $dataPembayaranIndex => $dataPembayaranValue){
+                if(array_keys($dataPenyewaLapanganInvoice)[$countDate] === $dataPembayaranValue->tgl_booking){
+                    $dataPenyewaLapanganInvoice[$dataPembayaranValue->tgl_booking][$counter] = $dataPembayaranValue;
+                    $counter++;
+                }else{
+                    $counter = 0;
+                }
+            }
+        }
 
-        return response()->json($dataPembayaranDetailArr);
+        return response()->json($dataPenyewaLapanganInvoice);
+
+
+        // $waktuBook = '';
+        // $totalCourt= '';
+        // $counter = 0;
+
+        // $pembayaranDetail = DB::table('tb_booking')->select('tb_pengguna.name', 'tb_booking.tgl_booking', 'tb_courts.nomor_court', 'tb_detail_booking.jam_mulai', 'tb_detail_booking.jam_selesai',
+        // 'tb_pembayaran.total_biaya')
+        // ->leftJoin('tb_detail_booking', 'tb_detail_booking.id_booking', '=', 'tb_booking.id')
+        // ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
+        // ->leftJoin('tb_courts', 'tb_courts.id', '=', 'tb_booking.id_court')
+        // ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
+        // ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
+        // ->leftJoin('tb_riwayat_status_pembayaran', function($join){
+        //     $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
+        //     ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
+        // })
+        // ->where('tb_booking.id_pengguna', Auth::user()->id)
+        // ->where('tb_riwayat_status_pembayaran.status_pembayaran', 'Belum Lunas')
+        // ->groupBy('tb_booking.id')
+        // ->get();
+
+        // foreach($pembayaranDetail as $pembayaranDetailKey => $pembayaranDetailValue){
+        //     $punctuation = '';
+        //     if(count($pembayaranDetail) > $counter+1 && count($pembayaranDetail) === 2){
+        //         $punctuation= ' & ';
+        //     }else if(count($pembayaranDetail) >= $counter+1 && count($pembayaranDetail)-3 !== $counter-1 && count($pembayaranDetail) !== $counter+1){
+        //         $punctuation= ', ';
+        //     }else if(count($pembayaranDetail) >= 2 && count($pembayaranDetail)-3 === $counter-1){
+        //         $punctuation= ' & ';
+        //     }
+        //     $waktuBook .= date('H:i', strtotime($pembayaranDetailValue->jam_mulai)) .'-'. date('H:i', strtotime($pembayaranDetailValue->jam_selesai)) . $punctuation;
+        //     $totalCourt .= $pembayaranDetailValue->nomor_court;
+
+        //     $counter++;
+        // }
+        // $totalCourt = preg_replace('/(.)\\1+/', '$1', $totalCourt);
+        // $totalCourt = implode(', ', str_split($totalCourt));
+        // $totalCourt = preg_replace('/,([^,]*)$/', ' &$1', $totalCourt);
+
+        // $dataPembayaranDetailArr = array(
+        //     "nama_penyewa" => $pembayaranDetail[0]->name,
+        //     "tgl_penyewaan" => date("d-m-Y", strtotime($pembayaranDetail[0]->tgl_booking)),
+        //     "waktu_book" => $waktuBook,
+        //     "total_court" => $totalCourt,
+        //     "total_biaya" => $pembayaranDetail[0]->total_biaya
+        // );
+
+        // return response()->json($dataPembayaranDetailArr);
     }
 
     public function simpanBuktiPembayaran(Request $request){
         if($request->hasFile('foto_bukti_bayar')){
-            $dataPembayaran = DB::table('tb_booking')->select('tb_lapangan.nama_lapangan', 'tb_booking.tgl_booking', 'tb_pembayaran.id AS pembayaran_id', 
+            $dataPembayaran = DB::table('tb_booking')->select('tb_lapangan.nama_lapangan', 'tb_booking.tgl_booking', 'tb_pembayaran.id AS pembayaran_id',
             'tb_pembayaran.created_at AS pembayaran_created_at')
-                ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')  
-                ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+                ->leftJoin('tb_detail_booking', 'tb_detail_booking.id_booking', '=', 'tb_booking.id')
+                ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
+                ->leftJoin('tb_courts', 'tb_courts.id', '=', 'tb_booking.id_court')
+                ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
                 ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
                 ->leftJoin('tb_riwayat_status_pembayaran', function($join){
                     $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
@@ -170,7 +211,7 @@ class PembayaranController extends Controller
 
             $updateFotoBuktiTrx = Pembayaran::find($dataPembayaran->pembayaran_id);
             $updateStatusPembayaran = new RiwayatStatusPembayaran;
-            
+
             $lapanganPath = 'bukti_bayar/'.strtolower(str_replace(' ', '_', $dataPembayaran->nama_lapangan)).'/';
             Storage::disk('local')->makeDirectory($lapanganPath);
             $fotoBuktiTrxUserPath = $lapanganPath.str_replace(' ', '_', Auth::user()->id).'/'.$dataPembayaran->tgl_booking.'/'.$dataPembayaran->pembayaran_id;
@@ -186,9 +227,9 @@ class PembayaranController extends Controller
             $updateStatusPembayaran->save();
 
             return response()->json('success');
-        }else{
-            return response()->json(['error_bukti_trx' => "Foto bukti transfer kosong!"], 400);
         }
+
+        return response()->json(['error_bukti_trx' => "Foto bukti transfer kosong!"], 400);
     }
 
     public function batalkanPembayaran(Request $request){
@@ -202,7 +243,7 @@ class PembayaranController extends Controller
 
     public function updateStatusPembayaranPenyewa(Request $request){
         $dataPembayaran = Pembayaran::find($request->pembayaranId);
-        
+
         $dataPembayaran->RiwayatStatusPembayaran()->insert(['id_pembayaran' => $request->pembayaranId,'status_pembayaran' => $request->statusPembayaran]);
 
         return response()->json('success');

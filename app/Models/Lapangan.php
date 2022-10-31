@@ -13,13 +13,13 @@ class Lapangan extends Model
 
     public function User(){
         return $this->belongsTo('App\Models\User', 'id_pengguna', 'id');
-    }   
+    }
 
     public function Booking(){
         return $this->hasMany('App\Models\Booking', 'id_lapangan');
     }
 
-    public function StatusLapangan(){
-        return $this->hasMany('App\Models\StatusLapangan', 'id_lapangan');
+    public function Courts(){
+        return $this->hasMany('App\Models\Courts', 'id_lapangan');
     }
 }

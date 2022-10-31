@@ -54,17 +54,22 @@
                             </div>
                             <div class="col-md-8">
                                 <ul class="pull-right nav nav-tabs border-tab nav-success" id="top-tabdanger" role="tablist">
-                                    @for ($court= 1; $court <= $dataLapangan[0]->jumlah_court; $court++)
+                                    @foreach ($dataLapangan as $dataLapanganValue)
+                                        <li class="nav-item"><a class="nav-link @if($dataLapanganValue->nomor_court === 1) active @endif" id="top-home-danger" data-bs-toggle="tab" href="#court-{{$dataLapanganValue->nomor_court}}" role="tab" aria-controls="top-homedanger" aria-selected="true"><i class="icofont icofont-badminton-birdie"></i>Court {{$dataLapanganValue->nomor_court}}</a>
+                                            <div class="material-border"></div>
+                                        </li>
+                                    @endforeach
+                                    {{-- @for ($court= 1; $court <= $dataLapangan[0]->jumlah_court; $court++)
                                         <li class="nav-item"><a class="nav-link @if($court === 1) active @endif" id="top-home-danger" data-bs-toggle="tab" href="#court-{{$court}}" role="tab" aria-controls="top-homedanger" aria-selected="true"><i class="icofont icofont-badminton-birdie"></i>Court {{$court}}</a>
                                             <div class="material-border"></div>
                                         </li>
-                                    @endfor
+                                    @endfor --}}
                                 </ul>
                             </div>
                         </div>
                         <div class="card-body">
                             <div class="tabbed-card">
-                                
+
                                 <div class="tab-content" id="top-tabContentdanger">
                                     @for ($court= 1; $court <= $dataLapangan[0]->jumlah_court; $court++)
                                         <div class="tab-pane fade @if($court === 1) active show @endif" id="court-{{$court}}" role="tabpanel" aria-labelledby="top-home-tab">
@@ -113,8 +118,9 @@
                                 <div class="input-group"><span class="input-group-text"><i class="icofont icofont-tick-mark"></i></span>
                                     <select class="form-select" id="edit-court-status" name="edit_court_status" required="">
                                         <option selected="" disabled="" value="">Pilih Status...</option>
-                                        <option value="Available">Tersedia</option>
-                                        <option value="Unavailable">Tidak Tersedia</option>
+                                        @foreach ($dataTipeStatusCourt as $tipeStatusCourt)
+                                            <option value="{{ $tipeStatusCourt->tipe_status_court_id }}">{{ $tipeStatusCourt->tipe_status }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
@@ -220,20 +226,17 @@
 <script src="{{url('/assets/js/photoswipe/photoswipe.js')}}"></script>
 
 <script>
-    var jumlah_court = {!! json_encode($dataLapangan[0]->jumlah_court) !!}
-
-    for (let court= 1; court<= jumlah_court; court++){
-        $("#table-court-"+court).dataTable({
+    $.each({!! $dataLapangan !!}, function (key, value) {
+        $("#table-court-"+value.nomor_court).dataTable({
             "columns": [
                 { "orderable": true, "width": "10%" },
                 null,
                 { "orderable": false, "width": "16%" },
                 { "orderable": false, "width": "13%" },
-                
+
             ],
         });
-
-    }
+    });
 
     $('body').on('hidden.bs.modal', '.modal', function () {
         $('#data-profil-penyewa-modal').find('.modal-footer').children('button').slice(-2).remove();
@@ -243,21 +246,7 @@
         }
     });
 
-    var date; 
-
-    // for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
-    //     $('#table-court-'+courtCount).DataTable({
-    //         "processing": true,
-    //         bFilter: false,
-    //         dom: 'tip',
-    //         order: [1, "asc"],
-    //         columns: [
-    //             { "orderable": false, "width": "5%" },
-    //             { "orderable": true, "width": "10%" },
-    //             null
-    //         ]
-    //     });
-    // }
+    var date;
 
     $('#tanggal').datepicker({
         dateFormat: 'dd-mm-yy',
@@ -275,11 +264,11 @@
                 },
                 dataType: "json",
                 success:function(data){
-                    for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
-                        $('#table-court-'+courtCount).DataTable().clear().draw();
-                        $('#table-court-'+courtCount).DataTable().rows.add(data['court_'+courtCount]);
-                        $('#table-court-'+courtCount).DataTable().columns.adjust().draw();
-                    }
+                    $.each({!! $dataLapangan !!}, function (key, value) {
+                        $('#table-court-'+value.nomor_court).DataTable().clear().draw();
+                        $('#table-court-'+value.nomor_court).DataTable().rows.add(data['court_'+value.nomor_court]);
+                        $('#table-court-'+value.nomor_court).DataTable().columns.adjust().draw();
+                    });
                 },
                 error: function(xhr, ajaxOptions, thrownError){
                     console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
@@ -312,7 +301,7 @@
                     var jamMulai = item.jam_mulai.split(':');
                     var jamSelesai = item.jam_selesai.split(':');
                     var punctuation= '';
-                    
+
                     if(data.length > index+1 && data.length === 2){
                         punctuation= ' & ';
                     }else if(data.length >= index+1 && data.length-3 !== index-1 && data.length !== index+1){
@@ -320,16 +309,16 @@
                     }else if(data.length >= 2 && data.length-3 === index-1){
                         punctuation= ' & ';
                     }
-                    
+
                     jamBooking += jamMulai[0]+":"+jamMulai[1] +" - "+ jamSelesai[0]+":"+jamSelesai[1] + punctuation;
-                    totalCourt += item.court;
-                    
+                    totalCourt += item.nomor_court;
+
                     $('#nama-penyewa').val(item.name);
                     $('#tanggal-penyewaan').val(tglBooking[2]+"-"+tglBooking[1]+"-"+tglBooking[0]);
                     $('#total-penyewaan').val('Rp'+item.total_biaya);
                     $('#id-pengguna-penyewa').val(item.id);
                 });
-                
+
                 totalCourt = totalCourt.replace(/(.)\1+/g, '$1')
 
                 $('#pilihan-court-penyewa').val(totalCourt.match(/\d/g).join(", ").replace(/,([^,]*)$/, ' &$1'));
@@ -348,7 +337,7 @@
                     <button type="button" onclick="tolakPenyewaan('+data[0].pembayaran_id+')" class="btn btn-square btn-outline-warning">Tolak</button>\
                     <button type="button" onclick="terimaPenyewaan('+data[0].pembayaran_id+')" class="btn btn-square btn-outline-primary">Terima</button>'
                 )
-                
+
                 $('#data-profil-penyewa-modal').modal('show');
             },
             error: function(data){
@@ -357,24 +346,27 @@
         });
     }
 
-    function editCourt(idLapangan, court, waktuLapangan){
-        link = "{{route('pemilikLapangan.statusCourtLapanganStatus', [':idLapangan',':court'])}}";
+    function editCourt(idLapangan, status_court_id, waktuLapangan){
+
+        link = "{{route('pemilikLapangan.statusCourtLapanganStatus', [':idLapangan',':status_court_id'])}}";
         link = link.replace(":idLapangan", idLapangan);
-        link = link.replace(":court", court);
+        link = link.replace(":status_court_id", status_court_id);
         $.ajax({
             url: link,
             method: "GET",
             dataType: 'json',
             success: function(data){
+                console.log(data)
                 data.forEach(function(item, index){
+
                     var jamStatusBerlaku = item.jam_status_berlaku_dari.split(':');
                     var waktuLapanganSplit = waktuLapangan.split(' - ');
-
                     if(waktuLapanganSplit[0] === jamStatusBerlaku[0]+":"+jamStatusBerlaku[1]){
+
                         $('#edit-court-status').find('option').removeAttr('selected');
-                        $('#edit-court-status').find('option[value="'+item.status+'"]').prop('selected',true);
+                        $('#edit-court-status').find('option[value="'+item.tipe_status+'"]').prop('selected',true);
                         $('#edit-court-alasan').val(item.detail_status);
-                        $('#update-court-button').attr("onclick", "updateCourt("+item.id+")")
+                        $('#update-court-button').attr("onclick", "updateCourt("+item.status_court_id+")");
                     }
                 });
                 $('#edit-court-modal').modal('show');
@@ -385,10 +377,10 @@
         });
     }
 
-    function updateCourt(court_id){
+    function updateCourt(status_court_id){
         link = "{{route('pemilikLapangan.updateCourtLapanganStatus', ':id')}}";
-        link = link.replace(':id', court_id);
-        
+        link = link.replace(':id', status_court_id);
+
 		swal.fire({
 			title: "Edit Court?",
 			text: "Court will be edited on court list!",
@@ -399,22 +391,22 @@
             closeOnConfirm: true,
             preConfirm: (login) => {
                 return $.ajax({
-                    type: "POST", 
+                    type: "POST",
                     url: link,
-                    datatype : "json", 
-                    data: $("#editCourt").serialize() + "&court_id="+court_id,
+                    datatype : "json",
+                    data: $("#editCourt").serialize() + "&lapangan_id={{ $dataLapangan[0]->lapangan_id }}",
                     success: function(data){
-                        
+
                     },
                     error: function(data){
                         swal.fire({title:"Ticket Failed to Approved!", text:"This ticket was not approved successfully", icon:"error"});
                     }
-                }); 
-            } 
+                });
+            }
 		}).then((result) => {
             if(result.value){
                 swal.fire({title:"Ticket Approved!", text:"This ticket has been approved on tickets list", icon:"success"})
-                .then(function(){ 
+                .then(function(){
                     window.location.href = "";
                 });
             }
@@ -433,7 +425,7 @@
 
             link = "{{route('pemilikLapangan.updateStatusPembayaran', ':id')}}";
             link = link.replace(':id', pembayaranId);
-            
+
             swal.fire({
                 title: "Terima Penyewaan?",
                 text: "Status pembayaran penyewa akan diperbaharui!",
@@ -444,22 +436,22 @@
                 closeOnConfirm: true,
                 preConfirm: (login) => {
                     return $.ajax({
-                        type: "POST", 
+                        type: "POST",
                         url: link,
-                        datatype : "json", 
+                        datatype : "json",
                         data: {'pembayaranId':pembayaranId, "_token": "{{ csrf_token() }}", 'statusPembayaran': $("#update-status-pembayaran").val()},
                         success: function(data){
-                            
+
                         },
                         error: function(data){
                             swal.fire({title:"Terima Penyewaan Gagal!", text:"Terima penyewaan gagal di proses.", icon:"error"});
                         }
-                    }); 
-                } 
+                    });
+                }
             }).then((result) => {
                 if(result.value){
                     swal.fire({title:"Terima Penyewaan Berhasil!", text:"Status penyewaan telah berhasil di perbarui.", icon:"success"})
-                    .then(function(){ 
+                    .then(function(){
                         window.location.href = "";
                     });
                 }
@@ -481,7 +473,7 @@
 
             link = "{{route('pemilikLapangan.updateStatusPembayaran', ':id')}}";
             link = link.replace(':id', pembayaranId);
-            
+
             swal.fire({
                 title: "Tolak Penyewaan?",
                 text: "Status pembayaran penyewa akan diperbaharui!",
@@ -492,28 +484,28 @@
                 closeOnConfirm: true,
                 preConfirm: (login) => {
                     return $.ajax({
-                        type: "POST", 
+                        type: "POST",
                         url: link,
-                        datatype : "json", 
+                        datatype : "json",
                         data: {'pembayaranId':pembayaranId, "_token": "{{ csrf_token() }}", 'statusPembayaran': $("#update-status-pembayaran").val()},
                         success: function(data){
-                            
+
                         },
                         error: function(data){
                             swal.fire({title:"Tolak Penyewaan Gagal!", text:"Tolak penyewaan gagal di proses.", icon:"error"});
                         }
-                    }); 
-                } 
+                    });
+                }
             }).then((result) => {
                 if(result.value){
                     swal.fire({title:"Tolak Penyewaan Berhasil!", text:"Status penyewaan telah berhasil di perbarui.", icon:"success"})
-                    .then(function(){ 
+                    .then(function(){
                         window.location.href = "";
                     });
                 }
             });
         }
-        
+
     }
 </script>
 

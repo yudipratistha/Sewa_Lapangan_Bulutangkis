@@ -108,60 +108,6 @@
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label>Jumlah Court</label>
-                                                <div class="input-group"><span class="input-group-text"><i class="icofont icofont-telephone"></i></span>
-                                                    <input id="jumlah-court" type="number" class="form-control" name="jumlah_court_pemilik_lapangan" placeholder="08xxxx" value="{{$dataProfilPemilikLapangan->jumlah_court}}" required>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <div class="row g-3">
-                                                    <div class="col-md-6">
-                                                        <label class="form-label" for="validationDefault04">Lapangan Buka Dari Hari</label>
-                                                        <div class="input-group"><span class="input-group-text"><i class="icofont icofont-calendar"></i></span>
-                                                            <select class="form-select" id="validationDefault04" name="lapangan_buka_dari_hari" required="">
-                                                                <option disabled="" value="">Pilih Hari...</option>
-                                                                <option value="1" @if($dataProfilPemilikLapangan->buka_dari_hari == 1) selected @endif>Senin</option>
-                                                                <option value="2" @if($dataProfilPemilikLapangan->buka_dari_hari == 2) selected @endif>Selasa</option>
-                                                                <option value="3" @if($dataProfilPemilikLapangan->buka_dari_hari == 3) selected @endif>Rabu</option>
-                                                                <option value="4" @if($dataProfilPemilikLapangan->buka_dari_hari == 4) selected @endif>Kamis</option>
-                                                                <option value="5" @if($dataProfilPemilikLapangan->buka_dari_hari == 5) selected @endif>Jumat</option>
-                                                                <option value="6" @if($dataProfilPemilikLapangan->buka_dari_hari == 6) selected @endif>Sabtu</option>
-                                                                <option value="7" @if($dataProfilPemilikLapangan->buka_dari_hari == 7) selected @endif>Minggu</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-label" for="validationDefault04">Lapangan Buka Sampai Hari</label>
-                                                        <div class="input-group"><span class="input-group-text"><i class="icofont icofont-calendar"></i></span>
-                                                            <select class="form-select" id="validationDefault04" name="lapangan_buka_sampai_hari" required="">
-                                                                <option disabled="" value="">Pilih Hari...</option>
-                                                                <option value="1" @if($dataProfilPemilikLapangan->buka_sampai_hari == 1) selected @endif>Senin</option>
-                                                                <option value="2" @if($dataProfilPemilikLapangan->buka_sampai_hari == 2) selected @endif>Selasa</option>
-                                                                <option value="3" @if($dataProfilPemilikLapangan->buka_sampai_hari == 3) selected @endif>Rabu</option>
-                                                                <option value="4" @if($dataProfilPemilikLapangan->buka_sampai_hari == 4) selected @endif>Kamis</option>
-                                                                <option value="5" @if($dataProfilPemilikLapangan->buka_sampai_hari == 5) selected @endif>Jumat</option>
-                                                                <option value="6" @if($dataProfilPemilikLapangan->buka_sampai_hari == 6) selected @endif>Sabtu</option>
-                                                                <option value="7" @if($dataProfilPemilikLapangan->buka_sampai_hari == 7) selected @endif>Minggu</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="row g-3 mt-1">
-                                                    <div class="col-md-6">
-                                                        <label class="form-label" for="validationDefault04">Lapangan Buka Dari Jam</label>
-                                                        <div class="input-group"><span class="input-group-text"><i class="icofont icofont-clock-time"></i></span>
-                                                            <input class="form-control" id="buka-dari-jam" name="lapangan_buka_dari_jam" type="text" value="" placeholder="Pilih Jam" data-target="#buka-dari-jam" data-toggle="datetimepicker">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-label" for="validationDefault04">Lapangan Buka Sampai Jam</label>
-                                                        <div class="input-group"><span class="input-group-text"><i class="icofont icofont-clock-time"></i></span>
-                                                            <input class="form-control timepicker" id="buka-sampai-jam" name="lapangan_buka_sampai_jam" type="text" value="" placeholder="Pilih Jam">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
                                                 <label class="form-label">Alamat</label>
                                                 <div style="height:360px;width:100%;" id="map-container">
                                                     <div style="height: 100%; width: 100%; position: relative;z-index: 0;" id="map"></div>
@@ -210,7 +156,7 @@
         timepickerScrollbar: true,
         scrollTime: true
         // defaultTime: '{{$dataProfilPemilikLapangan->buka_dari_jam}}'
-    }).val('{{date("H:i", strtotime($dataProfilPemilikLapangan->buka_dari_jam))}}'); 
+    }).val('{{date("H:i", strtotime($dataProfilPemilikLapangan->buka_dari_jam))}}');
 
     $("#buka-sampai-jam").datetimepicker({
         datepicker: false,
@@ -236,14 +182,14 @@
     $(document).on("click", "i.del" , function() {
         $(this).parent().remove();
     });
-    
+
     $(document).on("change",".upload-file", function(){
         var uploadFile = $(this);
         var files = !!this.files ? this.files : [];
-        if (!files.length || !window.FileReader) return; 
-        if (/^image/.test( files[0].type)){ 
-            var reader = new FileReader(); 
-            reader.readAsDataURL(files[0]); 
+        if (!files.length || !window.FileReader) return;
+        if (/^image/.test( files[0].type)){
+            var reader = new FileReader();
+            reader.readAsDataURL(files[0]);
 
             reader.onloadend = function(){
                 uploadFile.closest(".img-up").find('.image-preview').css("background-image", "url("+this.result+")");
@@ -256,7 +202,7 @@
     var dataProfilPemilikLapanganLng = "{{$dataProfilPemilikLapangan->titik_koordinat_lng}}";
 
     var latlngview = L.latLng(dataProfilPemilikLapanganLat, dataProfilPemilikLapanganLng);
-    
+
     if(latlngview.lat === 0 && latlngview.lng === 0) latlngview = L.latLng('-8.660315332079342', '115.21636962890626');
     var map = L.map('map', {
         zoomControl:true,
@@ -285,13 +231,13 @@
             draggable: true
         }).addTo(map)
         latLngInput(e.latlng.lat, e.latlng.lng)
-        currentMarker.on("dragend", function(ev) { 
+        currentMarker.on("dragend", function(ev) {
             var chagedPos = ev.target.getLatLng();
             latLngInput(chagedPos.lat, chagedPos.lng)
         });
     });
     if(currentMarker != undefined){
-        currentMarker.on("dragend", function(ev) { 
+        currentMarker.on("dragend", function(ev) {
             var chagedPos = ev.target.getLatLng();
             latLngInput(chagedPos.lat, chagedPos.lng)
         });
@@ -309,15 +255,15 @@
             showCancelButton: true,
             confirmButtonText: "Simpan",
             showLoaderOnConfirm: true,
-            preConfirm: (login) => {  
+            preConfirm: (login) => {
                 var form = $("#update-lapangan-profile").get(0)
                 return $.ajax({
-                    type: "POST", 
+                    type: "POST",
                     url: "{{route('pemilikLapangan.updateProfil')}}",
                     processData: false,
                     contentType: false,
                     cache: false,
-                    data: new FormData(form), 
+                    data: new FormData(form),
                     success: function(data) {
                         var request = 'success';
                     },
@@ -327,9 +273,9 @@
                                 // console.log(xhr.responseJSON.errors)
                                 swal.fire({title:"Ticket failed Update!", text: "This ticket failed to updated!", icon:"error"});
                                 var errorMsg = $('');
-                                
+
                                 $.each(xhr.responseJSON.errors, function (i, field) {
-                                    
+
                                 });
                             });
                         }else{
@@ -337,12 +283,12 @@
                         }
                     }
                 });
-            }                    
+            }
         }).then((result) => {
         console.log("sadsa ", result.value)
             if(result.value){
             swal.fire({title:"Perbauri Profil Lapangan Berhasil!", icon:"success"})
-            .then(function(){ 
+            .then(function(){
                 window.location.reload();
             });
             }

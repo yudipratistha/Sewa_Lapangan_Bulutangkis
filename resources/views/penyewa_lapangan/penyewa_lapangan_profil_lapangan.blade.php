@@ -77,7 +77,7 @@
                                 <figure class="col-md-4 img-hover hover-1" itemprop="associatedMedia" itemscope=""><a href="{!!url(Storage::url($dataLapangan->foto_lapangan_3))!!}" itemprop="contentUrl" data-size="1600x950">
                                     <div><img src="{!!Storage::url($dataLapangan->foto_lapangan_3)!!}" itemprop="thumbnail" alt="Image description"></div></a>
                                 </figure>
-                            </div>   
+                            </div>
                         </div>
                     </div>
                     <div class="card" style="margin-bottom: 10px;">
@@ -93,22 +93,22 @@
                             </div>
                             <div class="col-md-8">
                                 <ul class="pull-right nav nav-tabs border-tab nav-success" id="top-tabdanger" role="tablist">
-                                    @for ($court= 1; $court <= $dataLapangan->jumlah_court; $court++)
-                                        <li class="nav-item"><a class="nav-link @if($court === 1) active @endif" id="top-home-danger" data-bs-toggle="tab" href="#court-{{$court}}" role="tab" aria-controls="top-homedanger" aria-selected="true"><i class="icofont icofont-badminton-birdie"></i>Court {{$court}}</a>
+                                    @foreach ($dataLapanganCourt as $dataLapanganCourtValue)
+                                        <li class="nav-item"><a class="nav-link @if($dataLapanganCourtValue->nomor_court === 1) active @endif" id="top-home-danger" data-bs-toggle="tab" href="#court-{{$dataLapanganCourtValue->nomor_court}}" role="tab" aria-controls="top-homedanger" aria-selected="true"><i class="icofont icofont-badminton-birdie"></i>Court {{$dataLapanganCourtValue->nomor_court}}</a>
                                             <div class="material-border"></div>
                                         </li>
-                                    @endfor
+                                    @endforeach
                                 </ul>
                             </div>
                         </div>
                         <div class="card-body">
                             <div class="tabbed-card">
-                                
+
                                 <div class="tab-content" id="top-tabContentdanger">
-                                    @for ($court= 1; $court <= $dataLapangan->jumlah_court; $court++)
-                                        <div class="tab-pane fade @if($court === 1) active show @endif" id="court-{{$court}}" role="tabpanel" aria-labelledby="top-home-tab">
+                                    @foreach ($dataLapanganCourt as $dataLapanganCourtValue)
+                                        <div class="tab-pane fade @if($dataLapanganCourtValue->nomor_court === 1) active show @endif" id="court-{{$dataLapanganCourtValue->nomor_court}}" role="tabpanel" aria-labelledby="top-home-tab">
                                             <div class="table-responsive">
-                                                <table class="display datatables hover-table-court-profile" id="table-court-{{$court}}">
+                                                <table class="display datatables hover-table-court-profile" id="table-court-{{$dataLapanganCourtValue->nomor_court}}">
                                                     <thead>
                                                         <tr>
                                                             <th>Jam</th>
@@ -118,7 +118,7 @@
                                                 </table>
                                             </div>
                                         </div>
-                                    @endfor
+                                        @endforeach
                                 </div>
                             </div>
                         </div>
@@ -132,7 +132,7 @@
                                 </div>
                                 <input type="hidden" class="form-control" id="lat-location-lapangan" name="lat_alamat_pemilik_lapangan">
                                 <input type="hidden" class="form-control" id="lng-location-lapangan" name="lng_alamat_pemilik_lapangan">
-                            </div>   
+                            </div>
                             <!-- <a href="{{route('penyewaLapangan.pesanLapanganPerJam', [$dataLapangan->lapangan_id, str_replace(' ', '-', strtolower($dataLapangan->nama_lapangan))])}}"><button type="button" class="btn btn-square btn-outline-blue mt-1" style="float:right;">Pesan Sekarang!</button></a> -->
                             <button type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#modal-jenis-booking" data-bs-original-title="" title="" class="btn btn-square btn-outline-blue mt-1" style="float:right;">Pilih Jenis Booking</button>
                         </div>
@@ -251,17 +251,15 @@
 <script src="{{url('/assets/js/leaflet/leaflet-gesture-handling.min.js')}}"></script>
 
 <script>
-    var jumlah_court = {!! json_encode($dataLapangan->jumlah_court) !!}
-
-    for(let court= 1; court<= jumlah_court; court++){
-        $("#table-court-"+court).dataTable({
+    $.each({!! $dataLapanganCourt !!}, function (key, value) {
+        $("#table-court-"+value.nomor_court).dataTable({
             bFilter: false,
             "columns": [
                 { "orderable": true, "width": "10%" },
                 null,
             ],
         });
-    }
+    });
 
     $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
         $.fn.dataTable.tables({ visible: true, api: true}).columns.adjust();
@@ -283,12 +281,11 @@
                 },
                 dataType: "json",
                 success:function(data){
-                    console.log(date)
-                    for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
-                        $('#table-court-'+courtCount).DataTable().clear().draw();
-                        $('#table-court-'+courtCount).DataTable().rows.add(data['court_'+courtCount]);
-                        $('#table-court-'+courtCount).DataTable().columns.adjust().draw();
-                    }
+                    $.each({!! $dataLapanganCourt !!}, function (key, value) {
+                        $('#table-court-'+value.nomor_court).DataTable().clear().draw();
+                        $('#table-court-'+value.nomor_court).DataTable().rows.add(data['court_'+value.nomor_court]);
+                        $('#table-court-'+value.nomor_court).DataTable().columns.adjust().draw();
+                    });
                 },
                 error: function(xhr, ajaxOptions, thrownError){
                     console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
@@ -303,7 +300,7 @@
     var dataProfilPemilikLapanganLng = "{{$dataLapangan->titik_koordinat_lng}}";
 
     var latlngview = L.latLng(dataProfilPemilikLapanganLat, dataProfilPemilikLapanganLng);
-    
+
     if(latlngview.lat === 0 && latlngview.lng === 0) latlngview = L.latLng('-8.660315332079342', '115.21636962890626');
     var map = L.map('map', {
         zoomControl:true,
@@ -317,12 +314,12 @@
         zoomOffset: -1,
         accessToken: 'pk.eyJ1IjoieXVkaXByYXRpc3RoYSIsImEiOiJjbDJ6cHpsZ2owMzQ3M2JtcDQxdzFhdDd5In0.lPuxJO3S88Xy70aZfF4dLQ'
     }).addTo(map);
-    
+
     L.marker(latlngview).addTo(map);
 
     $(".pilih-jenis-booking").on("click", function(){
         $(this).children('.radio').children('input').prop('checked', true);
-        
+
         $(".pilih-jenis-booking-card").removeClass("invalid-pilih-jenis-booking-card");
         $(".pilih-jenis-booking").removeClass("invalid-pilih-jenis-booking");
     });
@@ -342,7 +339,7 @@
                     window.location.href = "{{route('penyewaLapangan.pesanLapanganBulanan', [$dataLapangan->lapangan_id, str_replace(' ', '-', strtolower($dataLapangan->nama_lapangan))])}}";
                 }
             });
-            
+
         }else if(pilihPembayaran === "perjam"){
             Swal.fire({
                 title: 'Konfirmasi Jenis Sewa Per Jam?',

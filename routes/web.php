@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\CheckVerifiedFieldController;
+use App\Http\Middleware\CheckVerifField;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
+use Illuminate\Support\Facades\Auth;
 
 
 /*
@@ -22,7 +24,7 @@ Route::group(['prefix' => '/'], function(){
 
     Route::get('register', 'Auth\AuthController@registrationForm')->name('register');
     // Route::post('register', 'Auth\RegisterController@register');
-    
+
     Route::post('password/confirm', 'Auth\ConfirmPasswordController@confirm');
     Route::get('password/confirm', 'Auth\ConfirmPasswordController@showConfirmForm')->name('password.confirm');
 
@@ -34,28 +36,52 @@ Route::group(['prefix' => '/'], function(){
 
 
 Route::get('/', function () {
-    if(Auth::user()->user_status == 2){
+    if(Auth::user()->RolePengguna->first()->role_tag === 'administrator'){
+        return redirect()->route('administrator.dashboard');
+    }else if(Auth::user()->RolePengguna->first()->role_tag === 'field_owner'){
         return redirect()->route('pemilikLapangan.dashboard');
-    }else if(Auth::user()->user_status == 3){
+    }else if(Auth::user()->RolePengguna->first()->role_tag === 'tenant_user'){
         return redirect()->route('penyewaLapangan.dashboard');
     }
 })->middleware(['auth']);
 
+Route::group(['prefix' => 'administrator/'], function(){
+    Route::group(['prefix' => '', 'middleware' => 'administrator'], function(){
+        Route::get('dashboard', 'HomeController@administratorHome')->name('administrator.dashboard');
+        Route::post('get-daftar-lapangan-baru', 'LapanganController@administratorGetDaftarLapanganBaru')->name('administrator.getDaftarLapanganBaru');
+
+        Route::get('daftar-lapangan', 'LapanganController@administratorDaftarLapangan')->name('administrator.daftarLapangan');
+        Route::post('get-daftar-lapangan', 'LapanganController@administratorGetDaftarLapangan')->name('administrator.getDaftarLapangan');
+
+        Route::get('view-profil-lapangan/{id}/{lapanganName}', 'LapanganController@administratorViewProfilLapangan')->name('administrator.viewProfilLapangan');
+        Route::post('approve-profil-lapangan/{id_lapangan}', 'LapanganController@administratorApproveProfilLapangan')->name('administrator.approveProfilLapangan');
+        Route::post('unapprove-profil-lapangan/{id_lapangan}', 'LapanganController@administratorUnapproveProfilLapangan')->name('administrator.unapproveProfilLapangan');
+    });
+});
+
 
 Route::group(['prefix' => 'pemilik-lapangan/'], function(){
     Route::post('register', 'Auth\AuthController@createPemilikLapangan')->name('pemilikLapangan.register');
-    
+
     Route::group(['prefix' => '', 'middleware' => 'fieldOwner'], function(){
+        Route::get('check-verified-field', 'CheckVerifiedFieldController@belumDiverif')->name('pemilik_lapangan.belumDiverif');
+        Route::get('verified-field-rejected', 'CheckVerifiedFieldController@verifikasiDitolak')->name('pemilik_lapangan.verifikasiDitolak');
+
+        Route::get('edit-data-verified-field-rejected', 'CheckVerifiedFieldController@editDataVerifLapangan')->name('pemilik_lapangan.editDataVerifikasiDitolak');
+        Route::post('update-data-verified-field-rejected', 'CheckVerifiedFieldController@updateDataVerifLapangan')->name('pemilik_lapangan.updateDataVerifikasiDitolak');
+    });
+
+    Route::group(['prefix' => '', 'middleware' => ['fieldOwner', 'checkVerifField']], function(){
         Route::get('dashboard', 'HomeController@pemilikLapanganHome')->name('pemilikLapangan.dashboard');
-        
+
         Route::post('get-data-lapangan-pemilik/{lapangan_id}', 'LapanganController@getDataLapanganPemilik')->name('pemilikLapangan.getDataLapanganPemilik');
         Route::get('get-court-lapangan-status/{lapangan_id}/{court}', 'LapanganController@getStatusCourtLapangan')->name('pemilikLapangan.statusCourtLapanganStatus');
-        Route::post('update-lapangan-court-status/{id}', 'LapanganController@updateCourtLapanganStatus')->name('pemilikLapangan.updateCourtLapanganStatus');
+        Route::post('update-lapangan-court-status/{status_court_id}', 'LapanganController@updateCourtLapanganStatus')->name('pemilikLapangan.updateCourtLapanganStatus');
 
         route::post('update-status-pembayaran/{pembayaran_id}', 'PembayaranController@updateStatusPembayaranPenyewa')->name('pemilikLapangan.updateStatusPembayaran');
 
         Route::get('get-profil/{penggunaPenyewaId}/{date}/{pembayaranId}', 'ProfilController@getPenyewaLapanganProfil')->name('pemilikLapangan.getPenyewaProfil');
-    
+
         Route::get('list-payment-method', 'PembayaranController@listPaymentMethodPemilikLapangan')->name('pemilikLapangan.listPaymentMethodPemilikLapangan');
         Route::post('update-payment-method', 'PembayaranController@updatePaymentMethodPemilikLapangan')->name('pemilikLapangan.updatePaymentMethodPemilikLapangan');
 
@@ -64,6 +90,15 @@ Route::group(['prefix' => 'pemilik-lapangan/'], function(){
 
         Route::get('profil', 'ProfilController@pemilikLapanganProfil')->name('pemilikLapangan.profil');
         Route::post('update-profil-lapangan', 'ProfilController@pemilikLapanganUpdateProfil')->name('pemilikLapangan.updateProfil');
+
+        Route::get('courts', 'LapanganController@pemilikLapanganCourts')->name('pemilikLapangan.courts');
+        Route::post('get-data-courts', 'LapanganController@pemilikLapanganGetDataCourts')->name('pemilikLapangan.getDataCourts');
+        Route::post('add-courts', 'LapanganController@pemilikLapanganAddCourt')->name('pemilikLapangan.addCourt');
+        Route::post('restore-courts', 'LapanganController@pemilikLapanganRestoreCourt')->name('pemilikLapangan.restoreCourt');
+        Route::post('delete-courts', 'LapanganController@pemilikLapanganDeleteCourt')->name('pemilikLapangan.deleteCourt');
+
+        Route::get('edit-waktu-operasional-lapangan', 'LapanganController@pemilikLapanganEditWaktuOperasionalLapangan')->name('pemilikLapangan.editWaktuOperasionalLapangan');
+        Route::post('update-waktu-operasional-lapangan', 'LapanganController@pemilikLapanganUpdateWaktuOperasionalLapangan')->name('pemilikLapangan.updateWaktuOperasionalLapangan');
 
         Route::get('riwayat-penyewaan', 'RiwayatController@pemilikLapanganRiwayatPenyewaan')->name('pemilikLapangan.riwayatPenyewaan');
         Route::post('data-riwayat-penyewaan/', 'RiwayatController@getDataRiwayatPenyewaanPemilikLapangan')->name('pemilikLapangan.getDataRiwayatPenyewaanPemilikLapangan');
@@ -78,10 +113,10 @@ Route::group(['prefix' => 'pemilik-lapangan/'], function(){
         Route::post('data-riwayat-penyewaan-booking-jam-terbanyak/', 'RiwayatController@getDataRiwayatBookingJamTerbanyakPemilikLapangan')->name('pemilikLapangan.getDataRiwayatBookingJamTerbanyakPemilikLapangan');
     });
 });
- 
+
 Route::group(['prefix' => 'penyewa-lapangan/'], function(){
     Route::post('register', 'Auth\AuthController@createPenyewaLapangan')->name('penyewaLapangan.register');
-    
+
     Route::group(['prefix' => '', 'middleware' => 'tenantUser'], function(){
         Route::get('dashboard', 'HomeController@penyewaLapanganHome')->name('penyewaLapangan.dashboard');
 
@@ -105,9 +140,9 @@ Route::group(['prefix' => 'penyewa-lapangan/'], function(){
         route::post('batalkan-pembayaran', 'PembayaranController@batalkanPembayaran')->name('penyewaLapangan.batalkanPembayaran');
         route::post('simpan-bukti-pembayaran', 'PembayaranController@simpanBuktiPembayaran')->name('penyewaLapangan.simpanBuktiPembayaran');
         route::post('payments/midtrans-notification', 'PaymentCallbackController@receive')->name('penyewaLapangan.midtransNotificationReceive');
-        
+
         Route::get('edit-profil', 'ProfilController@penyewaLapanganProfil')->name('penyewaLapangan.editProfil');
-    
+
         Route::get('riwayat-penyewaan', 'RiwayatController@penyewaLapanganRiwayatPenyewaan')->name('penyewaLapangan.riwayatPenyewaan');
         Route::post('data-riwayat-penyewaan', 'RiwayatController@getDataRiwayatPenyewaLapangan')->name('penyewaLapangan.getDataRiwayatPenyewaLapangan');
 

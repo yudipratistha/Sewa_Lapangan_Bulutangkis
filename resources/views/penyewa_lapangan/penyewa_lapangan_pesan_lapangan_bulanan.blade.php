@@ -116,11 +116,11 @@
                             </div>
                             <div class="col-md-8">
                                 <ul class="pull-right nav nav-tabs border-tab nav-success" id="top-tabdanger" role="tablist">
-                                    @for ($court= 1; $court <= $dataLapangan->jumlah_court; $court++)
-                                        <li class="nav-item"><a class="nav-link @if($court === 1) active @endif" id="top-home-danger" data-bs-toggle="tab" href="#court-{{$court}}" role="tab" aria-controls="top-homedanger" aria-selected="true"><i class="icofont icofont-badminton-birdie"></i>Court {{$court}}</a>
+                                    @foreach ($dataLapanganCourt as $dataLapanganCourtValue)
+                                        <li class="nav-item"><a class="nav-link @if($dataLapanganCourtValue->nomor_court === 1) active @endif" id="top-home-danger" data-bs-toggle="tab" href="#court-{{$dataLapanganCourtValue->nomor_court}}" role="tab" aria-controls="top-homedanger" aria-selected="true"><i class="icofont icofont-badminton-birdie"></i>Court {{$dataLapanganCourtValue->nomor_court}}</a>
                                             <div class="material-border"></div>
                                         </li>
-                                    @endfor
+                                    @endforeach
                                 </ul>
                             </div>
                         </div>
@@ -129,10 +129,10 @@
                                 <form id="check-book-time">
                                     @csrf
                                     <div class="tab-content" id="top-tabContentdanger">
-                                        @for ($court= 1; $court <= $dataLapangan->jumlah_court; $court++)
-                                            <div class="tab-pane fade @if($court === 1) active show @endif" id="court-{{$court}}" role="tabpanel" aria-labelledby="top-home-tab">
+                                        @foreach ($dataLapanganCourt as $dataLapanganCourtValue)
+                                            <div class="tab-pane fade @if($dataLapanganCourtValue->nomor_court === 1) active show @endif" id="court-{{$dataLapanganCourtValue->nomor_court}}" role="tabpanel" aria-labelledby="top-home-tab">
                                                 <div class="table-responsive">
-                                                    <table class="display datatables hover-table-court-profile" id="table-court-{{$court}}">
+                                                    <table class="display datatables hover-table-court-profile" id="table-court-{{$dataLapanganCourtValue->nomor_court}}">
                                                         <thead>
                                                             <tr>
                                                                 <th>Pilih</th>
@@ -142,8 +142,8 @@
                                                         </thead>
                                                     </table>
                                                 </div>
-                                            </div>  
-                                        @endfor
+                                            </div>
+                                        @endforeach
                                     </div>
                                 </form>
                             </div>
@@ -308,12 +308,10 @@
 </script> -->
 
 <script>
-    var jumlah_court = {!! json_encode($dataLapangan->jumlah_court) !!};
-    
     var harga_per_jam = {!! json_encode($dataLapangan->harga_per_jam) !!};
     var dataPaketSewaBulanan = {!! json_encode($dataPaketSewaBulanan[0]) !!};
 
-    var date; 
+    var date;
     var availableDates = [];
     var orderData = {};
     var sisaDurasi = dataPaketSewaBulanan.total_durasi_jam;
@@ -336,8 +334,8 @@
     $('#sisa-durasi').empty().append(dataPaketSewaBulanan.total_durasi_jam);
     $('#total-harga').empty().append(formatter.format(dataPaketSewaBulanan.total_harga));
 
-    for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
-        $('#table-court-'+courtCount).DataTable({
+    $.each({!! $dataLapanganCourt !!}, function (key, value) {
+        $('#table-court-'+value.nomor_court).DataTable({
             processing: true,
             bFilter: false,
             dom: 'tip',
@@ -348,8 +346,8 @@
                 null
             ]
         });
-    }
-   
+    });
+
     $('input[type="checkbox"]').prop('checked', false);
     $('#tanggal').datepicker({
         dateFormat: 'dd-mm-yy',
@@ -357,34 +355,34 @@
         minDate: new Date(),
         autoclose: true,
         beforeShowDay: function(d) {
-            
+
             // console.log(d.getDate())
             var dmy = d.getDate()
 
-            if(d.getDate()<10) dmy="0"+dmy; 
-            dmy+= "-"; 
-            
-                
+            if(d.getDate()<10) dmy="0"+dmy;
+            dmy+= "-";
+
+
             if(d.getMonth()<9) dmy+="0";
             dmy+= (d.getMonth()+1) + "-" + d.getFullYear();
-            
+
             // console.log(dmy)
             if(Object.keys(orderData).length >= 30){
                 if ($.inArray(dmy, Object.keys(orderData)) != -1) {
                     console.log(dmy+' : '+($.inArray(dmy, Object.keys(orderData))));
-                    return [true, "","Tersedia"]; 
+                    return [true, "","Tersedia"];
                 } else{
-                    return [false,"","Limit Booking Bulanan"]; 
+                    return [false,"","Limit Booking Bulanan"];
                 }
             }else{
-                return [true, "","Tersedia"]; 
+                return [true, "","Tersedia"];
             }
-            
+
         },
         onSelect: function(dateText) {
             $('#tgl-booking').empty().append(dateText);
             date = dateText;
-            
+
             $.ajax({
                 url: "{{route('penyewaLapangan.getAllDataLapangan', $dataLapangan->lapangan_id)}}",
                 method: "POST",
@@ -394,15 +392,11 @@
                 },
                 dataType: "json",
                 success:function(data){
-                    for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
-                        $('#table-court-'+courtCount).DataTable().clear().draw();
-                        $('#table-court-'+courtCount).DataTable().rows.add(data['court_'+courtCount]);
-                        $('#table-court-'+courtCount).DataTable().columns.adjust().draw();
-                        // 
-                        // $('#table-court-'+courtCount).rows().nodes().to$().find('input[type="checkbox"]').each(function(){
-                        //     
-                        // });
-                    }
+                    $.each({!! $dataLapanganCourt !!}, function (key, value) {
+                        $('#table-court-'+value.nomor_court).DataTable().clear().draw();
+                        $('#table-court-'+value.nomor_court).DataTable().rows.add(data['court_'+value.nomor_court]);
+                        $('#table-court-'+value.nomor_court).DataTable().columns.adjust().draw();
+                    });
 
                     $(document).on('draw.dt', function () {
                         if(orderData[date] !== undefined){
@@ -434,16 +428,21 @@
     $('.table-responsive').on('change', 'input[type="checkbox"]', function() {
         if($(this).prop("checked") === true){
             sisaDurasi -= 1;
+            court = JSON.parse($(this).val()).court;
 
             if(orderData[date] === undefined){
-                orderData[date]= [];
+                orderData[date]= {};
+            }
+
+            if(orderData[date][court] === undefined){
+                orderData[date][court] = [];
             }
 
             // Object.assign(orderData[date], JSON.parse($(this).val()));
-            orderData[date].push(JSON.parse($(this).val()));
+            orderData[date][court].push(JSON.parse($(this).val()));
 
             var in30Days = new Date(Object.keys(orderData)[0].split('-')[2] + '/' + Object.keys(orderData)[0].split('-')[1] + '/' + Object.keys(orderData)[0].split('-')[0]);
-            
+
             in30Days.setDate(in30Days.getDate() + 30);
             $("#tanggal").datepicker("option", "minDate", Object.keys(orderData)[0]);
             $("#tanggal").datepicker("option", "maxDate", in30Days);
@@ -452,7 +451,7 @@
                 $('input[type="checkbox"]:not(:checked)').prop('disabled', true);
                 $('input[type="checkbox"]:not(:checked)').css('cursor', 'not-allowed');
             }
-            
+
         }else{
             var orderDataCancel = JSON.parse($(this).val());
             sisaDurasi += 1;
@@ -462,12 +461,13 @@
             }
             if(orderData[date] !== undefined){
                 for(let index = 0; index < Object.keys(orderData).length; ++index){
-                    
-                    for(let index2 = 0; index2 < orderData[date].length; ++index2){
-                        var orderDataArr = orderData[date][index2];
-
-                        if(Object.keys(orderData)[index] === date && orderDataArr.court === orderDataCancel.court && orderDataArr.jam === orderDataCancel.jam){
-                            orderData[date].splice(index2, 1);
+                    for(let courtIndex = 0; courtIndex < Object.keys(orderData[Object.keys(orderData)[index]]).length; ++courtIndex){
+                        var courtKey = Object.keys(orderData[Object.keys(orderData)[index]])[courtIndex];
+                        for(let orderIndex = 0; orderIndex < orderData[Object.keys(orderData)[index]][courtKey].length; ++orderIndex){
+                            var orderDataArr = orderData[date][courtKey][orderIndex];
+                            if(Object.keys(orderData)[index] === date && orderDataArr.court === orderDataCancel.court && orderDataArr.jam === orderDataCancel.jam){
+                                orderData[date][courtKey].splice(orderIndex, 1);
+                            }
                         }
                     }
                 }
@@ -477,13 +477,13 @@
                 $("#tanggal").datepicker("option", "minDate", new Date());
             }else{
                 var in30Days = new Date(Object.keys(orderData)[0].split('-')[2] + '/' + Object.keys(orderData)[0].split('-')[1] + '/' + Object.keys(orderData)[0].split('-')[0]);
-                
+
                 in30Days.setDate(in30Days.getDate() + 30);
                 $("#tanggal").datepicker("option", "minDate", Object.keys(orderData)[0]);
                 $("#tanggal").datepicker("option", "maxDate", in30Days);
                 $('.ui-datepicker-current-day').click();
             }
-            
+
 
             if(sisaDurasi !== 0){
                 $('input[type="checkbox"]:not(:checked)').prop('disabled', false);
@@ -492,11 +492,11 @@
         }
         $('#sisa-durasi').empty().append(sisaDurasi);
 
-        for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
-            $('#table-court-'+courtCount).children().children().children().first().removeAttr('style');
-            $('#table-court-'+courtCount).children('tbody').children().find("td:first").removeAttr('style');
-            $('#table-court-'+courtCount).children('tbody').children('tr:last').find("td:first").removeAttr('style');
-        }
+        $.each({!! $dataLapanganCourt !!}, function (key, value) {
+            $('#table-court-'+value.nomor_court).children().children().children().first().removeAttr('style');
+            $('#table-court-'+value.nomor_court).children('tbody').children().find("td:first").removeAttr('style');
+            $('#table-court-'+value.nomor_court).children('tbody').children('tr:last').find("td:first").removeAttr('style');
+        });
     });
 
     $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -538,45 +538,45 @@
     function bookingCounting(){
         var courtStatus= false;
         var bookingTime = {};
-        const orderDataSort = Object.keys(orderData).sort().reduce((obj, key) => { 
-                obj[key] = orderData[key]; 
+        const orderDataSort = Object.keys(orderData).sort().reduce((obj, key) => {
+                obj[key] = orderData[key];
                 return obj;
-            }, 
+            },
             {}
         );
 
         if(Object.keys(orderDataSort).length !== 0){
             for(let index = 0; index < Object.keys(orderDataSort).length; ++index){
-                orderDataSort[Object.keys(orderDataSort)[index]].sort(dynamicSort("court"))
-                for(let index2 = 0; index2 < orderDataSort[Object.keys(orderDataSort)[index]].length; ++index2){
-                    var orderDataArr = orderDataSort[Object.keys(orderDataSort)[index]][index2];
+                orderDataSort[Object.keys(orderDataSort)[index]]
+                for(let courtIndex = 0; courtIndex < Object.keys(orderDataSort[Object.keys(orderDataSort)[index]]).length; ++courtIndex){
+                    var courtKey = Object.keys(orderDataSort[Object.keys(orderDataSort)[index]])[courtIndex];
+                    for(let orderIndex = 0; orderIndex < orderDataSort[Object.keys(orderDataSort)[index]][courtKey].length; ++orderIndex){
+                        var orderDataArr = orderDataSort[Object.keys(orderDataSort)[index]][courtKey][orderIndex];
 
-                    if(index2 === 0 || Object.keys(bookingTime).includes((orderDataArr.court+'-'+Object.keys(orderDataSort)[index]).toString()) === false){
-                        courtStatus = true;
-                    }else{
-                        courtStatus = false;
-                    }
+                        if(orderIndex === 0 || Object.keys(bookingTime).includes((orderDataArr.court+'-'+Object.keys(orderDataSort)[index]).toString()) === false){
+                            courtStatus = true;
+                        }else{
+                            courtStatus = false;
+                        }
 
-                    if(bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]] === undefined){
-                        bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]]= [];
-                    }
+                        if(bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]] === undefined){
+                            bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]]= [];
+                        }
 
-                    bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]].push(orderDataArr.jam)
-                    bubbleSort(bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]])
+                        bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]].push(orderDataArr.jam)
+                        bubbleSort(bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]])
 
-                    if(courtStatus === true){
-                        let dateConvert = new Date(Object.keys(orderDataSort)[index].split('-')[2] + '/' + Object.keys(orderDataSort)[index].split('-')[1] + '/' + Object.keys(orderDataSort)[index].split('-')[0]);
-                        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                        if(courtStatus === true){
+                            let dateConvert = new Date(Object.keys(orderDataSort)[index].split('-')[2] + '/' + Object.keys(orderDataSort)[index].split('-')[1] + '/' + Object.keys(orderDataSort)[index].split('-')[0]);
+                            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 
-                        // console.log(orderDataArr.court)
-                        // console.log(dateConvert.toLocaleDateString('id', options))
-
-                        $("#booking-counting").append('\
-                                <span style="font-size: 15px;font-weight: bold;">Court '+orderDataArr.court+'</span>\
-                                <p style="margin-top: 10px;">'+dateConvert.toLocaleDateString('id', options)+'</p>\
-                                <div id="booking-hour-counting-'+orderDataArr.court+'-'+Object.keys(orderDataSort)[index]+'" class="row booking-hour-counting">\
-                                </div>\
-                        ');
+                            $("#booking-counting").append('\
+                                    <span style="font-size: 15px;font-weight: bold;">Court '+orderDataArr.court+'</span>\
+                                    <p style="margin-top: 10px;">'+dateConvert.toLocaleDateString('id', options)+'</p>\
+                                    <div id="booking-hour-counting-'+orderDataArr.court+'-'+Object.keys(orderDataSort)[index]+'" class="row booking-hour-counting">\
+                                    </div>\
+                            ');
+                        }
                     }
                 }
             }
@@ -602,17 +602,17 @@
                     ');
                 });
                 $('#booking-hour-counting-'+index).children().last().append('<hr/>');
-            }); 
-            
+            });
+
             $('#biaya-sewa').empty().append(formatter.format(dataPaketSewaBulanan.total_harga));
             $('#total-biaya-sewa').empty().append(formatter.format(dataPaketSewaBulanan.total_harga));
             $('#modal-booking-counting').modal('show');
         }
     }
-    
+
     function pesanLapangan(){
         var pilihPembayaran = $(".pilih-pembayaran").children('.radio').children('input').filter(":checked").val();
-        var url = 
+        var url =
 		swal.fire({
 			title: "Konfirmasi Sewa Lapangan?",
 			icon: "warning",
@@ -621,46 +621,46 @@
             closeOnConfirm: true,
             preConfirm: (login) => {
                 return $.ajax({
-                    type: "POST", 
+                    type: "POST",
                     url: "{{route('penyewaLapangan.storeBookingLapanganBulanan')}}",
-                    datatype : "json", 
-                    
+                    datatype : "json",
+
                     data: {
                         "_token": "{{ csrf_token() }}",
                         "orderData": orderData,
                         "tglBooking": date,
                         "pilihPembayaran": pilihPembayaran,
                         "lapanganId": {{$dataLapangan->lapangan_id}}
-                    }, 
+                    },
                     success: function(data){
-                        
+
                     },
                     error: function(data){
                         var responseErrTxt = '';
 
                         if(data.responseJSON.errorTextJamBooking.trim()){
                             responseErrTxt = data.responseJSON.errorTextJamBooking+'<br>';
-                            
-                            for(let courtCount= 1; courtCount<= jumlah_court; courtCount++){
-                                $('#table-court-'+courtCount).children().children().children().first().css({'border-top': '1px solid red', 'border-left': '1px solid red', 'border-right': '1px solid red'});
-                                $('#table-court-'+courtCount).children('tbody').children().find("td:first").css({'border-top': '1px solid red', 'border-left': '1px solid red', 'border-right': '1px solid red'});
-                                $('#table-court-'+courtCount).children('tbody').children('tr:last').find("td:first").css({'border-left': '1px solid red', 'border-right': '1px solid red', 'border-bottom': '1px solid red'});
-                            }
+
+                            $.each({!! $dataLapanganCourt !!}, function (key, value) {
+                                $('#table-court-'+value.nomor_court).children().children().children().first().css({'border-top': '1px solid red', 'border-left': '1px solid red', 'border-right': '1px solid red'});
+                                $('#table-court-'+value.nomor_court).children('tbody').children().find("td:first").css({'border-top': '1px solid red', 'border-left': '1px solid red', 'border-right': '1px solid red'});
+                                $('#table-court-'+value.nomor_court).children('tbody').children('tr:last').find("td:first").css({'border-left': '1px solid red', 'border-right': '1px solid red', 'border-bottom': '1px solid red'});
+                            });
                         }
                         if(data.responseJSON.errorTextPembayaran.trim()){
                             responseErrTxt += data.responseJSON.errorTextPembayaran;
                             $(".pilih-pembayaran-card").addClass("invalid-pilih-pembayaran-card");
                             $(".pilih-pembayaran").addClass("invalid-pilih-pembayaran");
                         }
-                        
+
                         swal.fire({title:"Konfirmasi Sewa Lapangan Gagal Tersimpan!", icon:"error", html: responseErrTxt});
                     }
-                }); 
-            } 
+                });
+            }
 		}).then((result) => {
             if(result.value){
                 swal.fire({title:"Konfirmasi Sewa Lapangan Berhasil Tersimpan!", text:"Segera lunasi pembayaran sewa lapangan!", icon:"success"})
-                .then(function(){ 
+                .then(function(){
                     window.location.href = "{{route('penyewaLapangan.menungguPembayaranPenyewaIndex')}}";
                 });
             }
@@ -669,15 +669,15 @@
 
     $(".pilih-pembayaran").on("click", function(){
         $(this).children('.radio').children('input').prop('checked', true);
-        
+
         $(".pilih-pembayaran-card").removeClass("invalid-pilih-pembayaran-card");
         $(".pilih-pembayaran").removeClass("invalid-pilih-pembayaran");
     });
 
     // $.ajax({
-    //     type: "GET", 
+    //     type: "GET",
     //     url: "{{route('penyewaLapangan.getDaftarJenisPembayaran', $dataLapangan->lapangan_id)}}",
-    //     datatype : "json", 
+    //     datatype : "json",
     //     success: function(data){
     //         // console.log(data)
     //     }

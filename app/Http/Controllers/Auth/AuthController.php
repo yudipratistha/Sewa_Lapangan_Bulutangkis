@@ -3,18 +3,22 @@
 namespace App\Http\Controllers\auth;
 
 use App\Models\User;
+
+use App\Models\Courts;
 use App\Models\Lapangan;
-use App\Models\StatusLapangan;
-
-use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
-
-use Illuminate\Foundation\Auth\RegistersUsers;
-use Illuminate\Support\Facades\Storage;
+use App\Models\StatusCourt;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+
+use App\Models\StatusLapangan;
+use App\Models\TipeStatusCourt;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Session;
+use Illuminate\Support\Facades\Hash;
+use App\Providers\RouteServiceProvider;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
+use App\Models\StatusVerifikasiLapangan;
+use Illuminate\Foundation\Auth\RegistersUsers;
 
 class AuthController extends Controller
 {
@@ -26,19 +30,20 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
-    public function loginPemilikLapangan(Request $request){   
+    public function loginPemilikLapangan(Request $request){
         $input = $request->all();
-   
+
         $this->validate($request, [
             'email' => 'required|email',
             'password' => 'required',
         ]);
-   
-        if(auth()->attempt(array('email' => $input['email'], 'password' => $input['password'])))
-        {
-            if (auth()->user()->user_status == 2) {
+
+        if(auth()->attempt(array('email' => $input['email'], 'password' => $input['password']))){
+            if (auth()->user()->RolePengguna->first()->role_tag == 'administrator') {
+                return redirect()->route('administrator.dashboard');
+            }if (auth()->user()->RolePengguna->first()->role_tag == 'field_owner') {
                 return redirect()->route('pemilikLapangan.dashboard');
-            }else if(auth()->user()->user_status == 3) {
+            }else if(auth()->user()->RolePengguna->first()->role_tag == 'tenant_user') {
                 return redirect()->route('penyewaLapangan.dashboard');
             }
         }else{
@@ -66,14 +71,14 @@ class AuthController extends Controller
         ]);
         // $foto_lapangan_1 = $request->foto_lapangan_1;
         // $request->foto_lapangan_1->move(public_path('images'), "test.jpg");
-        
+
         $user = new User;
 
         $user->name = $request->nama_pemilik_lapangan;
         $user->email = $request->email_pemilik_lapangan;
         $user->password = Hash::make($request->password_pemilik_lapangan);
         $user->nomor_telepon = $request->nomor_telepon_pemilik_lapangan;
-        $user->user_status = 2;
+        $user->id_role_pengguna = 3;
         $user->save();
 
         $lapangan = new Lapangan;
@@ -122,28 +127,44 @@ class AuthController extends Controller
 
         $lapangan->save();
 
-        $dataLapangan = Lapangan::find($lapangan->id);
-        
-        $statusLapanganArr = array();
-        $lapanganBuka = strtotime($dataLapangan->buka_dari_jam);
-        $lapanganTutup = strtotime($dataLapangan->buka_sampai_jam);
+        $dataCourtArr = array();
 
-        for($court= 1; $court <= $lapangan->jumlah_court; $court++){
+        for($courtCount= 0; $courtCount<$request->jumlah_court_pemilik_lapangan; $courtCount++){
+            array_push($dataCourtArr, array(
+                'id_lapangan' => $lapangan->id,
+                'nomor_court' => $courtCount+1,
+                'status_court' => 1
+            ));
+        }
+        Courts::insert($dataCourtArr);
+
+        $dataCourts = Courts::where('tb_courts.id_lapangan', $lapangan->id)->get();
+
+        $dataTipeStatusCourt = TipeStatusCourt::where('tb_tipe_status_court.tipe_status', 'Tersedia')->first();
+
+
+        $statusCourtArr = array();
+        $lapanganBuka = strtotime($request->lapangan_buka_dari_jam);
+        $lapanganTutup = strtotime($request->lapangan_buka_sampai_jam);
+
+        foreach($dataCourts as $dataCourt){
             for($jam=$lapanganBuka; $jam<$lapanganTutup; $jam+=3600){
-                array_push($statusLapanganArr, array(
-                    'id_lapangan' => $lapangan->id,
-                    'court' => $court,
-                    'status' => 'Available',
+                array_push($statusCourtArr, array(
+                    'id_court' => $dataCourt->id,
+                    'id_tipe_status_court' => $dataTipeStatusCourt->id,
                     'jam_status_berlaku_dari' => date('H:i', $jam),
                     'jam_status_berlaku_sampai' => date('H:i', $jam + 3600)
                 ));
             }
         }
 
-        // dd($statusLapanganArr);
-        
-        StatusLapangan::insert($statusLapanganArr);
-        
+        StatusCourt::insert($statusCourtArr);
+
+        $statusLapanganVerif = new StatusVerifikasiLapangan();
+        $statusLapanganVerif->id_lapangan = $lapangan->id;
+        $statusLapanganVerif->status_verifikasi = 'belum diverifikasi';
+        $statusLapanganVerif->save();
+
         return redirect()->route('login');
     }
 
@@ -173,5 +194,5 @@ class AuthController extends Controller
 
         return Redirect('login');
     }
-    
+
 }

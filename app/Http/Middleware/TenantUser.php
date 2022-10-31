@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TenantUser
 {
@@ -16,10 +17,10 @@ class TenantUser
      */
     public function handle(Request $request, Closure $next)
     {
-        if(auth()->user()->user_status == 3){
+        if(Auth::user()->RolePengguna->first()->role_tag == 'tenant_user'){
             return $next($request);
         }
-   
+
         return response("You don't have Tenant User access.", 404);
     }
 }

@@ -11,16 +11,21 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
-  
+
     protected $table = 'tb_pengguna';
 
     public function Lapangan(){
         return $this->hasMany('App\Models\Lapangan', 'id_pengguna');
     }
-    
+
     public function Booking(){
         return $this->hasMany('App\Models\Booking', 'id_pengguna');
     }
+
+    public function RolePengguna(){
+        return $this->belongsToMany('App\Models\RolePengguna', 'App\Models\User', 'id', 'id_role_pengguna');
+    }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -29,7 +34,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name', 'email', 'password', 'role'
     ];
-  
+
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -38,7 +43,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
-  
+
     /**
      * The attributes that should be cast to native types.
      *

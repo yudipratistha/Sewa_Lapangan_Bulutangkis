@@ -23,7 +23,7 @@ class UserStatus
         }else if(auth()->user()->user_status == 3){
             return $next($request);
         }
-   
+
         return redirect('home')->with('error',"You don't have admin access.");
     }
 }

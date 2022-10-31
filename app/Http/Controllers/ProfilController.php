@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Models\Booking;
 use App\Models\Lapangan;
 use App\Models\Pembayaran;
-use App\Models\StatusLapangan;
+use App\Models\StatusCourt;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -60,14 +60,9 @@ class ProfilController extends Controller
         $dataLapanganUpdate = Lapangan::find($dataLapangan->id);
         $dataLapanganUpdate->nama_lapangan = $request->nama_lapangan_pemilik_lapangan;
         $dataLapanganUpdate->alamat_lapangan = $request->alamat_tertulis_pemilik_lapangan;
-        $dataLapanganUpdate->buka_dari_hari = $request->lapangan_buka_dari_hari;
-        $dataLapanganUpdate->buka_sampai_hari = $request->lapangan_buka_sampai_hari;
-        $dataLapanganUpdate->buka_dari_jam = $request->lapangan_buka_dari_jam;
-        $dataLapanganUpdate->buka_sampai_jam = $request->lapangan_buka_sampai_jam;
         $dataLapanganUpdate->titik_koordinat_lat = $request->lat_alamat_pemilik_lapangan;
         $dataLapanganUpdate->titik_koordinat_lng = $request->lng_alamat_pemilik_lapangan;
         $dataLapanganUpdate->harga_per_jam = $request->harga_lapangan_per_jam;
-        $dataLapanganUpdate->jumlah_court = $request->jumlah_court_pemilik_lapangan;
 
         if ($request->hasFile('foto_lapangan_1')) {
             File::delete($dataLapangan->foto_lapangan_1);
@@ -83,7 +78,7 @@ class ProfilController extends Controller
         }
         if ($request->hasFile('foto_lapangan_2')) {
             File::delete($dataLapangan->foto_lapangan_2);
-            
+
             $userPath = 'file/'.Auth::user()->id.'/';
             Storage::disk('public')->makeDirectory($userPath);
             $fotoLapanganPath = $userPath.$request->nama_lapangan_pemilik_lapangan;
@@ -107,38 +102,18 @@ class ProfilController extends Controller
         }
 
         $dataLapanganUpdate->save();
-        
-        StatusLapangan::where('id_lapangan', $dataLapangan->id)->delete();
-
-        $statusLapanganArr = array();
-        $lapanganBuka = strtotime($request->lapangan_buka_dari_jam);
-        $lapanganTutup = strtotime($request->lapangan_buka_sampai_jam);
-
-        for($court= 1; $court <= $dataLapangan->jumlah_court; $court++){
-            for($jam=$lapanganBuka; $jam<$lapanganTutup; $jam+=3600){
-                array_push($statusLapanganArr, array(
-                    'id_lapangan' => $dataLapangan->id,
-                    'court' => $court,
-                    'status' => 'Available',
-                    'jam_status_berlaku_dari' => date('H:i', $jam),
-                    'jam_status_berlaku_sampai' => date('H:i', $jam + 3600)
-                ));
-            }
-        }
-
-        // dd($statusLapanganArr);
-        
-        StatusLapangan::insert($statusLapanganArr);
 
         return response()->json('success');
     }
 
-    
+
     public function getPenyewaLapanganProfil($penggunaPenyewaId, $date, $pembayaranId){
-        $dataProfilPenyewa = DB::table('tb_pengguna')->select('tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court', 
+        $dataProfilPenyewa = DB::table('tb_pengguna')->select('tb_booking.tgl_booking', 'tb_detail_booking.jam_mulai', 'tb_detail_booking.jam_selesai', 'tb_courts.nomor_court',
             'tb_pengguna.id as pengguna_id', 'tb_pengguna.name', 'tb_pembayaran.total_biaya', 'tb_pembayaran.id AS pembayaran_id', 'tb_riwayat_status_pembayaran.status_pembayaran')
             ->leftJoin('tb_booking', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
-            ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
+            ->leftJoin('tb_detail_booking', 'tb_detail_booking.id_booking', '=', 'tb_booking.id')
+            ->leftJoin('tb_courts', 'tb_courts.id', '=', 'tb_booking.id_court')
+            ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
             ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
             ->leftJoin('tb_riwayat_status_pembayaran', function($join){
                 $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
@@ -152,8 +127,8 @@ class ProfilController extends Controller
 
     public function penyewaLapanganProfil(){
         $dataUser = User::select('name', 'email', 'nomor_telepon')->find(Auth::user()->id);
-        
+
         return view('penyewa_lapangan.penyewa_lapangan_profil', compact('dataUser'));
     }
-    
+
 }

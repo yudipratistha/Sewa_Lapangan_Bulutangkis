@@ -40,7 +40,7 @@
                                         <div class="input-group-text"><i class="fa fa-calendar"> </i></div>
                                     </div>
                                 </div>
-                            </div>      
+                            </div>
                             <div class="mb-3 row g-3">
                                 <label class="col-xl-1 col-sm-3 col-lg-1 col-form-label">Status</label>
                                 <div class="col-xl-11 col-sm-9 col-lg-11 filter-group">
@@ -53,18 +53,18 @@
                                         <p class="reset-filter filter-status" value="reset">Reset Filter</p>
                                     </div>
                                 </div>
-                            </div>  
-                            <div class="row g-3">  
+                            </div>
+                            <div class="row g-3">
                                 <button class="btn btn-square btn-outline-waiting-payment waiting-payment txt-dark" type="button" onclick='location.href="{{route('penyewaLapangan.menungguPembayaranPenyewaIndex')}}"' data-bs-original-title="" title="" style="text-align: left;padding-left: 0px;border-radius: 8px;">
-                                    <i class="icofont icofont-time" style="margin: 0 8px 0 12px; font-size: 15px; color: #24695c; font-weight: bold;"></i> 
+                                    <i class="icofont icofont-time" style="margin: 0 8px 0 12px; font-size: 15px; color: #24695c; font-weight: bold;"></i>
                                     <span>Menunggu Pembayaran</span>
                                     <!-- <i class="icofont icofont-double-right" style="text-align: right; margin: 0 8px 0 12px;"></i>  -->
-                                </button>      
-                            </div>     
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-body">                 
+                        <div class="card-body">
                             <div class="table-responsive">
                                 <table class="display datatables" id="data-riwayat-penyewa">
                                     <thead>
@@ -195,13 +195,13 @@
 <script src="{{url('/assets/js/datatable/datatables/jquery.dataTables.min.js')}}"></script>
 
 <script>
-    var filterDateStart; 
+    var filterDateStart;
     var filterDateEnd;
     var filterTrx;
 
     $('#filter-tanggal').daterangepicker({
         autoUpdateInput: false,
-        // maxDate: moment(), 
+        // maxDate: moment(),
         ranges: {
             'Today': [moment(), moment()],
             'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
@@ -222,11 +222,11 @@
             filterDateStart= null;
             filterDateEnd= null;
             filterTrx = null;
-            
+
             $('#filter-tanggal').val('');
             $('#filter-tanggal').data('daterangepicker').setStartDate(moment().format("DD-MM-YYYY")); //date now
             $('#filter-tanggal').data('daterangepicker').setEndDate(moment().format("DD-MM-YYYY"));//date
-            
+
             $('.btn-showcase').find('.active').removeClass('active');
             $("#filter-semua").addClass('active');
 
@@ -274,7 +274,7 @@
                 { "data": "nama_lapangan" },
                 { "data": "status_pembayaran", "orderable": true, "width": "13%" },
                 { "defaultContent": "", "orderable": false, "width": "10%",
-                    render: function (data, type, row) { 
+                    render: function (data, type, row) {
                         // if(row.status_pembayaran === "Lunas" || row.status_pembayaran === "DP"){
                             return '<button type="button" class="btn btn-outline-primary" id="view-data-penyewaan-invoice" style="width: 30px; padding-top: 5px; padding-left: 0px; padding-right: 0px; padding-bottom: 2px; margin-right:5px;"><i class="icofont icofont-ui-note" style="font-size:20px;"></i></button>'
                         // }
@@ -311,7 +311,7 @@
     });
     table.on('order.dt search.dt', function () {
         let i = 1;
- 
+
         table.cells(null, 0, { search: 'applied', order: 'applied' }).every(function (cell) {
             this.data(i++);
         });
@@ -322,14 +322,14 @@
         $(this).val(picker.startDate.format('DD-MM-YYYY') + ' - ' + picker.endDate.format('DD-MM-YYYY'));
         filterDateStart= picker.startDate.format('DD-MM-YYYY');
         filterDateEnd= picker.endDate.format('DD-MM-YYYY');
-        
+
         $('#data-riwayat-penyewa').DataTable().ajax.reload();
     });
 
     $('#filter-tanggal').on('cancel.daterangepicker', function(ev, picker) {
         filterDateStart= null;
         filterDateEnd= null;
-        
+
         $(this).val('');
         $(this).data('daterangepicker').setStartDate(moment().format("DD-MM-YYYY")); //date now
         $(this).data('daterangepicker').setEndDate(moment().format("DD-MM-YYYY"));//date
@@ -364,7 +364,7 @@
             return result * sortOrder;
         }
     }
-    
+
     const formatter = new Intl.NumberFormat('id', {
         style: 'currency',
         currency: 'IDR',
@@ -376,13 +376,13 @@
     });
 
     function bookingCounting(orderData){
-        
+
         var courtStatus= false;
         var bookingTime = {};
-        const orderDataSort = Object.keys(orderData).sort().reduce((obj, key) => { 
-                obj[key] = orderData[key]; 
+        const orderDataSort = Object.keys(orderData).sort().reduce((obj, key) => {
+                obj[key] = orderData[key];
                 return obj;
-            }, 
+            },
             {}
         );
 
@@ -399,31 +399,31 @@
                     var totalBiaya = orderDataArr.total_biaya;
                     var namaLapangan = orderDataArr.nama_lapangan;
                     var alamatLapangan = orderDataArr.alamat_lapangan;
-                    
-                    if(index2 === 0 || Object.keys(bookingTime).includes((orderDataArr.court+'-'+Object.keys(orderDataSort)[index]).toString()) === false){
+
+                    if(index2 === 0 || Object.keys(bookingTime).includes((orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]).toString()) === false){
                         courtStatus = true;
                     }else{
                         courtStatus = false;
                     }
 
-                    if(bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]] === undefined){
-                        bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]]= [];
+                    if(bookingTime[orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]] === undefined){
+                        bookingTime[orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]]= [];
                     }
 
-                    bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]].push(orderJam);
-                    bubbleSort(bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]]);
+                    bookingTime[orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]].push(orderJam);
+                    bubbleSort(bookingTime[orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]]);
 
                     if(courtStatus === true){
                         let dateConvert = new Date(Object.keys(orderDataSort)[index].split('-')[0] + '/' + Object.keys(orderDataSort)[index].split('-')[1] + '/' + Object.keys(orderDataSort)[index].split('-')[2]);
                         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 
-                        // console.log(orderDataArr.court)
+                        // console.log(orderDataArr.nomor_court)
                         // console.log(dateConvert.toLocaleDateString('id', options))
 
                         $("#booking-counting").append('\
-                            <span style="font-size: 15px;font-weight: bold;">Court '+orderDataArr.court+'</span>\
+                            <span style="font-size: 15px;font-weight: bold;">Court '+orderDataArr.nomor_court+'</span>\
                             <p style="margin-top: 10px;">'+dateConvert.toLocaleDateString('id', options)+'</p>\
-                            <div id="booking-hour-counting-'+orderDataArr.court+'-'+Object.keys(orderDataSort)[index]+'" class="row booking-hour-counting">\
+                            <div id="booking-hour-counting-'+orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]+'" class="row booking-hour-counting">\
                             </div>\
                         ');
                     }
@@ -451,8 +451,8 @@
                     ');
                 });
                 $('#booking-hour-counting-'+index).children().last().append('<hr/>');
-            }); 
-            
+            });
+
             $('#nama-lapangan-invc').empty().append(namaLapangan);
             $('#alamat-lapangan-invc').empty().append(alamatLapangan);
             $('#jenis-sewa').empty().append(((jenisBooking === 'per_jam') ? 'Per Jam' : 'Bulanan'));

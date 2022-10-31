@@ -52,8 +52,8 @@
                                             <p class="reset-filter filter-status" value="reset">Reset Filter</p>
                                         </div>
                                     </div>
-                                </div>     
-                            </div>    
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="card">
@@ -165,7 +165,7 @@
 <script src="{{url('/assets/js/datatable/datatables/jquery.dataTables.min.js')}}"></script>
 
 <script>
-    var filterDateStart; 
+    var filterDateStart;
     var filterDateEnd;
     var filterTrx;
 
@@ -179,7 +179,7 @@
 
     $('#filter-tanggal').daterangepicker({
         autoUpdateInput: false,
-        // maxDate: moment(), 
+        // maxDate: moment(),
         ranges: {
             'Today': [moment(), moment()],
             'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
@@ -200,11 +200,11 @@
             filterDateStart= null;
             filterDateEnd= null;
             filterTrx = null;
-            
+
             $('#filter-tanggal').val('');
             $('#filter-tanggal').data('daterangepicker').setStartDate(moment().format("DD-MM-YYYY"));
             $('#filter-tanggal').data('daterangepicker').setEndDate(moment().format("DD-MM-YYYY"));
-            
+
             $('.btn-showcase').find('.active').removeClass('active');
             $("#filter-semua").addClass('active');
 
@@ -273,13 +273,13 @@
                     success: function(data){
                         var jamBooking= '';
                         var totalCourt= '';
-                        
+
                         data.forEach(function(item, index){
                             var tglBooking = item.tgl_booking.split('-');
                             var jamMulai = item.jam_mulai.split(':');
                             var jamSelesai = item.jam_selesai.split(':');
                             var punctuation= '';
-                            
+
                             if(data.length > index+1 && data.length === 2){
                                 punctuation= ' & ';
                             }else if(data.length >= index+1 && data.length-3 !== index-1 && data.length !== index+1){
@@ -287,18 +287,18 @@
                             }else if(data.length >= 2 && data.length-3 === index-1){
                                 punctuation= ' & ';
                             }
-                            
+
                             jamBooking += jamMulai[0]+":"+jamMulai[1] +" - "+ jamSelesai[0]+":"+jamSelesai[1] + punctuation;
-                            totalCourt += item.court;
-                            
+                            totalCourt += item.nomor_court;
+
                             $('#nama-penyewa').val(item.name);
                             $('#tanggal-penyewaan').val(tglBooking[2]+"-"+tglBooking[1]+"-"+tglBooking[0]);
                             $('#total-penyewaan').val('Rp'+item.total_biaya);
                             $('#id-pengguna-penyewa').val(item.id);
                         });
-                        
+
                         totalCourt = totalCourt.replace(/(.)\1+/g, '$1')
-                        
+
                         $('#pilihan-court-penyewa').val(totalCourt.match(/\d/g).join(", ").replace(/,([^,]*)$/, ' &$1'));
                         $('#pilihan-waktu-penyewa').val(jamBooking);
 
@@ -315,7 +315,7 @@
                             <button type="button" onclick="tolakPenyewaan('+data[0].pembayaran_id+')" class="btn btn-square btn-outline-warning">Tolak</button>\
                             <button type="button" onclick="terimaPenyewaan('+data[0].pembayaran_id+')" class="btn btn-square btn-outline-primary">Terima</button>'
                         )
-                        
+
                         $('#data-profil-penyewa-modal').modal('show');
                     },
                     error: function(data){
@@ -339,14 +339,14 @@
         $(this).val(picker.startDate.format('DD-MM-YYYY') + ' - ' + picker.endDate.format('DD-MM-YYYY'));
         filterDateStart= picker.startDate.format('DD-MM-YYYY');
         filterDateEnd= picker.endDate.format('DD-MM-YYYY');
-        
+
         $('#data-riwayat-penyewa').DataTable().ajax.reload();
     });
 
     $('#filter-tanggal').on('cancel.daterangepicker', function(ev, picker) {
         filterDateStart= null;
         filterDateEnd= null;
-        
+
         $(this).val('');
         $(this).data('daterangepicker').setStartDate(moment().format("DD-MM-YYYY")); //date now
         $(this).data('daterangepicker').setEndDate(moment().format("DD-MM-YYYY"));//date
@@ -366,7 +366,7 @@
 
             link = "{{route('pemilikLapangan.updateStatusPembayaran', ':id')}}";
             link = link.replace(':id', pembayaranId);
-            
+
             swal.fire({
                 title: "Terima Penyewaan?",
                 text: "Status pembayaran penyewa akan diperbaharui!",
@@ -377,22 +377,22 @@
                 closeOnConfirm: true,
                 preConfirm: (login) => {
                     return $.ajax({
-                        type: "POST", 
+                        type: "POST",
                         url: link,
-                        datatype : "json", 
+                        datatype : "json",
                         data: {'pembayaranId':pembayaranId, "_token": "{{ csrf_token() }}", 'statusPembayaran': $("#update-status-pembayaran").val()},
                         success: function(data){
-                            
+
                         },
                         error: function(data){
                             swal.fire({title:"Terima Penyewaan Gagal!", text:"Terima penyewaan gagal di proses.", icon:"error"});
                         }
-                    }); 
-                } 
+                    });
+                }
             }).then((result) => {
                 if(result.value){
                     swal.fire({title:"Terima Penyewaan Berhasil!", text:"Status penyewaan telah berhasil di perbarui.", icon:"success"})
-                    .then(function(){ 
+                    .then(function(){
                         window.location.href = "";
                     });
                 }
@@ -414,7 +414,7 @@
 
             link = "{{route('pemilikLapangan.updateStatusPembayaran', ':id')}}";
             link = link.replace(':id', pembayaranId);
-            
+
             swal.fire({
                 title: "Tolak Penyewaan?",
                 text: "Status pembayaran penyewa akan diperbaharui!",
@@ -425,29 +425,29 @@
                 closeOnConfirm: true,
                 preConfirm: (login) => {
                     return $.ajax({
-                        type: "POST", 
+                        type: "POST",
                         url: link,
-                        datatype : "json", 
+                        datatype : "json",
                         data: {'pembayaranId':pembayaranId, "_token": "{{ csrf_token() }}", 'statusPembayaran': $("#update-status-pembayaran").val()},
                         success: function(data){
-                            
+
                         },
                         error: function(data){
                             swal.fire({title:"Tolak Penyewaan Gagal!", text:"Tolak penyewaan gagal di proses.", icon:"error"});
                         }
-                    }); 
-                } 
+                    });
+                }
             }).then((result) => {
                 if(result.value){
                     swal.fire({title:"Tolak Penyewaan Berhasil!", text:"Status penyewaan telah berhasil di perbarui.", icon:"success"})
-                    .then(function(){ 
+                    .then(function(){
                         window.location.href = "";
                     });
                 }
             });
         }
-        
+
     }
-    
+
 </script>
 @endsection
