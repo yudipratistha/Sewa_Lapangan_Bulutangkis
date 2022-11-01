@@ -152,8 +152,8 @@
                                     <div style="height:360px;width:100%;" id="map-container">
                                         <div style="height: 100%; width: 100%; position: relative;z-index: 0;" id="map"></div>
                                     </div>
-                                    <input type="hidden" class="form-control" id="lat-location-lapangan" name="lat_alamat_pemilik_lapangan">
-                                    <input type="hidden" class="form-control" id="lng-location-lapangan" name="lng_alamat_pemilik_lapangan">
+                                    <input type="hidden" class="form-control" id="lat-location-lapangan" name="lat_alamat_pemilik_lapangan" value="{{$dataLapangan->titik_koordinat_lat}}">
+                                    <input type="hidden" class="form-control" id="lng-location-lapangan" name="lng_alamat_pemilik_lapangan" value="{{$dataLapangan->titik_koordinat_lng}}">
                                 </div>
                                 <div class="form-group" id="job-description-div">
                                     <label class="form-label">Alamat Tertulis</label>

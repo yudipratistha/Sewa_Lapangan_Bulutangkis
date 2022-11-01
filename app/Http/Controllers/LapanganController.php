@@ -191,7 +191,8 @@ class LapanganController extends Controller
     public function getDataLapanganPemilik(Request $request){
         $currentDate = date('d-m-Y');
 
-        if($request->tanggal <= $currentDate){
+        if($currentDate <= $request->tanggal){
+
             $dataLapangan = Lapangan::select('tb_lapangan.id as lapangan_id', 'tb_lapangan.buka_dari_jam', 'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court')
                 ->find($request->lapangan_id);
 
@@ -216,7 +217,7 @@ class LapanganController extends Controller
                 ->leftJoin('tb_tipe_status_court', 'tb_tipe_status_court.id', '=', 'tb_status_court.id_tipe_status_court')
                 ->where('tb_lapangan.id', $request->lapangan_id)
                 ->get();
-                // dd($dataStatusLapangan);
+
             $dataLapanganArr = array();
             $lapanganBuka = strtotime($dataLapangan->buka_dari_jam);
             $lapanganTutup = strtotime($dataLapangan->buka_sampai_jam);

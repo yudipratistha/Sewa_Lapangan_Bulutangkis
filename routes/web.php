@@ -72,6 +72,8 @@ Route::group(['prefix' => 'pemilik-lapangan/'], function(){
     });
 
     Route::group(['prefix' => '', 'middleware' => ['fieldOwner', 'checkVerifField']], function(){
+        Route::get('file/bukti-bayar/{id_pembayaran}', 'FileController@getFileBuktiPembayaran')->name('pemilikLapangan.getFileBuktiPembayaran');
+
         Route::get('dashboard', 'HomeController@pemilikLapanganHome')->name('pemilikLapangan.dashboard');
 
         Route::post('get-data-lapangan-pemilik/{lapangan_id}', 'LapanganController@getDataLapanganPemilik')->name('pemilikLapangan.getDataLapanganPemilik');

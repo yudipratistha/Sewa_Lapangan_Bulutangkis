@@ -95,56 +95,120 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="form-group">
-                            <label>Nama</label>
-                            <div class="input-group"><span class="input-group-text"><i class="icon-user"></i></span>
-                                <input type="text" disabled class="form-control" id="nama-penyewa" name="nama_penyewa" placeholder="Nama..." value="">
+                        <div class="card pilih-pembayaran-card" style="border: 0;">
+                            <div class="card-header pb-2 mb-3" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
+                                <h6 class="mb-0">Data Penyewa</h6>
+                                <hr style="border-top: 1px dashed;"/>
+                                <div class="form-group">
+                                    <label>Nama Penyewa</label>
+                                    <div class="input-group"><span class="input-group-text"><i class="icon-user"></i></span>
+                                        <input type="text" disabled class="form-control" id="nama-penyewa" name="nama_penyewa" placeholder="Nama..." value="">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Nomor Telepon Penyewa</label>
+                                    <div class="input-group"><span class="input-group-text"><i data-feather="phone" style="width: 17px;"></i></span>
+                                        <input type="text" disabled class="form-control" id="nomor-telepon-penyewa" name="nomor_telepon_penyewa" placeholder="08x..." value="">
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Tanggal Penyewaan</label>
-                            <div class="input-group"><span class="input-group-text"><i class="icofont icofont-calendar"></i></span>
-                                <input type="text" disabled class="form-control" id="tanggal-penyewaan" name="tanggal_penyewaan" value="">
+                            <div class="card-body" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
+                                <h6 class="mb-0">Jadwal Booking</h6>
+                                <hr style="border-top: 1px dashed;"/>
+                                <div id="booking-counting">
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Court</label>
-                            <div class="input-group"><span class="input-group-text"><i class="icofont icofont-badminton-birdie"></i></span>
-                                <input type="text" disabled class="form-control" id="pilihan-court-penyewa" name="pilihan_court_penyewa" value="">
+
+                            <div class="card-body mt-4" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
+                                <h6 class="mb-0">Ringkasan Pembayaran</h6>
+                                <hr style="border-top: 1px dashed;"/>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="card" style="border: 0;margin-bottom: 7px;">
+                                            <div class="media">
+                                                <div class="media-body">
+                                                    <p>Jenis Sewa</p>
+                                                </div>
+                                                <div>
+                                                    <p id="jenis-sewa">-</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="card" style="border: 0;margin-bottom: 7px;">
+                                            <div class="media">
+                                                <div class="media-body">
+                                                    <p>Cara Pembayaran</p>
+                                                </div>
+                                                <div>
+                                                    <p id="cara-pembayaran">-</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="card" style="border: 0;margin-bottom: 7px;">
+                                            <div class="media">
+                                                <div class="media-body">
+                                                    <p>Status Pembayaran</p>
+                                                </div>
+                                                <div>
+                                                    <p id="status-pembayaran">-</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="card" style="border: 0;margin-bottom: 7px;">
+                                            <div class="media">
+                                                <div class="media-body">
+                                                    <p>Biaya Sewa</p>
+                                                </div>
+                                                <div>
+                                                    <p><span id="biaya-sewa">-</span></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr/>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="card" style="border: 0;margin-bottom: 7px;">
+                                            <div class="media">
+                                                <div class="media-body">
+                                                    <p>Total</p>
+                                                </div>
+                                                <div>
+                                                    <p><span id="total-biaya-sewa">-</span></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Waktu</label>
-                            <div class="input-group"><span class="input-group-text"><i class="icofont icofont-clock-time"></i></span>
-                                <input type="text" disabled class="form-control" id="pilihan-waktu-penyewa" name="pilihan_waktu_penyewa" placeholder="Waktu..." value="">
+                            <div class="card-body mt-4" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
+                                <h6 class="mb-0">Foto Bukti Pembayaran:</h6>
+                                <div class="gallery my-gallery card-body p-0 mt-3" itemscope="">
+                                    <figure class="col-md-12" itemprop="associatedMedia" itemscope="">
+                                        <a id="foto-bukti-pembayaran-full" href="" itemprop="contentUrl" data-size="1600x950">
+                                            <img id="foto-bukti-pembayaran-thumbnail" class="img-thumbnail" src="" itemprop="thumbnail" alt="Image description">
+                                        </a>
+                                        <figcaption itemprop="caption description">Image caption  1</figcaption>
+                                    </figure>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Total</label>
-                            <div class="input-group"><span class="input-group-text"><i class="icon-receipt"></i></span>
-                                <input type="text" disabled class="form-control" id="total-penyewaan" name="total_penyewaan" placeholder="Total..." value="">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Foto Bukti Pembayaran</label>
-                            <div class="gallery my-gallery card-body" itemscope="">
-                                <figure class="col-md-12" itemprop="associatedMedia" itemscope="">
-                                    <a href="{{url('/assets/images/buktibayar/bni-5.jpg')}}" itemprop="contentUrl" data-size="1600x950">
-                                        <img class="img-thumbnail" src="{{url('/assets/images/buktibayar/bni-5.jpg')}}" itemprop="thumbnail" alt="Image description">
-                                    </a>
-                                    <figcaption itemprop="caption description">Image caption  1</figcaption>
-                                </figure>
-                            </div>
-                        </div>
-                        <div class="form-group" id="update-status-pembayaran-div">
-                            <label>Update Status Pembayaran</label>
-                            <div class="input-group"><span class="input-group-text"><i class="icofont icofont-paperclip"></i></span>
-                                <select class="form-select" id="update-status-pembayaran" name="status_pembayaran" required="">
-                                    <option selected="" disabled="" value="">Pilih Status Pembayaran...</option>
-                                    <option value="Lunas">Lunas</option>
-                                    <option value="DP">DP</option>
-                                    <option value="Batal">Batal</option>
-                                </select>
+                            <div class="card-body mt-4" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
+                                <h6 class="mb-3">Update Status Pembayaran:</h6>
+                                <div class="form-group" id="update-status-pembayaran-div">
+                                    <div class="input-group"><span class="input-group-text"><i class="icofont icofont-paperclip"></i></span>
+                                        <select class="form-select" id="update-status-pembayaran" name="status_pembayaran" required="">
+                                            <option selected="" disabled="" value="">Pilih Status Pembayaran...</option>
+                                            <option value="Lunas">Lunas</option>
+                                            <option value="DP">DP</option>
+                                            <option value="Batal">Batal</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -271,52 +335,7 @@
                     method: "GET",
                     dataType: 'json',
                     success: function(data){
-                        var jamBooking= '';
-                        var totalCourt= '';
-
-                        data.forEach(function(item, index){
-                            var tglBooking = item.tgl_booking.split('-');
-                            var jamMulai = item.jam_mulai.split(':');
-                            var jamSelesai = item.jam_selesai.split(':');
-                            var punctuation= '';
-
-                            if(data.length > index+1 && data.length === 2){
-                                punctuation= ' & ';
-                            }else if(data.length >= index+1 && data.length-3 !== index-1 && data.length !== index+1){
-                                punctuation= ', ';
-                            }else if(data.length >= 2 && data.length-3 === index-1){
-                                punctuation= ' & ';
-                            }
-
-                            jamBooking += jamMulai[0]+":"+jamMulai[1] +" - "+ jamSelesai[0]+":"+jamSelesai[1] + punctuation;
-                            totalCourt += item.nomor_court;
-
-                            $('#nama-penyewa').val(item.name);
-                            $('#tanggal-penyewaan').val(tglBooking[2]+"-"+tglBooking[1]+"-"+tglBooking[0]);
-                            $('#total-penyewaan').val('Rp'+item.total_biaya);
-                            $('#id-pengguna-penyewa').val(item.id);
-                        });
-
-                        totalCourt = totalCourt.replace(/(.)\1+/g, '$1')
-
-                        $('#pilihan-court-penyewa').val(totalCourt.match(/\d/g).join(", ").replace(/,([^,]*)$/, ' &$1'));
-                        $('#pilihan-waktu-penyewa').val(jamBooking);
-
-                        console.log(data[0].status_pembayaran)
-                        if(data[0].status_pembayaran === 'DP' || data[0].status_pembayaran === 'Lunas'){
-                            $("#update-status-pembayaran").val(data[0].status_pembayaran).change();
-                        }
-
-                        if(data[0].status_pembayaran === 'Batal'){
-                            $("#update-status-pembayaran").val(data[0].status_pembayaran).change();
-                        }
-
-                        $('#data-profil-penyewa-modal').find('.modal-footer').children('button').after('\
-                            <button type="button" onclick="tolakPenyewaan('+data[0].pembayaran_id+')" class="btn btn-square btn-outline-warning">Tolak</button>\
-                            <button type="button" onclick="terimaPenyewaan('+data[0].pembayaran_id+')" class="btn btn-square btn-outline-primary">Terima</button>'
-                        )
-
-                        $('#data-profil-penyewa-modal').modal('show');
+                        bookingCounting(data)
                     },
                     error: function(data){
                         console.log("asdsad", data)
@@ -333,6 +352,117 @@
             this.data(i++);
         });
     }).draw();
+
+    const formatter = new Intl.NumberFormat('id', {
+        style: 'currency',
+        currency: 'IDR',
+        maximumFractionDigits: 0,
+    });
+
+    $('body').on('hidden.bs.modal', '#data-profil-penyewa-modal', function () {
+        $('#booking-counting').children().remove();
+    });
+
+    function bookingCounting(orderData){
+        var courtStatus= false;
+        var bookingTime = {};
+
+        if(Object.keys(orderData).length !== 0){
+            for(let index = 0; index < Object.keys(orderData).length; ++index){
+                for(let index2 = 0; index2 < orderData[Object.keys(orderData)[index]].length; ++index2){
+                    var orderDataArr = orderData[Object.keys(orderData)[index]][index2];
+                    var orderJam = orderDataArr.jam_mulai.substring(0, 5) +' - '+ orderDataArr.jam_selesai.substring(0, 5);
+                    var hargaPerJam = orderDataArr.harga_per_jam;
+                    var jenisBooking = orderDataArr.jenis_booking;
+                    var caraPembayaran = orderDataArr.nama_jenis_pembayaran;
+                    var statusPembayaran = orderDataArr.status_pembayaran;
+                    var totalBiaya = orderDataArr.total_biaya;
+                    var namaLapangan = orderDataArr.nama_lapangan;
+                    var alamatLapangan = orderDataArr.alamat_lapangan;
+                    var pembayaranId = orderDataArr.pembayaran_id;
+                    var namaPenyewa = orderDataArr.nama_penyewa;
+                    var nomorTeleponPenyewa = orderDataArr.nomor_telepon_penyewa;
+
+                    if(index2 === 0 || Object.keys(bookingTime).includes((orderDataArr.nomor_court+'-'+Object.keys(orderData)[index]).toString()) === false){
+                        courtStatus = true;
+                    }else{
+                        courtStatus = false;
+                    }
+
+                    if(bookingTime[orderDataArr.nomor_court+'-'+Object.keys(orderData)[index]] === undefined){
+                        bookingTime[orderDataArr.nomor_court+'-'+Object.keys(orderData)[index]]= [];
+                    }
+
+                    bookingTime[orderDataArr.nomor_court+'-'+Object.keys(orderData)[index]].push(orderJam);
+
+                    if(courtStatus === true){
+                        let dateConvert = new Date(Object.keys(orderData)[index].split('-')[0] + '/' + Object.keys(orderData)[index].split('-')[1] + '/' + Object.keys(orderData)[index].split('-')[2]);
+                        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+
+                        $("#booking-counting").append('\
+                            <span style="font-size: 15px;font-weight: bold;">Court '+orderDataArr.nomor_court+'</span>\
+                            <p style="margin-top: 10px;">'+dateConvert.toLocaleDateString('id', options)+'</p>\
+                            <div id="booking-hour-counting-'+orderDataArr.nomor_court+'-'+Object.keys(orderData)[index]+'" class="row booking-hour-counting">\
+                            </div>\
+                        ');
+                    }
+                }
+            }
+
+            // console.log(bookingTime)
+            $.each(bookingTime, function(index, value) {
+                // console.log(value);
+                $.each(value, function(bookingTimeIndex, bookingTimeValue){
+                    // console.log(bookingTimeValue);
+                    $('#booking-hour-counting-'+index).append('\
+                        <div class="col-sm-12">\
+                            <div class="card" style="border: 0;margin-bottom: 7px;">\
+                                <div class="media" style="background-color: azure;border-radius: 5px;border-left: 5px gray solid;padding: 3px 5px 0px 5px;">\
+                                    <div class="media-body">\
+                                        <p>'+bookingTimeValue+'</p>\
+                                    </div>\
+                                    <div>\
+                                        <p>'+((jenisBooking === 'per_jam') ? formatter.format(hargaPerJam) : 'Harga Sudah Disesuaikan!')+'</p>\
+                                    </div>\
+                                </div>\
+                            </div>\
+                        </div>\
+                    ');
+                });
+                $('#booking-hour-counting-'+index).children().last().append('<hr/>');
+            });
+
+            $('#nama-penyewa').val(namaPenyewa);
+            $('#nomor-telepon-penyewa').val(nomorTeleponPenyewa);
+            $('#nama-lapangan-invc').empty().append(namaLapangan);
+            $('#alamat-lapangan-invc').empty().append(alamatLapangan);
+            $('#jenis-sewa').empty().append(((jenisBooking === 'per_jam') ? 'Per Jam' : 'Bulanan'));
+            $('#cara-pembayaran').empty().append(caraPembayaran);
+            $('#status-pembayaran').empty().append(statusPembayaran);
+            $('#biaya-sewa').empty().append(formatter.format(totalBiaya));
+            $('#total-biaya-sewa').empty().append(formatter.format(totalBiaya));
+
+            if(statusPembayaran === 'DP' || statusPembayaran === 'Lunas'){
+                $("#update-status-pembayaran").val(statusPembayaran).change();
+            }
+
+            if(statusPembayaran === 'Batal'){
+                $("#update-status-pembayaran").val(statusPembayaran).change();
+            }
+
+            linkFotoBuktiBayar = "{{route('pemilikLapangan.getFileBuktiPembayaran', ':pembayaran_id')}}";
+            linkFotoBuktiBayar = linkFotoBuktiBayar.replace(":pembayaran_id", pembayaranId);
+
+            $("#foto-bukti-pembayaran-full").attr("href", linkFotoBuktiBayar);
+            $("#foto-bukti-pembayaran-thumbnail").attr("src", linkFotoBuktiBayar);
+
+            $('#data-profil-penyewa-modal').find('.modal-footer').children('button').after('\
+                <button type="button" onclick="tolakPenyewaan('+pembayaranId+')" class="btn btn-square btn-outline-warning">Tolak</button>\
+                <button type="button" onclick="terimaPenyewaan('+pembayaranId+')" class="btn btn-square btn-outline-primary">Terima</button>'
+            )
+            $('#data-profil-penyewa-modal').modal('show');
+        }
+    }
 
     $('#filter-tanggal').on('apply.daterangepicker', function(ev, picker) {
         // $('#data-riwayat-penyewa').DataTable().destroy();

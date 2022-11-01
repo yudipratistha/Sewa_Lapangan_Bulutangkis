@@ -132,7 +132,6 @@ class RiwayatController extends Controller
                 FROM tb_booking
                 GROUP BY tb_booking.`id_pembayaran`
             ) AS tb_booking
-            LEFT JOIN tb_detail_booking ON tb_detail_booking.id_booking = tb_booking.id
             LEFT JOIN tb_courts ON tb_courts.id = tb_booking.id_court
             LEFT JOIN tb_lapangan ON tb_lapangan.id = tb_courts.id_lapangan
             LEFT JOIN tb_pembayaran ON tb_booking.id_pembayaran = tb_pembayaran.id
@@ -170,7 +169,6 @@ class RiwayatController extends Controller
                 GROUP BY tb_booking.`id_pembayaran`
             ) AS tb_booking
             LEFT JOIN tb_pengguna ON tb_pengguna.id = tb_booking.`id_pengguna`
-            LEFT JOIN tb_detail_booking ON tb_detail_booking.id_booking = tb_booking.id
             LEFT JOIN tb_courts ON tb_courts.id = tb_booking.id_court
             LEFT JOIN tb_lapangan ON tb_lapangan.id = tb_courts.id_lapangan
             LEFT JOIN tb_pembayaran ON tb_booking.id_pembayaran = tb_pembayaran.id
