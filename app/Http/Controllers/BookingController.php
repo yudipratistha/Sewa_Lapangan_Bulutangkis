@@ -108,8 +108,6 @@ class BookingController extends Controller
             if(isset($errorTextJamBooking) || isset($errorTextPembayaran)){
                 return response()->json(['errorTextJamBooking' => $errorTextJamBooking, 'errorTextPembayaran' => $errorTextPembayaran], 400);
             }
-
-
         }
     }
 
@@ -189,26 +187,6 @@ class BookingController extends Controller
             if(isset($errorTextJamBooking) || isset($errorTextPembayaran)){
                 return response()->json(['errorTextJamBooking' => $errorTextJamBooking, 'errorTextPembayaran' => $errorTextPembayaran], 400);
             }
-        }
-    }
-
-    public function bookValid(){
-
-        $now = Carbon::now('Asia/Singapore');
-        $now->addMinute(0);
-        $time  = $now->format('H:i:s');
-        $start = '19:20:00';
-        $end   = '19:30:00';
-        $pembayaran = new Pembayaran;
-        $pembayaran->id_booking = 1;
-        $pembayaran->total_biaya = 60000;
-        $pembayaran->status = 'Belum Lunas';
-        $pembayaran->save();
-
-        PembayaranLimitTimeJob::dispatch($pembayaran);
-        // Event::dispatch(new PembayaranLimitTime($pembayaran));
-        if ($time >= $start && $time <= $end) {
-            // dd($time);
         }
     }
 }

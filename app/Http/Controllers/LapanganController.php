@@ -334,24 +334,6 @@ class LapanganController extends Controller
             ->where('tb_lapangan.id', $idLapangan)
             ->where('tb_courts.status_court', '!=', 0)
             ->get();
-        // dd($dataLapangan->status_paket_bulanan);
-        // $dataLapanganBooking = DB::table('tb_booking')->select('tb_booking.tgl_booking', 'tb_booking.jam_mulai', 'tb_booking.jam_selesai', 'tb_booking.court')
-        //                 ->leftJoin('tb_lapangan', 'tb_booking.id_lapangan', '=', 'tb_lapangan.id')
-        //                 ->where('tb_lapangan.id', $idLapangan)->where('tb_booking.tgl_booking', '2022-05-19')
-        //                 ->get();
-
-        // $dataStatusLapangan = DB::table('tb_lapangan')->select('tb_status_lapangan.court', 'tb_status_lapangan.status', 'tb_status_lapangan.detail_status',
-        //             'tb_status_lapangan.jam_status_berlaku_dari', 'tb_status_lapangan.jam_status_berlaku_sampai')
-        //             ->leftJoin('tb_status_lapangan', 'tb_status_lapangan.id_lapangan', '=', 'tb_lapangan.id')
-        //             ->where('tb_lapangan.id', $idLapangan)
-        //             ->get();
-
-        // $dataWaktuLapangan = array();
-        // $lapanganBuka = strtotime($dataLapangan->buka_dari_jam);
-        // $lapanganTutup = strtotime($dataLapangan->buka_sampai_jam);
-        // for($i=$lapanganBuka; $i<$lapanganTutup; $i+=3600) {
-        //     $dataWaktuLapangan[] = date('H:i', $i) . " - ". date('H:i', $i+3600);
-        // }
 
         return view('penyewa_lapangan.penyewa_lapangan_profil_lapangan', compact('dataLapangan', 'dataLapanganCourt'));
     }
@@ -792,23 +774,6 @@ class LapanganController extends Controller
                 ));
             }
         }
-        // for($court= 1; $court <= $dataLapangan->jumlah_court; $court++){
-        //     array_push($dataCourtArr, array(
-        //         'id_lapangan' => $dataLapangan->id,
-        //         'nomor_court' => $court
-        //     ));
-
-        //     for($jam=$lapanganBuka; $jam<$lapanganTutup; $jam+=3600){
-        //         array_push($statusLapanganArr, array(
-        //             'court' => $court,
-        //             'status' => 'Available',
-        //             'jam_status_berlaku_dari' => date('H:i', $jam),
-        //             'jam_status_berlaku_sampai' => date('H:i', $jam + 3600)
-        //         ));
-        //     }
-        // }
-
-        // dd($statusCourtArr);
 
         StatusCourt::insert($statusCourtArr);
     }

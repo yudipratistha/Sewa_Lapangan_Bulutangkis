@@ -143,20 +143,6 @@ class ProfilController extends Controller
             }
         }
 
-        // $dataProfilPenyewa = DB::table('tb_pengguna')->select('tb_booking.tgl_booking', 'tb_detail_booking.jam_mulai', 'tb_detail_booking.jam_selesai', 'tb_courts.nomor_court',
-        //     'tb_pengguna.id as pengguna_id', 'tb_pengguna.name', 'tb_pembayaran.total_biaya', 'tb_pembayaran.id AS pembayaran_id', 'tb_riwayat_status_pembayaran.status_pembayaran')
-        //     ->leftJoin('tb_booking', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
-        //     ->leftJoin('tb_detail_booking', 'tb_detail_booking.id_booking', '=', 'tb_booking.id')
-        //     ->leftJoin('tb_courts', 'tb_courts.id', '=', 'tb_booking.id_court')
-        //     ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
-        //     ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
-        //     ->leftJoin('tb_riwayat_status_pembayaran', function($join){
-        //         $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
-        //         ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran GROUP BY tb_riwayat_status_pembayaran.id_pembayaran)');
-        //     })
-        //     ->where('tb_booking.id_pengguna', $penggunaPenyewaId)->where('tb_booking.tgl_booking', date('Y-m-d', strtotime($date)))->where('tb_booking.id_pembayaran', $pembayaranId)
-        //     ->get();
-            // ->where('tb_riwayat_status_pembayaran.status_pembayaran', '!=', 'Batal')
         return response()->json($dataPenyewaLapanganInvoice);
     }
 

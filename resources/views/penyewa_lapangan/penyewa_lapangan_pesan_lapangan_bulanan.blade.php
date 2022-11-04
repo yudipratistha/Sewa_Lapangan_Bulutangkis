@@ -366,7 +366,7 @@
             if(d.getMonth()<9) dmy+="0";
             dmy+= (d.getMonth()+1) + "-" + d.getFullYear();
 
-            // console.log(dmy)
+
             if(Object.keys(orderData).length >= 30){
                 if ($.inArray(dmy, Object.keys(orderData)) != -1) {
                     console.log(dmy+' : '+($.inArray(dmy, Object.keys(orderData))));
@@ -400,11 +400,14 @@
 
                     $(document).on('draw.dt', function () {
                         if(orderData[date] !== undefined){
-                            for(let index = 0; index < Object.keys(orderData).length; ++index){
-                                for(let index2 = 0; index2 < orderData[date].length; ++index2){
-                                    var orderDataArr = orderData[date][index2];
-                                    if(Object.keys(orderData)[index] === date){
-                                        $("input[value*='"+JSON.stringify(orderDataArr)+"']").prop('checked', true);
+                            for(let counterDate = 0; counterDate < Object.keys(orderData).length; ++counterDate){
+                                for(let counterCourt = 0; counterCourt < Object.keys(orderData[date]).length; ++counterCourt){
+                                    let court = Object.keys(orderData[date])[counterCourt];
+                                    for(let counterData = 0; counterData < orderData[date][court].length; ++counterData){
+                                        var orderDataArr = orderData[date][court][counterData];
+                                        if(Object.keys(orderData)[counterDate] === date){
+                                            $("input[value*='"+JSON.stringify(orderDataArr)+"']").prop('checked', true);
+                                        }
                                     }
                                 }
                             }
@@ -456,47 +459,49 @@
             var orderDataCancel = JSON.parse($(this).val());
             sisaDurasi += 1;
 
-            if (orderData[date].length === 1) {
-                delete orderData[date];
-            }
             if(orderData[date] !== undefined){
-                for(let index = 0; index < Object.keys(orderData).length; ++index){
-                    for(let courtIndex = 0; courtIndex < Object.keys(orderData[Object.keys(orderData)[index]]).length; ++courtIndex){
-                        var courtKey = Object.keys(orderData[Object.keys(orderData)[index]])[courtIndex];
-                        for(let orderIndex = 0; orderIndex < orderData[Object.keys(orderData)[index]][courtKey].length; ++orderIndex){
-                            var orderDataArr = orderData[date][courtKey][orderIndex];
-                            if(Object.keys(orderData)[index] === date && orderDataArr.court === orderDataCancel.court && orderDataArr.jam === orderDataCancel.jam){
-                                orderData[date][courtKey].splice(orderIndex, 1);
+                for(let counterDate = 0; counterDate < Object.keys(orderData).length; ++counterDate){
+                    var dateKey = Object.keys(orderData)[counterDate];
+                    for(let counterCourt = 0; counterCourt < Object.keys(orderData[Object.keys(orderData)[counterDate]]).length; ++counterCourt){
+                        var courtKey = Object.keys(orderData[Object.keys(orderData)[counterDate]])[counterCourt];
+                        for(let counterData = 0; counterData < orderData[Object.keys(orderData)[counterDate]][courtKey].length; ++counterData){
+                            var orderDataArr = orderData[dateKey][courtKey][counterData];
+                            if(Object.keys(orderData)[counterDate] === dateKey && orderDataArr.court === orderDataCancel.court && orderDataArr.jam === orderDataCancel.jam){
+                                orderData[dateKey][courtKey].splice(counterData, 1);
                             }
+                        }
+                        if (Object.keys(orderData[dateKey][courtKey]).length === 0) {
+                            delete orderData[dateKey][courtKey];
                         }
                     }
                 }
             }
 
-            if(Object.keys(orderData).length === 0){
-                $("#tanggal").datepicker("option", "minDate", new Date());
-            }else{
-                var in30Days = new Date(Object.keys(orderData)[0].split('-')[2] + '/' + Object.keys(orderData)[0].split('-')[1] + '/' + Object.keys(orderData)[0].split('-')[0]);
+            if (Object.keys(orderData[date]).length === 0) {
+                delete orderData[date];
 
-                in30Days.setDate(in30Days.getDate() + 30);
-                $("#tanggal").datepicker("option", "minDate", Object.keys(orderData)[0]);
-                $("#tanggal").datepicker("option", "maxDate", in30Days);
-                $('.ui-datepicker-current-day').click();
+                if(Object.keys(orderData).length === 0){
+                    $("#tanggal").datepicker("option", "minDate", new Date());
+                }else{
+                    var in30Days = new Date(Object.keys(orderData)[0].split('-')[2] + '/' + Object.keys(orderData)[0].split('-')[1] + '/' + Object.keys(orderData)[0].split('-')[0]);
+                    in30Days.setDate(in30Days.getDate() + 30);
+                    $("#tanggal").datepicker("option", "minDate", Object.keys(orderData)[0]);
+                    $("#tanggal").datepicker("option", "maxDate", in30Days);
+                    $('.ui-datepicker-current-day').click();
+                }
             }
-
 
             if(sisaDurasi !== 0){
-                $('input[type="checkbox"]:not(:checked)').prop('disabled', false);
-                $('input[type="checkbox"]:not(:checked)').removeAttr('style');
+                $('input[type="checkbox"]:not(:checked)').filter(function(){return $(this).val() !== ''}).prop('disabled', false);
+                $('input[type="checkbox"]:not(:checked)').filter(function(){return $(this).val() !== ''}).removeAttr('style');
             }
+            $.each({!! $dataLapanganCourt !!}, function (key, value) {
+                $('#table-court-'+value.nomor_court).children().children().children().first().removeAttr('style');
+                $('#table-court-'+value.nomor_court).children('tbody').children().find("td:first").removeAttr('style');
+                $('#table-court-'+value.nomor_court).children('tbody').children('tr:last').find("td:first").removeAttr('style');
+            });
         }
         $('#sisa-durasi').empty().append(sisaDurasi);
-
-        $.each({!! $dataLapanganCourt !!}, function (key, value) {
-            $('#table-court-'+value.nomor_court).children().children().children().first().removeAttr('style');
-            $('#table-court-'+value.nomor_court).children('tbody').children().find("td:first").removeAttr('style');
-            $('#table-court-'+value.nomor_court).children('tbody').children('tr:last').find("td:first").removeAttr('style');
-        });
     });
 
     $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -547,9 +552,10 @@
 
         if(Object.keys(orderDataSort).length !== 0){
             for(let index = 0; index < Object.keys(orderDataSort).length; ++index){
-                orderDataSort[Object.keys(orderDataSort)[index]]
+
                 for(let courtIndex = 0; courtIndex < Object.keys(orderDataSort[Object.keys(orderDataSort)[index]]).length; ++courtIndex){
                     var courtKey = Object.keys(orderDataSort[Object.keys(orderDataSort)[index]])[courtIndex];
+                    orderDataSort[Object.keys(orderDataSort)[index]][courtKey].dynamicSort('court');
                     for(let orderIndex = 0; orderIndex < orderDataSort[Object.keys(orderDataSort)[index]][courtKey].length; ++orderIndex){
                         var orderDataArr = orderDataSort[Object.keys(orderDataSort)[index]][courtKey][orderIndex];
 
