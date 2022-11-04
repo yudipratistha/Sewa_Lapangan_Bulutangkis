@@ -141,55 +141,6 @@ class PembayaranController extends Controller
         }
 
         return response()->json($dataPenyewaLapanganInvoice);
-
-
-        // $waktuBook = '';
-        // $totalCourt= '';
-        // $counter = 0;
-
-        // $pembayaranDetail = DB::table('tb_booking')->select('tb_pengguna.name', 'tb_booking.tgl_booking', 'tb_courts.nomor_court', 'tb_detail_booking.jam_mulai', 'tb_detail_booking.jam_selesai',
-        // 'tb_pembayaran.total_biaya')
-        // ->leftJoin('tb_detail_booking', 'tb_detail_booking.id_booking', '=', 'tb_booking.id')
-        // ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
-        // ->leftJoin('tb_courts', 'tb_courts.id', '=', 'tb_booking.id_court')
-        // ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
-        // ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
-        // ->leftJoin('tb_riwayat_status_pembayaran', function($join){
-        //     $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
-        //     ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
-        // })
-        // ->where('tb_booking.id_pengguna', Auth::user()->id)
-        // ->where('tb_riwayat_status_pembayaran.status_pembayaran', 'Belum Lunas')
-        // ->groupBy('tb_booking.id')
-        // ->get();
-
-        // foreach($pembayaranDetail as $pembayaranDetailKey => $pembayaranDetailValue){
-        //     $punctuation = '';
-        //     if(count($pembayaranDetail) > $counter+1 && count($pembayaranDetail) === 2){
-        //         $punctuation= ' & ';
-        //     }else if(count($pembayaranDetail) >= $counter+1 && count($pembayaranDetail)-3 !== $counter-1 && count($pembayaranDetail) !== $counter+1){
-        //         $punctuation= ', ';
-        //     }else if(count($pembayaranDetail) >= 2 && count($pembayaranDetail)-3 === $counter-1){
-        //         $punctuation= ' & ';
-        //     }
-        //     $waktuBook .= date('H:i', strtotime($pembayaranDetailValue->jam_mulai)) .'-'. date('H:i', strtotime($pembayaranDetailValue->jam_selesai)) . $punctuation;
-        //     $totalCourt .= $pembayaranDetailValue->nomor_court;
-
-        //     $counter++;
-        // }
-        // $totalCourt = preg_replace('/(.)\\1+/', '$1', $totalCourt);
-        // $totalCourt = implode(', ', str_split($totalCourt));
-        // $totalCourt = preg_replace('/,([^,]*)$/', ' &$1', $totalCourt);
-
-        // $dataPembayaranDetailArr = array(
-        //     "nama_penyewa" => $pembayaranDetail[0]->name,
-        //     "tgl_penyewaan" => date("d-m-Y", strtotime($pembayaranDetail[0]->tgl_booking)),
-        //     "waktu_book" => $waktuBook,
-        //     "total_court" => $totalCourt,
-        //     "total_biaya" => $pembayaranDetail[0]->total_biaya
-        // );
-
-        // return response()->json($dataPembayaranDetailArr);
     }
 
     public function simpanBuktiPembayaran(Request $request){
