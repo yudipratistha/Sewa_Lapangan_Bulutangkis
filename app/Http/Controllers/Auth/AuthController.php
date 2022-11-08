@@ -180,7 +180,7 @@ class AuthController extends Controller
 
         $user->name = $request->nama_penyewa_lapangan;
         $user->email = $request->email_penyewa_lapangan;
-        $user->user_status = 3;
+        $user->id_role_pengguna = 4;
         $user->password = Hash::make($request->password_penyewa_lapangan);
         $user->nomor_telepon = $request->nomor_telepon_penyewa_lapangan;
         $user->save();
