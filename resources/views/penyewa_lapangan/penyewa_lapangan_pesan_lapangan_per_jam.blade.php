@@ -487,9 +487,8 @@
         );
 
         if(Object.keys(orderDataSort).length !== 0){
-
             for(let index = 0; index < Object.keys(orderDataSort).length; ++index){
-                orderDataSort[Object.keys(orderDataSort)[index]]
+                orderDataSort[Object.keys(orderDataSort)[index]][courtKey].sort(dynamicSort('court'));
                 for(let courtIndex = 0; courtIndex < Object.keys(orderDataSort[Object.keys(orderDataSort)[index]]).length; ++courtIndex){
                     var courtKey = Object.keys(orderDataSort[Object.keys(orderDataSort)[index]])[courtIndex];
                     for(let orderIndex = 0; orderIndex < orderDataSort[Object.keys(orderDataSort)[index]][courtKey].length; ++orderIndex){
