@@ -354,9 +354,11 @@
                 },
                 dataType: "json",
                 success:function(data){
+
                     $.each({!! $dataLapanganCourt !!}, function (key, value) {
+                        var openHoursData = Object.keys(data['court_'+value.nomor_court]).map(function (key) { return data['court_'+value.nomor_court][key]; });
                         $('#table-court-'+value.nomor_court).DataTable().clear().draw();
-                        $('#table-court-'+value.nomor_court).DataTable().rows.add(data['court_'+value.nomor_court]);
+                        $('#table-court-'+value.nomor_court).DataTable().rows.add(openHoursData);
                         $('#table-court-'+value.nomor_court).DataTable().columns.adjust().draw();
                     });
 

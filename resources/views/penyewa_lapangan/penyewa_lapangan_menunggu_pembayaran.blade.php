@@ -67,7 +67,7 @@
                                                         <div class="media-body">
                                                             <h6 class="f-w-600">
                                                                 {{$dataMenungguPembayaran->nama_lapangan}}
-                                                                <span class="pull-right" style="padding-top: 8px;padding-bottom: 8px;margin-right: 5px;">Bayar Sebelum <i class="icofont icofont-clock-time" style="color: #ff8b00;"></i> <p style="display: inline-block; color: #ff8b00;">{{date("d F Y, H:i", strtotime($dataMenungguPembayaran->pembayaran_created_at .'+ 10 minute'))}}</p></span>
+                                                                <span class="pull-right" style="padding-top: 8px;padding-bottom: 8px;margin-right: 5px;">Bayar Sebelum <i class="icofont icofont-clock-time" style="color: #ff8b00;"></i> <p style="display: inline-block; color: #ff8b00;">{{date("d F Y, H:i", strtotime($dataMenungguPembayaran->pembayaran_created_at .'+ 1 hour'))}}</p></span>
                                                             </h6>
                                                             <i class="fa fa-map-marker" style="margin-right: 5px;"></i><p style="display: inline-block;">{{$dataMenungguPembayaran->alamat_lapangan}}</p>
                                                         </div>

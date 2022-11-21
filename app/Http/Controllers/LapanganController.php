@@ -342,8 +342,10 @@ class LapanganController extends Controller
         $currentDate = date('d-m-Y');
 
         if($currentDate <= $request->tanggal){
-            $dataLapangan = Lapangan::select('tb_lapangan.id as lapangan_id', 'tb_lapangan.buka_dari_jam', 'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court')
-                ->find($request->idLapangan);
+            $dataLapangan = DB::table('tb_courts')->select('tb_courts.nomor_court', 'tb_lapangan.id as lapangan_id', 'tb_lapangan.buka_dari_jam', 'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court')
+                ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
+                ->where('tb_lapangan.id', $request->idLapangan)
+                ->get();
 
             $dataLapanganBooking = DB::table('tb_courts')->select('tb_booking.tgl_booking', 'tb_detail_booking.jam_mulai', 'tb_detail_booking.jam_selesai', 'tb_courts.nomor_court', 'tb_riwayat_status_pembayaran.status_pembayaran')
                 ->leftJoin('tb_booking', 'tb_booking.id_court', '=', 'tb_courts.id')
@@ -371,12 +373,11 @@ class LapanganController extends Controller
                 ->where('tb_courts.id_lapangan', $request->idLapangan)
                 ->get();
 
-                // dd($dataStatusLapangan);
             $dataLapanganArr = array();
-            $lapanganBuka = strtotime($dataLapangan->buka_dari_jam);
-            $lapanganTutup = strtotime($dataLapangan->buka_sampai_jam);
+            $lapanganBuka = strtotime($dataLapangan[0]->buka_dari_jam);
+            $lapanganTutup = strtotime($dataLapangan[0]->buka_sampai_jam);
 
-            for($court= 1; $court <= $dataLapangan->jumlah_court; $court++){
+            foreach($dataLapangan as $dataLapanganValue){
                 $row = 0;
                 for($dataWaktuLapangan=$lapanganBuka; $dataWaktuLapangan<$lapanganTutup; $dataWaktuLapangan+=3600) {
                     $statusPenyewa = false;
@@ -384,11 +385,11 @@ class LapanganController extends Controller
 
                     if(isset($dataLapanganBooking)){
                         foreach($dataLapanganBooking as $dataLapanganBookingKey => $dataLapanganBookingValue){
-                            if($court === $dataLapanganBookingValue->nomor_court){
-                                for($i=strtotime($dataLapanganBookingValue->jam_mulai); $i < strtotime($dataLapanganBookingValue->jam_selesai); $i+=3600){
-                                    if($waktuLapangan === date('H:i', $i) . " - ". date('H:i', $i+3600)){
-                                        $dataLapanganArr['court_'.$court][$row][] = $waktuLapangan;
-                                        $dataLapanganArr['court_'.$court][$row][] = "Booked";
+                            if($dataLapanganValue->nomor_court === $dataLapanganBookingValue->nomor_court){
+                                if(strtotime($request->tanggal.' '.$dataLapanganBookingValue->jam_mulai) > strtotime(date('d-m-Y H:i'))+10800){
+                                    if($waktuLapangan === date('H:i', strtotime($dataLapanganBookingValue->jam_mulai)) . " - ". date('H:i', strtotime($dataLapanganBookingValue->jam_selesai))){
+                                        $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $waktuLapangan;
+                                        $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = "Booked";
                                         $statusPenyewa = true;
                                     }
                                 }
@@ -396,17 +397,11 @@ class LapanganController extends Controller
                         }
                     }
                     foreach($dataStatusLapangan as $dataStatusLapanganKey => $dataStatusLapanganValue){
-                        if($court === $dataStatusLapanganValue->nomor_court){
-                            if($statusPenyewa !== true && $waktuLapangan === date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_dari)) . " - ". date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_sampai))){
-                                if($dataStatusLapanganValue->tipe_status === 'Tersedia'){
-                                    $dataLapanganArr['court_'.$court][$row][] = $waktuLapangan;
-                                    $dataLapanganArr['court_'.$court][$row][] = "Tersedia";
-                                }else if($dataStatusLapanganValue->tipe_status === 'Rusak'){
-                                    $dataLapanganArr['court_'.$court][$row][] = $waktuLapangan;
-                                    $dataLapanganArr['court_'.$court][$row][] = "Rusak";
-                                }else if($dataStatusLapanganValue->tipe_status === 'Sudah di Booking'){
-                                    $dataLapanganArr['court_'.$court][$row][] = $waktuLapangan;
-                                    $dataLapanganArr['court_'.$court][$row][] = "Sudah di Booking";
+                        if($dataLapanganValue->nomor_court === $dataStatusLapanganValue->nomor_court){
+                            if(strtotime($request->tanggal.' '.$dataLapanganBookingValue->jam_mulai) > strtotime(date('d-m-Y H:i'))+10800){
+                                if($statusPenyewa !== true && $waktuLapangan === date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_dari)) . " - ". date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_sampai))){
+                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $waktuLapangan;
+                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $dataStatusLapanganValue->tipe_status;
                                 }
                             }
                         }
@@ -522,8 +517,10 @@ class LapanganController extends Controller
         $currentDate = date('d-m-Y');
 
         if(date('Y-m-d', strtotime($currentDate)) <= date('Y-m-d', strtotime($request->tanggal))){
-            $dataLapangan = Lapangan::select('tb_lapangan.id as lapangan_id', 'tb_lapangan.buka_dari_jam', 'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court')
-                ->find($request->idLapangan);
+            $dataLapangan = DB::table('tb_courts')->select('tb_courts.nomor_court', 'tb_lapangan.id as lapangan_id', 'tb_lapangan.buka_dari_jam', 'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court')
+                ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
+                ->where('tb_lapangan.id', $request->idLapangan)
+                ->get();
 
             $dataLapanganBooking = DB::table('tb_courts')->select('tb_booking.tgl_booking', 'tb_detail_booking.jam_mulai', 'tb_detail_booking.jam_selesai', 'tb_courts.nomor_court', 'tb_riwayat_status_pembayaran.status_pembayaran')
                 ->leftJoin('tb_booking', 'tb_booking.id_court', '=', 'tb_courts.id')
@@ -561,23 +558,25 @@ class LapanganController extends Controller
                 ->first();
 
             $dataLapanganArr = array();
-            $lapanganBuka = strtotime($dataLapangan->buka_dari_jam);
-            $lapanganTutup = strtotime($dataLapangan->buka_sampai_jam);
+            $lapanganBuka = strtotime($dataLapangan[0]->buka_dari_jam);
+            $lapanganTutup = strtotime($dataLapangan[0]->buka_sampai_jam);
+            $lapanganId = $dataLapangan[0]->lapangan_id;
 
-            for($court= 1; $court <= $dataLapangan->jumlah_court; $court++){
+           foreach($dataLapangan as $dataLapanganValue){
                 $row = 0;
+
                 for($dataWaktuLapangan= $lapanganBuka; $dataWaktuLapangan < $lapanganTutup; $dataWaktuLapangan +=3600){
                     $statusPenyewa = false;
                     $waktuLapangan = date('H:i', $dataWaktuLapangan) . " - ". date('H:i', $dataWaktuLapangan +3600);
 
                     if(isset($dataLapanganBooking)){
                         foreach($dataLapanganBooking as $dataLapanganBookingKey => $dataLapanganBookingValue){
-                            if($court === $dataLapanganBookingValue->nomor_court){
-                                for($i=strtotime($dataLapanganBookingValue->jam_mulai); $i < strtotime($dataLapanganBookingValue->jam_selesai); $i+=3600){
-                                    if($waktuLapangan === date('H:i', $i) . " - ". date('H:i', $i+3600)){
-                                        $dataLapanganArr['court_'.$court][$row][] = '<input name="checkBook[]" value="" type="checkbox" style="cursor: not-allowed;" disabled>';
-                                        $dataLapanganArr['court_'.$court][$row][] = $waktuLapangan;
-                                        $dataLapanganArr['court_'.$court][$row][] = "Booked";
+                            if($dataLapanganValue->nomor_court === $dataLapanganBookingValue->nomor_court){
+                                if(strtotime($request->tanggal.' '.$dataLapanganBookingValue->jam_mulai) > strtotime(date('d-m-Y H:i'))+10800){
+                                    if($waktuLapangan === date('H:i', strtotime($dataLapanganBookingValue->jam_mulai)) . " - ". date('H:i', strtotime($dataLapanganBookingValue->jam_selesai))){
+                                        $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = '<input name="checkBook[]" value="" type="checkbox" style="cursor: not-allowed;" disabled>';
+                                        $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $waktuLapangan;
+                                        $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = "Booked";
                                         $statusPenyewa = true;
                                     }
                                 }
@@ -586,24 +585,16 @@ class LapanganController extends Controller
                     }
 
                     foreach($dataStatusLapangan as $dataStatusLapanganKey => $dataStatusLapanganValue){
-                        if($court === $dataStatusLapanganValue->nomor_court){
-                            if($statusPenyewa !== true && $waktuLapangan === date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_dari)) . " - ". date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_sampai))){
-                                if($dataStatusLapanganValue->tipe_status === 'Tersedia'){
+                        if($dataLapanganValue->nomor_court === $dataStatusLapanganValue->nomor_court){
+                            if(strtotime($request->tanggal.' '.$dataStatusLapanganValue->jam_status_berlaku_dari) > strtotime(date('d-m-Y H:i'))+10800){
+                                if($statusPenyewa !== true && $waktuLapangan === date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_dari)) . " - ". date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_sampai))){
                                     if($dataStatusLapanganValue->status_pembayaran === 'Belum Lunas' || isset($dataBookUser->status_pembayaran) && $dataBookUser->status_pembayaran === 'Belum Lunas'){
-                                        $dataLapanganArr['court_'.$court][$row][] = '<input name="checkBook[]" value="" type="checkbox" style="cursor: not-allowed;" disabled>';
+                                        $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = '<input name="checkBook[]" value="" type="checkbox" style="cursor: not-allowed;" disabled>';
                                     }else{
-                                        $dataLapanganArr['court_'.$court][$row][] = "<input name=\"checkBook[]\" value='{\"lapangan_id\":$dataLapangan->lapangan_id,\"court\":$dataStatusLapanganValue->nomor_court,\"jam\":\"$waktuLapangan\"}' type=\"checkbox\">";
+                                        $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = "<input name=\"checkBook[]\" value='{\"lapangan_id\":$lapanganId,\"court\":$dataStatusLapanganValue->nomor_court,\"jam\":\"$waktuLapangan\"}' type=\"checkbox\">";
                                     }
-                                    $dataLapanganArr['court_'.$court][$row][] = $waktuLapangan;
-                                    $dataLapanganArr['court_'.$court][$row][] = "Tersedia";
-                                }else if($dataStatusLapanganValue->tipe_status === 'Rusak'){
-                                    $dataLapanganArr['court_'.$court][$row][] = '<input name="checkBook[]" value="" type="checkbox" style="cursor: not-allowed;" disabled>';
-                                    $dataLapanganArr['court_'.$court][$row][] = $waktuLapangan;
-                                    $dataLapanganArr['court_'.$court][$row][] = "Rusak";
-                                }else if($dataStatusLapanganValue->tipe_status === 'Sudah di Booking'){
-                                    $dataLapanganArr['court_'.$court][$row][] = '<input name="checkBook[]" value="" type="checkbox" style="cursor: not-allowed;" disabled>';
-                                    $dataLapanganArr['court_'.$court][$row][] = $waktuLapangan;
-                                    $dataLapanganArr['court_'.$court][$row][] = "Sudah di Booking";
+                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $waktuLapangan;
+                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $dataStatusLapanganValue->tipe_status;
                                 }
                             }
                         }

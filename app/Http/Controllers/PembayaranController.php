@@ -101,7 +101,7 @@ class PembayaranController extends Controller
         //     $pembayaran->save();
         // }
 
-        $limitWaktuUploadBuktiTrx = date('Y-m-d H:i:s', strtotime('+10 minutes', strtotime(isset($dataMenungguPembayaran) ? $dataMenungguPembayaran->pembayaran_created_at : '')));
+        $limitWaktuUploadBuktiTrx = date('Y-m-d H:i:s', strtotime('+1 hour', strtotime(isset($dataMenungguPembayaran) ? $dataMenungguPembayaran->pembayaran_created_at : '')));
 
         return view('penyewa_lapangan.penyewa_lapangan_menunggu_pembayaran', compact('dataMenungguPembayaran', 'limitWaktuUploadBuktiTrx'));
     }
