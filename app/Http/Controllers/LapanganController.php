@@ -398,10 +398,14 @@ class LapanganController extends Controller
                     }
                     foreach($dataStatusLapangan as $dataStatusLapanganKey => $dataStatusLapanganValue){
                         if($dataLapanganValue->nomor_court === $dataStatusLapanganValue->nomor_court){
-                            if(strtotime($request->tanggal.' '.$dataLapanganBookingValue->jam_mulai) > strtotime(date('d-m-Y H:i'))+10800){
-                                if($statusPenyewa !== true && $waktuLapangan === date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_dari)) . " - ". date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_sampai))){
+
+                            if($statusPenyewa !== true && $waktuLapangan === date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_dari)) . " - ". date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_sampai))){
+                                if(strtotime($request->tanggal.' '.$dataStatusLapanganValue->jam_status_berlaku_dari) > strtotime(date('d-m-Y H:i'))+10800){
                                     $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $waktuLapangan;
                                     $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $dataStatusLapanganValue->tipe_status;
+                                }else{
+                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $waktuLapangan;
+                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = "Tidak Tersedia Melebihi Batas Waktu Booking";
                                 }
                             }
                         }
@@ -409,7 +413,6 @@ class LapanganController extends Controller
                     $row++;
                 }
             }
-
 
 
             return response()->json($dataLapanganArr);
@@ -586,8 +589,9 @@ class LapanganController extends Controller
 
                     foreach($dataStatusLapangan as $dataStatusLapanganKey => $dataStatusLapanganValue){
                         if($dataLapanganValue->nomor_court === $dataStatusLapanganValue->nomor_court){
-                            if(strtotime($request->tanggal.' '.$dataStatusLapanganValue->jam_status_berlaku_dari) > strtotime(date('d-m-Y H:i'))+10800){
-                                if($statusPenyewa !== true && $waktuLapangan === date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_dari)) . " - ". date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_sampai))){
+
+                            if($statusPenyewa !== true && $waktuLapangan === date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_dari)) . " - ". date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_sampai))){
+                                if(strtotime($request->tanggal.' '.$dataStatusLapanganValue->jam_status_berlaku_dari) > strtotime(date('d-m-Y H:i'))+10800){
                                     if($dataStatusLapanganValue->status_pembayaran === 'Belum Lunas' || isset($dataBookUser->status_pembayaran) && $dataBookUser->status_pembayaran === 'Belum Lunas'){
                                         $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = '<input name="checkBook[]" value="" type="checkbox" style="cursor: not-allowed;" disabled>';
                                     }else{
@@ -595,6 +599,10 @@ class LapanganController extends Controller
                                     }
                                     $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $waktuLapangan;
                                     $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $dataStatusLapanganValue->tipe_status;
+                                }else{
+                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = '<input name="checkBook[]" value="" type="checkbox" style="cursor: not-allowed;" disabled>';
+                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $waktuLapangan;
+                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = "Tidak Tersedia Melebihi Batas Waktu Booking";
                                 }
                             }
                         }
