@@ -94,8 +94,19 @@ class BookingController extends Controller
                     }
                 }
                 DetailBooking::insert($dataBookArr);
+                $chatIdLapangan = DB::table('tb_pengguna')->select('tb_pengguna.chat_id')
+                                    ->leftJoin('tb_lapangan', 'tb_pengguna.id', '=', 'tb_lapangan.id_pengguna')
+                                    ->where('tb_lapangan.id', $request->lapanganId)
+                                    ->get();
 
-                return response()->json('success');
+                $namaPenyewa = DB::table('tb_pengguna')->select('tb_pengguna.name')
+                                    ->where('tb_pengguna.id', Auth::user()->id)
+                                    ->get();
+                
+                DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdLapangan[0]->chat_id, 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa[0]->name .' pada tanggal '. $request->tglBooking .'. Mohon untuk diperiksa. Terima kasih!']);                    
+                
+
+                return response()->json($chatIdLapangan);
             }
 
             if(!isset($request->orderData)){
@@ -173,6 +184,16 @@ class BookingController extends Controller
                     }
                 }
                 DetailBooking::insert($dataBookArr);
+                $chatIdLapangan = DB::table('tb_pengguna')->select('tb_pengguna.chat_id')
+                                    ->leftJoin('tb_lapangan', 'tb_pengguna.id', '=', 'tb_lapangan.id_pengguna')
+                                    ->where('tb_lapangan.id', $request->lapanganId)
+                                    ->get();
+
+                $namaPenyewa = DB::table('tb_pengguna')->select('tb_pengguna.name')
+                                    ->where('tb_pengguna.id', Auth::user()->id)
+                                    ->get();
+                
+                DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdLapangan[0]->chat_id, 'Terdapat transaksi penyewaan bulanan baru atas nama '. $namaPenyewa[0]->name .'. Mohon untuk diperiksa. Terima kasih!']);
 
                 return response()->json('success');
             }
