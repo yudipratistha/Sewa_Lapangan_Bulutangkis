@@ -59,6 +59,12 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
+                                    <label>Chat Id</label>
+                                    <div class="input-group"><span class="input-group-text"><i class="icofont icofont-robot"></i></span>
+                                        <input id="chat-id" type="number" class="form-control" name="chat_id_penyewa_lapangan" placeholder="Didapatkan melalui bot Telegram" value="{{$dataUser->chat_id}}" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
                                     <button class="btn btn-primary btn-block" type="submit">Simpan</button>
                                 </div>
                             </form>
@@ -67,11 +73,28 @@
                 </div>
             </div>
         </div>
+
+        {{-- Modal tutorial bot Telegram --}}
+        
         <!-- footer start-->
         @include('layouts.footer')
+        <div class="modal fade" id="modalTutorial" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+                <div class="modal-content">
+                    <div class="modal-header text-center d-block">
+                        <h4 class="modal-title ">Tutorial Registrasi Bot Telegram</h3>
+                        <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-square btn-outline-light txt-dark" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
 
 @section('plugin_js')
 @endsection
+

@@ -144,6 +144,7 @@ Route::group(['prefix' => 'penyewa-lapangan/'], function(){
         route::post('payments/midtrans-notification', 'PaymentCallbackController@receive')->name('penyewaLapangan.midtransNotificationReceive');
 
         Route::get('edit-profil', 'ProfilController@penyewaLapanganProfil')->name('penyewaLapangan.editProfil');
+        Route::post('edit-profil', 'ProfilController@penyewaLapanganUpdateProfil')->name('penyewaLapangan.updateProfil');
 
         Route::get('riwayat-penyewaan', 'RiwayatController@penyewaLapanganRiwayatPenyewaan')->name('penyewaLapangan.riwayatPenyewaan');
         Route::post('data-riwayat-penyewaan', 'RiwayatController@getDataRiwayatPenyewaLapangan')->name('penyewaLapangan.getDataRiwayatPenyewaLapangan');

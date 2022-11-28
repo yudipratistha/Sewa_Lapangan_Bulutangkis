@@ -64,6 +64,14 @@ class ProfilController extends Controller
         $dataLapanganUpdate->titik_koordinat_lng = $request->lng_alamat_pemilik_lapangan;
         $dataLapanganUpdate->harga_per_jam = $request->harga_lapangan_per_jam;
 
+        $dataPemilikUpdate = User::find(Auth::user()->id);
+        $dataPemilikUpdate->name = $request->nama_pemilik_lapangan;
+        $dataPemilikUpdate->chat_id = $request->chat_id_pemilik_lapangan;
+        $dataPemilikUpdate->nomor_telepon = $request->nomor_telepon_pemilik_lapangan;
+
+
+        
+
         if ($request->hasFile('foto_lapangan_1')) {
             File::delete($dataLapangan->foto_lapangan_1);
 
@@ -102,6 +110,7 @@ class ProfilController extends Controller
         }
 
         $dataLapanganUpdate->save();
+        $dataPemilikUpdate->save();
 
         return response()->json('success');
     }
@@ -147,9 +156,23 @@ class ProfilController extends Controller
     }
 
     public function penyewaLapanganProfil(){
-        $dataUser = User::select('name', 'email', 'nomor_telepon')->find(Auth::user()->id);
+        $dataUser = User::select('name', 'email', 'nomor_telepon', 'chat_id')->find(Auth::user()->id);
 
         return view('penyewa_lapangan.penyewa_lapangan_profil', compact('dataUser'));
+    }
+
+    public function penyewaLapanganUpdateProfil(Request $request){
+
+        $dataPenyewaUpdate = User::find(Auth::user()->id);
+        $dataPenyewaUpdate->name = $request->nama_penyewa_lapangan;
+        $dataPenyewaUpdate->nomor_telepon = $request->nomor_telepon_penyewa_lapangan;
+        $dataPenyewaUpdate->chat_id = $request->chat_id_penyewa_lapangan;
+
+        $dataPenyewaUpdate->save();
+
+        $dataUser = User::select('name', 'email', 'nomor_telepon', 'chat_id')->find(Auth::user()->id);
+        return view('penyewa_lapangan.penyewa_lapangan_profil', compact('dataUser'));
+
     }
 
 }

@@ -177,6 +177,19 @@ class PembayaranController extends Controller
             $updateStatusPembayaran->status_pembayaran = 'Proses';
             $updateStatusPembayaran->save();
 
+            $chatIdLapangan = DB::table('tb_pengguna')->select('tb_pengguna.chat_id')
+                                    ->leftJoin('tb_lapangan', 'tb_pengguna.id', '=', 'tb_lapangan.id_pengguna')
+                                    ->leftJoin('tb_daftar_jenis_pembayaran', 'tb_lapangan.id', '=', 'tb_daftar_jenis_pembayaran.id_lapangan')
+                                    ->leftJoin('tb_pembayaran', 'tb_daftar_jenis_pembayaran.id', '=', 'tb_pembayaran.id_daftar_jenis_pembayaran')
+                                    ->where('tb_pembayaran.id', $dataPembayaran->pembayaran_id)
+                                    ->get();
+
+            $namaPenyewa = DB::table('tb_pengguna')->select('tb_pengguna.name')
+                                ->where('tb_pengguna.id', Auth::user()->id)
+                                ->get();
+            
+            DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdLapangan[0]->chat_id, 'Transaksi oleh '. $namaPenyewa[0]->name .' telah dibayar. Mohon untuk diperiksa kelengkapan pembayaran dan mengubah status. Terima kasih!']);
+
             return response()->json('success');
         }
 
@@ -196,6 +209,20 @@ class PembayaranController extends Controller
         $dataPembayaran = Pembayaran::find($request->pembayaranId);
 
         $dataPembayaran->RiwayatStatusPembayaran()->insert(['id_pembayaran' => $request->pembayaranId,'status_pembayaran' => $request->statusPembayaran]);
+
+        $chatIdPenyewa = DB::table('tb_pengguna')->select('tb_pengguna.chat_id', 'tb_lapangan.nama_lapangan')
+                                    ->leftJoin('tb_booking', 'tb_pengguna.id', '=', 'tb_booking.id_pengguna')
+                                    ->leftJoin('tb_pembayaran', 'tb_booking.id_pembayaran', '=', 'tb_pembayaran.id')
+                                    ->leftJoin('tb_courts', 'tb_booking.id_court', '=', 'tb_courts.id')
+                                    ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
+                                    ->where('tb_pembayaran.id', $request->pembayaranId)
+                                    ->get();
+
+        $namaPenyewa = DB::table('tb_pengguna')->select('tb_pengguna.name')
+                                    ->where('tb_pengguna.id', Auth::user()->id)
+                                    ->get();
+                
+        DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdPenyewa[0]->chat_id, 'Pesanan penyewaan lapangan '. $chatIdPenyewa[0]->nama_lapangan .' telah diupdate. Mohon untuk di periksa. Terima kasih!']); 
 
         return response()->json('success');
     }

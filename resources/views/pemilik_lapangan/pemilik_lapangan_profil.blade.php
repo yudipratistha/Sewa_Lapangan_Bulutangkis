@@ -73,6 +73,12 @@
                                                 </div>
                                             </div> -->
                                             <div class="form-group">
+                                                <label>Chat Id</label>
+                                                <div class="input-group"><span class="input-group-text"><i class="icofont icofont-robot"></i></span>
+                                                    <input id="chat-id" type="number" class="form-control" name="chat_id_pemilik_lapangan" placeholder="Didapatkan melalui bot Telegram" value="{{$dataProfilPemilikLapangan->user->chat_id}}" required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
                                                 <label class="form-label">Nomor Telepon</label>
                                                 <div class="input-group"><span class="input-group-text"><i class="icofont icofont-telephone"></i></span>
                                                     <input id="nomor-telepon" type="number" class="form-control" name="nomor_telepon_pemilik_lapangan" placeholder="08xxxx" value="{{$dataProfilPemilikLapangan->user->nomor_telepon}}" required>
@@ -287,7 +293,7 @@
         }).then((result) => {
         console.log("sadsa ", result.value)
             if(result.value){
-            swal.fire({title:"Perbauri Profil Lapangan Berhasil!", icon:"success"})
+            swal.fire({title:"Pembaharuan Profil Lapangan Berhasil!", icon:"success"})
             .then(function(){
                 window.location.reload();
             });
