@@ -42,6 +42,27 @@ return [
             'after_commit' => false,
         ],
 
+        'paymentConnection' => [
+            'driver' => 'database',
+            'table' => 'payment_jobs',
+            'queue' => 'paymentqueue',
+            'expire' => 90,
+        ],
+
+        'telegramBotConnection' => [
+            'driver' => 'database',
+            'table' => 'telegram_bot_jobs',
+            'queue' => 'telegrambotqueue',
+            'expire' => 90,
+        ],
+
+        'telegramSenderBotConnection' => [
+            'driver' => 'database',
+            'table' => 'telegram_sender_bot_jobs',
+            'queue' => 'telegramsenderbotqueue',
+            'expire' => 90,
+        ],
+
         'beanstalkd' => [
             'driver' => 'beanstalkd',
             'host' => 'localhost',

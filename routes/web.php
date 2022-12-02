@@ -1,9 +1,11 @@
 <?php
 
-use App\Http\Controllers\CheckVerifiedFieldController;
-use App\Http\Middleware\CheckVerifField;
-use Illuminate\Support\Facades\Route;
+use SimpleBotAPI\TelegramBot;
+use SimpleBotAPI\UpdatesHandler;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\CheckVerifField;
+use App\Http\Controllers\CheckVerifiedFieldController;
 
 
 /*
@@ -16,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
 
 Route::group(['prefix' => '/'], function(){
     Route::post('login', 'Auth\AuthController@loginPemilikLapangan');
@@ -32,6 +35,8 @@ Route::group(['prefix' => '/'], function(){
     Route::post('/password/reset', 'Auth\ResetPasswordController@reset')->name('password.update');
     Route::get('/password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
     Route::get('/password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
+
+    Route::match(['get', 'post'], '/botman', 'BotManController@handle');
 });
 
 

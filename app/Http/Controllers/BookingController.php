@@ -2,22 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Booking;
-use App\Models\DetailBooking;
-use App\Models\Lapangan;
-use App\Models\StatusLapangan;
-use App\Models\Pembayaran;
-use App\Models\RiwayatStatusPembayaran;
-
-use App\Services\Midtrans\CreateSnapTokenService;
-use App\Jobs\PembayaranLimitTimeJob;
-use App\Events\PembayaranLimitTime;
 use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Pesan;
+use App\Models\Booking;
+use App\Models\Lapangan;
+use App\Models\Pembayaran;
+use App\Jobs\TelegramBotJob;
+
 use Illuminate\Http\Request;
+use App\Models\DetailBooking;
+use App\Models\StatusLapangan;
+
+use App\Jobs\TelegramSenderBotJob;
 use Illuminate\Support\Facades\DB;
+use App\Events\PembayaranLimitTime;
+use App\Jobs\PembayaranLimitTimeJob;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
+use App\Models\RiwayatStatusPembayaran;
+use App\Services\Midtrans\CreateSnapTokenService;
 
 class BookingController extends Controller
 {
@@ -71,7 +75,7 @@ class BookingController extends Controller
                 $riwayatStatusPembayaran->status_pembayaran = 'Belum Lunas';
                 $riwayatStatusPembayaran->save();
 
-                PembayaranLimitTimeJob::dispatch($pembayaran);
+                PembayaranLimitTimeJob::dispatch($pembayaran)->onConnection('paymentConnection');
 
                 foreach($request->orderData as $orderDataDate => $orderDataCourt){
                     foreach($orderDataCourt as $courtKey => $orderDataVal){
@@ -94,17 +98,25 @@ class BookingController extends Controller
                     }
                 }
                 DetailBooking::insert($dataBookArr);
+
                 $chatIdLapangan = DB::table('tb_pengguna')->select('tb_pengguna.chat_id')
                                     ->leftJoin('tb_lapangan', 'tb_pengguna.id', '=', 'tb_lapangan.id_pengguna')
                                     ->where('tb_lapangan.id', $request->lapanganId)
-                                    ->get();
+                                    ->first();
 
                 $namaPenyewa = DB::table('tb_pengguna')->select('tb_pengguna.name')
                                     ->where('tb_pengguna.id', Auth::user()->id)
-                                    ->get();
-                
-                DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdLapangan[0]->chat_id, 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa[0]->name .' pada tanggal '. $request->tglBooking .'. Mohon untuk diperiksa. Terima kasih!']);                    
-                
+                                    ->first();
+
+                $pesan = new Pesan;
+                $pesan->chat_id = $chatIdLapangan->chat_id;
+                $pesan->pesan = 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa->name .' pada tanggal '. $request->tglBooking .'. Mohon untuk diperiksa. Terima kasih!';
+                $pesan->save();
+
+                // DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdLapangan[0]->chat_id, 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa[0]->name .' pada tanggal '. $request->tglBooking .'. Mohon untuk diperiksa. Terima kasih!']);
+
+                TelegramSenderBotJob::dispatch($pesan)->onConnection('telegramSenderBotConnection');
+
 
                 return response()->json($chatIdLapangan);
             }
@@ -192,7 +204,7 @@ class BookingController extends Controller
                 $namaPenyewa = DB::table('tb_pengguna')->select('tb_pengguna.name')
                                     ->where('tb_pengguna.id', Auth::user()->id)
                                     ->get();
-                
+
                 DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdLapangan[0]->chat_id, 'Terdapat transaksi penyewaan bulanan baru atas nama '. $namaPenyewa[0]->name .'. Mohon untuk diperiksa. Terima kasih!']);
 
                 return response()->json('success');

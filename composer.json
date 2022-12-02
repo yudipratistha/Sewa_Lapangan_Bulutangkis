@@ -6,14 +6,18 @@
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
+        "botman/botman": "^2.7",
+        "botman/driver-web": "^1.5",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^8.75",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.4",
+        "longman/telegram-bot": "^0.80.0",
         "midtrans/midtrans-php": "^2.5",
-        "longman/telegram-bot": "*"
+        "muaath5/simple-bot-api": "^5.4",
+        "westacks/telebot": "^2.0"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
