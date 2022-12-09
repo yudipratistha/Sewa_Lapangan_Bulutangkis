@@ -140,7 +140,6 @@ class BookingController extends Controller
         $errorTextPembayaran = '';
         // dd($request->orderData);
         // if(!isset($request->checkBook)) dd($request->checkBook);
-
         if($request->tglBooking >= $currentDate){
             $dataBookArr = array();
 
@@ -196,16 +195,22 @@ class BookingController extends Controller
                     }
                 }
                 DetailBooking::insert($dataBookArr);
+
                 $chatIdLapangan = DB::table('tb_pengguna')->select('tb_pengguna.chat_id')
                                     ->leftJoin('tb_lapangan', 'tb_pengguna.id', '=', 'tb_lapangan.id_pengguna')
                                     ->where('tb_lapangan.id', $request->lapanganId)
-                                    ->get();
+                                    ->first();
 
                 $namaPenyewa = DB::table('tb_pengguna')->select('tb_pengguna.name')
                                     ->where('tb_pengguna.id', Auth::user()->id)
-                                    ->get();
+                                    ->first();
 
-                DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdLapangan[0]->chat_id, 'Terdapat transaksi penyewaan bulanan baru atas nama '. $namaPenyewa[0]->name .'. Mohon untuk diperiksa. Terima kasih!']);
+                $pesan = new Pesan;
+                $pesan->chat_id = $chatIdLapangan->chat_id;
+                $pesan->pesan = 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa->name .' pada tanggal '. $request->tglBooking .'. Mohon untuk diperiksa. Terima kasih!';
+                $pesan->save();
+
+                TelegramSenderBotJob::dispatch($pesan)->onConnection('telegramSenderBotConnection');
 
                 return response()->json('success');
             }

@@ -343,7 +343,7 @@
         autoclose: true,
         onSelect: function(dateText) {
             // $('#tgl-booking').empty().append(dateText);
-            date = dateText;
+            date = dateText.split('-').reverse().join('-');
 
             $.ajax({
                 url: "{{route('penyewaLapangan.getAllDataLapangan', $dataLapangan->lapangan_id)}}",
@@ -511,7 +511,7 @@
                         bubbleSort(bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]])
 
                         if(courtStatus === true){
-                            let dateConvert = new Date(Object.keys(orderDataSort)[index].split('-')[2] + '/' + Object.keys(orderDataSort)[index].split('-')[1] + '/' + Object.keys(orderDataSort)[index].split('-')[0]);
+                            let dateConvert = new Date(Object.keys(orderDataSort)[index].split('-')[0] + '/' + Object.keys(orderDataSort)[index].split('-')[1] + '/' + Object.keys(orderDataSort)[index].split('-')[2]);
                             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 
                             $("#booking-counting").append('\

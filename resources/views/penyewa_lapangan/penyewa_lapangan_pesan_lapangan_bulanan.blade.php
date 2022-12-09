@@ -369,7 +369,7 @@
 
             if(Object.keys(orderData).length >= 30){
                 if ($.inArray(dmy, Object.keys(orderData)) != -1) {
-                    console.log(dmy+' : '+($.inArray(dmy, Object.keys(orderData))));
+                    // console.log(dmy+' : '+($.inArray(dmy, Object.keys(orderData))));
                     return [true, "","Tersedia"];
                 } else{
                     return [false,"","Limit Booking Bulanan"];
@@ -381,7 +381,7 @@
         },
         onSelect: function(dateText) {
             $('#tgl-booking').empty().append(dateText);
-            date = dateText;
+            date = dateText.split('-').reverse().join('-');
 
             $.ajax({
                 url: "{{route('penyewaLapangan.getAllDataLapangan', $dataLapangan->lapangan_id)}}",
@@ -445,11 +445,10 @@
 
             // Object.assign(orderData[date], JSON.parse($(this).val()));
             orderData[date][court].push(JSON.parse($(this).val()));
-
-            var in30Days = new Date(Object.keys(orderData)[0].split('-')[2] + '/' + Object.keys(orderData)[0].split('-')[1] + '/' + Object.keys(orderData)[0].split('-')[0]);
+            var in30Days = new Date(Object.keys(orderData)[0].split('-')[0] + '/' + Object.keys(orderData)[0].split('-')[1] + '/' + Object.keys(orderData)[0].split('-')[2]);
 
             in30Days.setDate(in30Days.getDate() + 30);
-            $("#tanggal").datepicker("option", "minDate", Object.keys(orderData)[0]);
+            $("#tanggal").datepicker("option", "minDate", Object.keys(orderData)[0].split('-')[2] + '-' + Object.keys(orderData)[0].split('-')[1] + '-' + Object.keys(orderData)[0].split('-')[0]);
             $("#tanggal").datepicker("option", "maxDate", in30Days);
 
             if(sisaDurasi === 0){
@@ -497,6 +496,7 @@
                 $('input[type="checkbox"]:not(:checked)').filter(function(){return $(this).val() !== ''}).prop('disabled', false);
                 $('input[type="checkbox"]:not(:checked)').filter(function(){return $(this).val() !== ''}).removeAttr('style');
             }
+            console.log(orderData)
             $.each({!! $dataLapanganCourt !!}, function (key, value) {
                 $('#table-court-'+value.nomor_court).children().children().children().first().removeAttr('style');
                 $('#table-court-'+value.nomor_court).children('tbody').children().find("td:first").removeAttr('style');
@@ -545,6 +545,7 @@
     function bookingCounting(){
         var courtStatus= false;
         var bookingTime = {};
+        console.log(orderData)
         const orderDataSort = Object.keys(orderData).sort().reduce((obj, key) => {
                 obj[key] = orderData[key];
                 return obj;
@@ -557,6 +558,7 @@
 
                 for(let courtIndex = 0; courtIndex < Object.keys(orderDataSort[Object.keys(orderDataSort)[index]]).length; ++courtIndex){
                     var courtKey = Object.keys(orderDataSort[Object.keys(orderDataSort)[index]])[courtIndex];
+
                     orderDataSort[Object.keys(orderDataSort)[index]][courtKey].sort(dynamicSort('court'));
                     for(let orderIndex = 0; orderIndex < orderDataSort[Object.keys(orderDataSort)[index]][courtKey].length; ++orderIndex){
                         var orderDataArr = orderDataSort[Object.keys(orderDataSort)[index]][courtKey][orderIndex];
@@ -575,7 +577,7 @@
                         bubbleSort(bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]])
 
                         if(courtStatus === true){
-                            let dateConvert = new Date(Object.keys(orderDataSort)[index].split('-')[2] + '/' + Object.keys(orderDataSort)[index].split('-')[1] + '/' + Object.keys(orderDataSort)[index].split('-')[0]);
+                            let dateConvert = new Date(Object.keys(orderDataSort)[index].split('-')[0] + '/' + Object.keys(orderDataSort)[index].split('-')[1] + '/' + Object.keys(orderDataSort)[index].split('-')[2]);
                             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 
                             $("#booking-counting").append('\
@@ -593,7 +595,7 @@
             $.each(bookingTime, function(index, value) {
                 // console.log(value);
                 $.each(value, function(bookingTimeIndex, bookingTimeValue){
-                    console.log(bookingTimeValue);
+                    // console.log(bookingTimeValue);
                         $('#booking-hour-counting-'+index).append('\
                         <div class="col-sm-12">\
                             <div class="card" style="border: 0;margin-bottom: 7px;">\
