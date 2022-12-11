@@ -107,15 +107,17 @@ class BookingController extends Controller
                 $namaPenyewa = DB::table('tb_pengguna')->select('tb_pengguna.name')
                                     ->where('tb_pengguna.id', Auth::user()->id)
                                     ->first();
+                if(isset($chatIdLapangan)){
+                    $pesan = new Pesan;
+                    $pesan->chat_id = $chatIdLapangan->chat_id;
+                    $pesan->pesan = 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa->name .' pada tanggal '. $request->tglBooking .'. Mohon untuk diperiksa. Terima kasih!';
+                    $pesan->save();
 
-                $pesan = new Pesan;
-                $pesan->chat_id = $chatIdLapangan->chat_id;
-                $pesan->pesan = 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa->name .' pada tanggal '. $request->tglBooking .'. Mohon untuk diperiksa. Terima kasih!';
-                $pesan->save();
+                    // DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdLapangan[0]->chat_id, 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa[0]->name .' pada tanggal '. $request->tglBooking .'. Mohon untuk diperiksa. Terima kasih!']);
 
-                // DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdLapangan[0]->chat_id, 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa[0]->name .' pada tanggal '. $request->tglBooking .'. Mohon untuk diperiksa. Terima kasih!']);
+                    TelegramSenderBotJob::dispatch($pesan)->onConnection('telegramSenderBotConnection');
+                }
 
-                TelegramSenderBotJob::dispatch($pesan)->onConnection('telegramSenderBotConnection');
 
 
                 return response()->json($chatIdLapangan);

@@ -448,7 +448,7 @@
             var in30Days = new Date(Object.keys(orderData)[0].split('-')[0] + '/' + Object.keys(orderData)[0].split('-')[1] + '/' + Object.keys(orderData)[0].split('-')[2]);
 
             in30Days.setDate(in30Days.getDate() + 30);
-            $("#tanggal").datepicker("option", "minDate", Object.keys(orderData)[0].split('-')[2] + '-' + Object.keys(orderData)[0].split('-')[1] + '-' + Object.keys(orderData)[0].split('-')[0]);
+            $("#tanggal").datepicker("option", "minDate", new Date(Object.keys(orderData)[0]));
             $("#tanggal").datepicker("option", "maxDate", in30Days);
 
             if(sisaDurasi === 0){
@@ -467,8 +467,8 @@
                         var courtKey = Object.keys(orderData[Object.keys(orderData)[counterDate]])[counterCourt];
                         for(let counterData = 0; counterData < orderData[Object.keys(orderData)[counterDate]][courtKey].length; ++counterData){
                             var orderDataArr = orderData[dateKey][courtKey][counterData];
-                            if(Object.keys(orderData)[counterDate] === dateKey && orderDataArr.court === orderDataCancel.court && orderDataArr.jam === orderDataCancel.jam){
-                                orderData[dateKey][courtKey].splice(counterData, 1);
+                            if(Object.keys(orderData)[counterDate] === date && orderDataArr.court === orderDataCancel.court && orderDataArr.jam === orderDataCancel.jam){
+                                orderData[date][orderDataCancel.court].splice(counterData, 1);
                             }
                         }
                         if (Object.keys(orderData[dateKey][courtKey]).length === 0) {
@@ -484,9 +484,11 @@
                 if(Object.keys(orderData).length === 0){
                     $("#tanggal").datepicker("option", "minDate", new Date());
                 }else{
-                    var in30Days = new Date(Object.keys(orderData)[0].split('-')[2] + '/' + Object.keys(orderData)[0].split('-')[1] + '/' + Object.keys(orderData)[0].split('-')[0]);
-                    in30Days.setDate(in30Days.getDate() + 30);
-                    $("#tanggal").datepicker("option", "minDate", Object.keys(orderData)[0]);
+                    var in30Days = new Date(Object.keys(orderData)[0]);
+
+                    in30Days.setDate(in30Days.getDate() + 29);
+                    console.log('test3', new Date(Object.keys(orderData)[0]));
+                    $("#tanggal").datepicker("option", "minDate", new Date(Object.keys(orderData)[0]));
                     $("#tanggal").datepicker("option", "maxDate", in30Days);
                     $('.ui-datepicker-current-day').click();
                 }
