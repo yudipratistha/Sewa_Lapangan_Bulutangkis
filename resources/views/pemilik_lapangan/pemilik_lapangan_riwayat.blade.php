@@ -67,7 +67,7 @@
                                             <th>Nama Penyewa</th>
                                             <th>Tanggal Penyewaan</th>
                                             <th>Status Pembayaran</th>
-                                            <th>Tanggal Pembayaran Lunas</th>
+                                            <th>Tanggal Pembayaran</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
