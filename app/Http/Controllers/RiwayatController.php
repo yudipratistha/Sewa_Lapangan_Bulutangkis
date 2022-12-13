@@ -67,7 +67,12 @@ class RiwayatController extends Controller
         ->groupBy('tb_pembayaran.id')
         ->get()->count();
 
-        $dataBooking = DB::table('tb_booking')->select('tb_pengguna.id AS id_pengguna', 'tb_pembayaran.id AS id_pembayaran', 'tb_pengguna.name', 'tb_booking.tgl_booking', 'tb_detail_booking.jam_mulai', 'tb_detail_booking.jam_selesai', 'tb_courts.nomor_court', 'tb_riwayat_status_pembayaran.status_pembayaran')
+        $dataBooking = DB::table('tb_booking')->select('tb_pengguna.id AS id_pengguna', 'tb_pembayaran.id AS id_pembayaran', 'tb_pengguna.name', 'tb_booking.tgl_booking', 'tb_detail_booking.jam_mulai', 'tb_detail_booking.jam_selesai', 'tb_courts.nomor_court', 'tb_riwayat_status_pembayaran.status_pembayaran',
+        DB::raw('CASE
+        WHEN tb_riwayat_status_pembayaran.status_pembayaran = "Lunas" THEN DATE_FORMAT(tb_riwayat_status_pembayaran.created_at, "%d-%m-%Y")
+        WHEN tb_riwayat_status_pembayaran.status_pembayaran = "DP" THEN DATE_FORMAT(tb_riwayat_status_pembayaran.created_at, "%d-%m-%Y")
+        ELSE NULL
+        END AS tanggal_pembayaran'))
         ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
         ->leftJoin('tb_detail_booking', 'tb_detail_booking.id_booking', '=', 'tb_booking.id')
         ->leftJoin('tb_courts', 'tb_courts.id', '=', 'tb_booking.id_court')
@@ -124,8 +129,8 @@ class RiwayatController extends Controller
 
         $totalPemasukan = DB::select('
             SELECT
-            CONCAT(DATE_FORMAT(STR_TO_DATE(CONCAT(YEARWEEK(tb_pembayaran.created_at), DAYNAME(DATE_SUB(CURRENT_DATE, INTERVAL DAYOFMONTH(CURRENT_DATE)-1 DAY))), "%X%V %W"), "%d-%m-%Y"), " - ",
-            DATE_FORMAT(STR_TO_DATE(CONCAT(YEARWEEK(tb_pembayaran.created_at), DAYNAME(DATE_SUB(CURRENT_DATE, INTERVAL DAYOFMONTH(CURRENT_DATE)-1 DAY))), "%X%V %W") + INTERVAL 6 DAY, "%d-%m-%Y")) AS weekly_start_end ,
+                CONCAT(DATE_FORMAT(FROM_DAYS(TO_DAYS(tb_pembayaran.created_at) -MOD(TO_DAYS(tb_pembayaran.created_at) -DAYOFWEEK(DATE_SUB(CURRENT_DATE, INTERVAL DAYOFMONTH(CURRENT_DATE)-1 DAY)), 7)), "%d-%m-%Y"), " - ",
+                DATE_FORMAT(FROM_DAYS(TO_DAYS(tb_pembayaran.created_at) -MOD(TO_DAYS(tb_pembayaran.created_at) -DAYOFWEEK(DATE_SUB(CURRENT_DATE, INTERVAL DAYOFMONTH(CURRENT_DATE)-1 DAY)), 7)) + INTERVAL 6 DAY, "%d-%m-%Y")) AS weekly_start_end ,
                 COUNT(tb_pembayaran.id) AS total_transaksi, SUM(tb_pembayaran.`total_biaya`) AS value
             FROM (
                 SELECT *

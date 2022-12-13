@@ -67,6 +67,7 @@
                                             <th>Nama Penyewa</th>
                                             <th>Tanggal Penyewaan</th>
                                             <th>Status Pembayaran</th>
+                                            <th>Tanggal Pembayaran Lunas</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -311,6 +312,15 @@
             { "data": "name", "orderable": true},
             { "data": "tgl_booking", "orderable": true, "width": "16%" },
             { "data": "status_pembayaran", "orderable": true, "width": "14%" },
+            { "data": "tanggal_pembayaran", "orderable": true, "width": "18%",
+                render: function (data, type, row) {
+                    if(data !== null){
+                        return data;
+                    }else{
+                        return '-';
+                    }
+                 }
+            },
             { "orderable": false, "width": "10%", "defaultContent": '\
                 <button type="button" class="btn btn-outline-primary" id="view-data-penyewaan" style="width: 37px; padding-top: 2px; padding-left: 0px; padding-right: 0px; padding-bottom: 2px; margin-right:5px;"><i class="fa fa-edit" style="font-size:20px;"></i></button>',
                 // render: function (data, type, row) { console.log(row) }
