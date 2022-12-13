@@ -195,4 +195,24 @@ class AuthController extends Controller
         return Redirect('login');
     }
 
+    public function updatePassword(Request $request){
+        $request->validate([
+            'new_password' => 'required|confirmed',
+        ],
+        [
+            'new_password.required' => 'Inputan tidak boleh kosong!',
+            'new_password.confirmed' => 'Ulangi password tidak cocok!',
+        ]);
+
+        // if(!Hash::check($request->old_password, auth()->user()->password)){
+        //     return back()->with("error", "Old Password Doesn't match!");
+        // }
+
+        User::whereId(auth()->user()->id)->update([
+            'password' => Hash::make($request->new_password)
+        ]);
+
+        return back()->with("status", "Password changed successfully!");
+    }
+
 }

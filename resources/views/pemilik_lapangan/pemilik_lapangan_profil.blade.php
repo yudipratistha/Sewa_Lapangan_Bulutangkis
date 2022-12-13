@@ -128,7 +128,8 @@
                                                 </div>
                                             </div>
                                             <div class="form-group float-end">
-                                                <button class="btn btn-primary btn-block" type="button" onclick="updateProfilLapangan()">Simpan</button>
+                                                <button class="btn btn-success btn-block" type="button" onclick="updateProfilLapangan()" style="display: inline;">Simpan</button>
+                                                <button class="btn btn-secondary" type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#modal-ganti-password" data-bs-original-title="" title="">Ubah Password</button>
                                             </div>
                                         </form>
                                     </div>
@@ -136,6 +137,40 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Change Password-->
+    <div class="modal fade" id="modal-ganti-password" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center d-block">
+                    <h4 class="modal-title ">Ganti Password</h3>
+                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="card-body">
+                    <form id="change-password">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="password-baru" class="form-label">Password Baru</label>
+                            <input name="new_password" type="password" class="form-control @error('new_password') is-invalid @enderror" id="password-baru"
+                                placeholder="Password Baru" required="">
+                            @error('new_password')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="mb-3">
+                            <label for="ulangi-password-baru" class="form-label">Ulangi Password Baru</label>
+                            <input name="new_password_confirmation" type="password" class="form-control" id="ulangi-password-baru"
+                                placeholder="Ulangi Password Baru" required="">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onClick="changePassword()" class="btn btn-success">Konfirmasi Ubah Password</button>
+                    <button type="button" class="btn btn-square btn-outline-light txt-dark" data-bs-dismiss="modal">Tutup</button>
                 </div>
             </div>
         </div>
@@ -299,6 +334,47 @@
             });
             }
         })
+    }
+
+    function changePassword(){
+        swal.fire({
+            title: "Konfirmasi Ubah Password?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Save",
+            closeOnConfirm: true,
+            preConfirm: (login) => {
+                return $.ajax({
+                    type: "POST",
+                    url: "{{route('updatePassword')}}",
+                    datatype : "json",
+                    data: $('#change-password').serialize(),
+                    success: function(data){
+
+                    },
+                    error: function(data){
+                        if(data.responseJSON.errors.new_password[0] === 'Inputan tidak boleh kosong!'){
+                            $('#password-baru').parent().children('.invalid-feedback').remove();
+                            $('#password-baru').addClass('is-invalid');
+                            $('#password-baru').after('<div class="invalid-feedback">'+data.responseJSON.errors.new_password[0]+'</div>');
+                        }
+
+                        $('#ulangi-password-baru').parent().children('.invalid-feedback').remove();
+                        $('#ulangi-password-baru').addClass('is-invalid');
+                        $('#ulangi-password-baru').after('<div class="invalid-feedback">'+data.responseJSON.errors.new_password[0]+'</div>');
+
+                        swal.fire({title:"Password Baru Gagal Tersimpan!", icon:"error", html: data.responseJSON.errors.new_password[0]});
+                    }
+                });
+            }
+        }).then((result) => {
+            if(result.value){
+                swal.fire({title:"Password Baru Berhasil Tersimpan!", icon:"success"})
+                .then(function(){
+                    window.location.reload();
+                });
+            }
+        });
     }
 </script>
 @endsection

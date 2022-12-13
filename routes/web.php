@@ -24,6 +24,7 @@ Route::group(['prefix' => '/'], function(){
     Route::post('login', 'Auth\AuthController@loginPemilikLapangan');
     Route::get('login', 'Auth\AuthController@loginForm')->name('login');
     Route::post('logout', 'Auth\AuthController@logout')->name('logout');
+    Route::post('change-password', 'Auth\AuthController@updatePassword')->name('updatePassword');
 
     Route::get('register', 'Auth\AuthController@registrationForm')->name('register');
     // Route::post('register', 'Auth\RegisterController@register');
@@ -149,7 +150,7 @@ Route::group(['prefix' => 'penyewa-lapangan/'], function(){
         route::post('payments/midtrans-notification', 'PaymentCallbackController@receive')->name('penyewaLapangan.midtransNotificationReceive');
 
         Route::get('edit-profil', 'ProfilController@penyewaLapanganProfil')->name('penyewaLapangan.editProfil');
-        Route::post('edit-profil', 'ProfilController@penyewaLapanganUpdateProfil')->name('penyewaLapangan.updateProfil');
+        Route::post('update-profil', 'ProfilController@penyewaLapanganUpdateProfil')->name('penyewaLapangan.updateProfil');
 
         Route::get('riwayat-penyewaan', 'RiwayatController@penyewaLapanganRiwayatPenyewaan')->name('penyewaLapangan.riwayatPenyewaan');
         Route::post('data-riwayat-penyewaan', 'RiwayatController@getDataRiwayatPenyewaLapangan')->name('penyewaLapangan.getDataRiwayatPenyewaLapangan');
