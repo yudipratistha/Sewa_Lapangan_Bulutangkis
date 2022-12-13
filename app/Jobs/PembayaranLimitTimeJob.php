@@ -47,10 +47,10 @@ class PembayaranLimitTimeJob implements ShouldQueue
             $timeNow  = $now->format('H:i:s');
 
             if($timeNow > $pembayaranCreated && $timeNow > $pembayaranTimeLimit){
-                echo('\n '. $pembayaranTimeLimit);
-                // $pembayaran = Pembayaran::find($this->pembayaran['id']);
-                $riwayatPembayaranStatus = new RiwayatStatusPembayaran;
-                if(!isset($pembayaran->foto_bukti_pembayaran)){
+                $pembayaranGetBukti = Pembayaran::find($this->pembayaran->id);
+
+                if(!isset($pembayaranGetBukti->foto_bukti_pembayaran)){
+                    $riwayatPembayaranStatus = new RiwayatStatusPembayaran;
                     $riwayatPembayaranStatus->id_pembayaran = $this->pembayaran['id'];
                     $riwayatPembayaranStatus->status_pembayaran = 'Batal';
                     $riwayatPembayaranStatus->save();
