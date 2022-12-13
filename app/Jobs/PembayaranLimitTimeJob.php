@@ -51,7 +51,7 @@ class PembayaranLimitTimeJob implements ShouldQueue
 
                 if(!isset($pembayaranGetBukti->foto_bukti_pembayaran)){
                     $riwayatPembayaranStatus = new RiwayatStatusPembayaran;
-                    $riwayatPembayaranStatus->id_pembayaran = $this->pembayaran['id'];
+                    $riwayatPembayaranStatus->id_pembayaran = $this->pembayaran->id;
                     $riwayatPembayaranStatus->status_pembayaran = 'Batal';
                     $riwayatPembayaranStatus->save();
                 }
