@@ -92,6 +92,8 @@ Route::group(['prefix' => 'pemilik-lapangan/'], function(){
 
         Route::get('list-payment-method', 'PembayaranController@listPaymentMethodPemilikLapangan')->name('pemilikLapangan.listPaymentMethodPemilikLapangan');
         Route::post('update-payment-method', 'PembayaranController@updatePaymentMethodPemilikLapangan')->name('pemilikLapangan.updatePaymentMethodPemilikLapangan');
+        Route::post('restore-payment-method', 'PembayaranController@restorePaymentMethodPemilikLapangan')->name('pemilikLapangan.restorePaymentMethodPemilikLapangan');
+        Route::post('destroy-payment-method', 'PembayaranController@destroyPaymentMethodPemilikLapangan')->name('pemilikLapangan.destroyPaymentMethodPemilikLapangan');
 
         Route::get('manajemen-paket-sewa-bulanan', 'LapanganController@manajemenPaketBulananPemilik')->name('pemilikLapangan.manajemenPaketBulananPemilikLapangan');
         Route::post('update-or-create-paket-sewa-bulanan', 'LapanganController@updateOrCreatePaketBulananPemilik')->name('pemilikLapangan.updateOrCreatePaketBulananPemilik');

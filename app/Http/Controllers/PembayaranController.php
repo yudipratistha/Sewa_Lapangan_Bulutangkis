@@ -29,7 +29,7 @@ class PembayaranController extends Controller
         $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
         $dataDaftarJenisPembayaranLapangan = DB::table('tb_lapangan')->select('tb_daftar_jenis_pembayaran.id AS daftar_jenis_pembayaran_id', 'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama',
-            'tb_daftar_jenis_pembayaran.no_rekening')
+            'tb_daftar_jenis_pembayaran.no_rekening', 'tb_daftar_jenis_pembayaran.status_delete')
             ->leftJoin('tb_daftar_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.id_lapangan', '=', 'tb_lapangan.id')
             ->where('tb_lapangan.id', $lapanganId->id)
             ->get();
@@ -40,17 +40,9 @@ class PembayaranController extends Controller
     public function updatePaymentMethodPemilikLapangan(Request $request){
         $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
-        $dataDaftarJenisPembayaranLapangan = DB::table('tb_daftar_jenis_pembayaran')
-            ->where('tb_daftar_jenis_pembayaran.id_lapangan', $lapanganId->id);
-        $dataDaftarJenisPembayaranLapangan->delete();
-        // dd($request->daftar_jenis_pembayaran_id);
         for($counter= 0; $counter < count($request->nama_metode_pembayaran); $counter++){
             DaftarJenisPembayaran::updateOrCreate([
-                    'tb_daftar_jenis_pembayaran.id' => isset($request->daftar_jenis_pembayaran_id[$counter]) ? $request->daftar_jenis_pembayaran_id[$counter] : 0,
-                    'id_lapangan' => $lapanganId->id,
-                    'nama_jenis_pembayaran' => $request->nama_metode_pembayaran[$counter],
-                    'atas_nama' => $request->atas_nama[$counter],
-                    'no_rekening' => $request->no_rek_virtual_account[$counter]
+                    'id' => isset($request->jenis_pembayaran_metode_id[$counter]) ? $request->jenis_pembayaran_metode_id[$counter] : null,
                 ],[
                     'id_lapangan' => $lapanganId->id,
                     'nama_jenis_pembayaran' => $request->nama_metode_pembayaran[$counter],
@@ -58,10 +50,26 @@ class PembayaranController extends Controller
                     'no_rekening' => $request->no_rek_virtual_account[$counter]
                 ]
             );
-
         }
         return response()->json('success');
+    }
 
+    public function restorePaymentMethodPemilikLapangan(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        DaftarJenisPembayaran::where('tb_daftar_jenis_pembayaran.id', $request->data_payment_method_id)
+        ->where('tb_daftar_jenis_pembayaran.id_lapangan', $lapanganId->id)->update(['status_delete' => 0]);
+
+        return response()->json('success');
+    }
+
+    public function destroyPaymentMethodPemilikLapangan(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        DaftarJenisPembayaran::where('tb_daftar_jenis_pembayaran.id', $request->data_payment_method_id)
+        ->where('tb_daftar_jenis_pembayaran.id_lapangan', $lapanganId->id)->update(['status_delete' => 1]);
+
+        return response()->json('success');
     }
 
     public function getDaftarJenisPembayaran($idLapangan){
@@ -190,7 +198,7 @@ class PembayaranController extends Controller
             // $namaPenyewa = DB::table('tb_pengguna')->select('tb_pengguna.name')
             //                     ->where('tb_pengguna.id', Auth::user()->id)
             //                     ->get();
-            
+
             // DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdLapangan[0]->chat_id, 'Transaksi oleh '. $namaPenyewa[0]->name .' telah dibayar. Mohon untuk diperiksa kelengkapan pembayaran dan mengubah status. Terima kasih!']);
 
             // $chatIdLapangan = DB::table('tb_pengguna')->select('tb_pengguna.chat_id')
@@ -253,8 +261,8 @@ class PembayaranController extends Controller
 
             TelegramSenderBotJob::dispatch($pesan)->onConnection('telegramSenderBotConnection');
         }
-                
-        // DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdPenyewa[0]->chat_id, 'Pesanan penyewaan lapangan '. $chatIdPenyewa[0]->nama_lapangan .' telah diupdate. Mohon untuk di periksa. Terima kasih!']); 
+
+        // DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdPenyewa[0]->chat_id, 'Pesanan penyewaan lapangan '. $chatIdPenyewa[0]->nama_lapangan .' telah diupdate. Mohon untuk di periksa. Terima kasih!']);
 
         return response()->json('success');
     }

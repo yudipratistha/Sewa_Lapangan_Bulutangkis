@@ -38,6 +38,6 @@ class TelegramSenderBotJob implements ShouldQueue
         file_get_contents($sendto);
         echo "Message was sent to ".$pesan->chat_id."\n";
 
-        Pesan::where('id', $pesan->id)->update(['updated_at' => date('Y-m-d H:i:s')]);
+        Pesan::where('id', $pesan->id)->update(['status_pesan' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
     }
 }
