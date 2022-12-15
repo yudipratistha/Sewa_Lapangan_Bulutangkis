@@ -109,8 +109,6 @@ class LapanganController extends Controller
                 $query->where('tb_status_verifikasi_lapangan.status_verifikasi', 'disetujui');
             }
         })
-        ->skip($start)
-        ->take($rowperpage)
         ->get()->count();
 
         $daftarLapangan = DB::table('tb_lapangan')->select('tb_lapangan.id AS lapangan_id', 'tb_lapangan.nama_lapangan', 'tb_pengguna.name AS nama_pemilik_lapangan',
