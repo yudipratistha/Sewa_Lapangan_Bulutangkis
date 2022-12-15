@@ -162,8 +162,8 @@
                 <div class="col-sm-12">
                     <div class="card pilih-pembayaran-card" style="border: 0;">
                         <div class="card-header pt-2 pb-2 mb-3" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
-                            <h5>Lapangan Bulu Tangkis Pak Tomo</h5>
-                            <i class="fa fa-map-marker" style="margin-right: 5px;"></i><p style="display: inline-block;">Jl. Bung Tomo 1</p>
+                            <h5>{{$dataLapangan->nama_lapangan}}</h5>
+                            <i class="fa fa-map-marker" style="margin-right: 5px;"></i><p style="display: inline-block;">{{$dataLapangan->alamat_lapangan}}</p>
                         </div>
                         <div class="card-body" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
                             <h6 class="mb-0">Jadwal Booking</h6>
