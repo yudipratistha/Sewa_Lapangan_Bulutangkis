@@ -774,4 +774,65 @@ class LapanganController extends Controller
 
         StatusCourt::insert($statusCourtArr);
     }
+
+    public function pemilikLapanganHargaPromo(){
+        return view('pemilik_lapangan.pemilik_lapangan_harga_promo');
+    }
+
+    public function pemilikLapanganGetHargaPromo(){
+
+    }
+
+    public function pemilikLapanganAddHargaPromo(){
+
+    }
+
+    public function pemilikLapanganUpdateHargaPromo(){
+
+    }
+
+    public function pemilikLapanganDeleteHargaPromo(){
+
+    }
+
+    public function pemilikLapanganHargaNormal(){
+        return view('pemilik_lapangan.pemilik_lapangan_harga_normal');
+    }
+
+    public function pemilikLapanganGetHargaNormal(){
+
+    }
+
+    public function pemilikLapanganAddHargaNormal(){
+
+    }
+
+    public function pemilikLapanganUpdateHargaNormal(){
+
+    }
+
+    public function pemilikLapanganDeleteHargaNormal(){
+
+    }
+
+    public function pemilikLapanganManajemenLiburLapangan(){
+        return view('pemilik_lapangan.pemilik_lapangan_manajemen_libur_lapangan');
+
+    }
+
+    public function pemilikLapanganGetManajemenLiburLapangan(){
+
+    }
+
+    public function pemilikLapanganAddManajemenLiburLapangan(){
+
+    }
+
+    public function pemilikLapanganUpdateManajemenLiburLapangan(){
+
+    }
+
+    public function pemilikLapanganDeleteManajemenLiburLapangan(){
+
+    }
 }

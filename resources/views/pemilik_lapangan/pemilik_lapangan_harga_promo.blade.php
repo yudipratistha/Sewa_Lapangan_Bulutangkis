@@ -1,26 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Pemilik Lapangan Dashboard')
+@section('title', 'Riwayat Penyewaan')
 
 @section('plugin_css')
-<link rel="stylesheet" type="text/css" href="{{url('/assets/css/jquery-ui.css')}}">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/sweetalert2.css')}}">
 <link rel="stylesheet" type="text/css" href="{{url('/assets/css/datatables.css')}}">
-<link rel="stylesheet" type="text/css" href="{{url('/assets/css/photoswipe.css')}}">
-
-<style>
-.nav-tabs {
-    white-space: nowrap !important;
-    flex-wrap: nowrap !important;
-    max-width: 85% !important;
-    overflow-x: scroll !important;
-    overflow-y: hidden !important;
-    -webkit-overflow-scrolling: touch !important;
-}
-.nav-item>li {
-    display: inline-block !important;
-}
-</style>
 @endsection
 
 @section('content')
@@ -38,57 +23,43 @@
             <!-- Container-fluid starts-->
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col-sm-6 mb-3">
-                        <h3 class="pull-left">Dashboard Pemilik Lapangan</h3>
+                    <div class="col-sm-6">
+                        <h3>Riwayat Penyewaan</h3>
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="" data-bs-original-title="" title="">Home</a></li>
+                            <li class="breadcrumb-item active">Manajemen Harga Promo</li>
+                        </ol>
                     </div>
-                    <div class="card">
-                        <div class="col-md-12 card-header row pb-0 pe-0">
-                            <div class="col-md-4 mb-3 mt-0 row g-3">
-                                <label class="col-md-3 mt-2 col-form-label">Pilih Tanggal</label>
-                                <div class="col-md-9 mt-2">
+                    <div class="card" style="margin-bottom: 10px;">
+                        <div class="card-body">
+                            <div class="mb-3 row g-3">
+                                <label class="col-xl-1 col-sm-3 col-lg-1 col-form-label">Pilih Tanggal</label>
+                                <div class="col-xl-3 col-sm-5 col-lg-7">
                                     <div class="input-group date">
-                                        <input class="form-control digits" id="tanggal" name="tanggal" type="text" placeholder="dd-mm-yyyy" readonly>
+                                        <input class="form-control digits" id="filter-tanggal" name="filterTanggal" type="text" autocomplete="off">
                                         <div class="input-group-text"><i class="fa fa-calendar"> </i></div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-8">
-                                <ul class="pull-right nav nav-tabs border-tab nav-success" id="top-tabdanger" role="tablist">
-                                    @foreach ($dataLapangan as $dataLapanganValue)
-                                        <li class="nav-item"><a class="nav-link @if($dataLapanganValue->nomor_court === 1) active @endif" id="top-home-danger" data-bs-toggle="tab" href="#court-{{$dataLapanganValue->nomor_court}}" role="tab" aria-controls="top-homedanger" aria-selected="true"><i class="icofont icofont-badminton-birdie"></i>Court {{$dataLapanganValue->nomor_court}}</a>
-                                            <div class="material-border"></div>
-                                        </li>
-                                    @endforeach
-                                    {{-- @for ($court= 1; $court <= $dataLapangan[0]->jumlah_court; $court++)
-                                        <li class="nav-item"><a class="nav-link @if($court === 1) active @endif" id="top-home-danger" data-bs-toggle="tab" href="#court-{{$court}}" role="tab" aria-controls="top-homedanger" aria-selected="true"><i class="icofont icofont-badminton-birdie"></i>Court {{$court}}</a>
-                                            <div class="material-border"></div>
-                                        </li>
-                                    @endfor --}}
-                                </ul>
-                            </div>
                         </div>
+                    </div>
+                    <div class="card">
                         <div class="card-body">
-                            <div class="tabbed-card">
-
-                                <div class="tab-content" id="top-tabContentdanger">
-                                    @for ($court= 1; $court <= $dataLapangan[0]->jumlah_court; $court++)
-                                        <div class="tab-pane fade @if($court === 1) active show @endif" id="court-{{$court}}" role="tabpanel" aria-labelledby="top-home-tab">
-                                            <div class="table-responsive">
-                                                <table class="display datatables hover-table-admin" id="table-court-{{$court}}">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Jam</th>
-                                                            <th>Penyewa</th>
-                                                            <th>Status</th>
-                                                            <th>Action</th>
-                                                        </tr>
-                                                    </thead>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    @endfor
-                                </div>
+                        <div id="length-data-riwayat-penyewa" class="dataTables_wrapper"></div>
+                            <div class="table-responsive">
+                                <table class="display datatables" id="data-riwayat-penyewa">
+                                    <thead>
+                                        <tr>
+                                            <th>No.</th>
+                                            <th>Harga</th>
+                                            <th>Tanggal Berlaku</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                </table>
                             </div>
+                            <div id="pagination-data-riwayat-penyewa" class="dataTables_wrapper"></div>
                         </div>
                     </div>
                 </div>
@@ -100,54 +71,12 @@
     </div>
 </div>
 
-<!-- Modal Edit Court-->
-<div class="modal fade" id="edit-court-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Edit Court</h3>
-                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form class="theme-form" id="editCourt" action="" method="POST">
-                @csrf
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label class="form-label" for="edit-court-status">Status</label>
-                                <div class="input-group"><span class="input-group-text"><i class="icofont icofont-tick-mark"></i></span>
-                                    <select class="form-select" id="edit-court-status" name="edit_court_status" required="">
-                                        <option selected="" disabled="" value="">Pilih Status...</option>
-                                        @foreach ($dataTipeStatusCourt as $tipeStatusCourt)
-                                            <option value="{{ $tipeStatusCourt->tipe_status_court_id }}">{{ $tipeStatusCourt->tipe_status }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group" id="job-description-div">
-                                <label class="form-label">Alasan</label>
-                                <div class="input-group"><span class="input-group-text"><i class="icofont icofont-pencil-alt-5"></i></span>
-                                    <textarea class="form-control" id="edit-court-alasan" name="edit_court_alasan" rows="2"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-square btn-outline-light txt-dark" data-bs-dismiss="modal">Close</button>
-                    <button type="button" id="update-court-button" class="btn btn-square btn-outline-secondary">Save</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 <!-- Modal Data Profil Penyewa-->
 <div class="modal fade" id="data-profil-penyewa-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
-            <div class="modal-header text-center d-block">
-                <h3 class="modal-title">Rincian Penyewaan</h3>
+            <div class="modal-header">
+                <h3 class="modal-title">Data Profil Penyewa</h3>
                 <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="card-body">
@@ -281,41 +210,15 @@
 @endsection
 
 @section('plugin_js')
-<script src="{{url('/assets/js/datepicker/date-picker-jquery-ui/jquery-ui.js')}}"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script src="{{url('/assets/js/sweet-alert/sweetalert.min.js')}}"></script>
 <script src="{{url('/assets/js/datatable/datatables/jquery.dataTables.min.js')}}"></script>
-<script src="{{url('/assets/js/datepicker/date-time-picker/moment.min.js')}}"></script>
-<script src="{{url('/assets/js/photoswipe/photoswipe.min.js')}}"></script>
-<script src="{{url('/assets/js/photoswipe/photoswipe-ui-default.min.js')}}"></script>
-<script src="{{url('/assets/js/photoswipe/photoswipe.js')}}"></script>
 
 <script>
-    $( document ).ready(function() {
-        if(location.search !== ''){
-            var params = new URLSearchParams(window.location.search);
-
-            $('a[href="#court-'+params.get('court')+'"]').tab('show');
-            $('#tanggal').datepicker("setDate", new Date(params.get('tanggalSewa'))).trigger('click');
-            $('.ui-datepicker-current-day').click();
-            getPenyewa(params.get('penggunaPenyewaId'), params.get('court'), params.get('pembayaranId'))
-
-            if (location.href.includes('?')) {
-                history.pushState({}, null, location.href.split('?')[0]);
-            }
-        }
-    });
-
-    $.each({!! $dataLapangan !!}, function (key, value) {
-        $("#table-court-"+value.nomor_court).dataTable({
-            "columns": [
-                { "orderable": true, "width": "10%" },
-                null,
-                { "orderable": false, "width": "16%" },
-                { "orderable": false, "width": "13%" },
-
-            ],
-        });
-    });
+    var filterDateStart;
+    var filterDateEnd;
+    var filterTrx;
 
     $('body').on('hidden.bs.modal', '.modal', function () {
         $('#data-profil-penyewa-modal').find('.modal-footer').children('button').slice(-2).remove();
@@ -325,61 +228,126 @@
         }
     });
 
-    var date;
-
-    $('#tanggal').datepicker({
-        dateFormat: 'dd-mm-yy',
-        minDate: new Date(),
-        autoclose: true,
-        onSelect: function(dateText) {
-            $('#tgl-booking').empty().append(dateText);
-            date = dateText;
-            console.log('tess')
-            $.ajax({
-                url: "{{route('pemilikLapangan.getDataLapanganPemilik', $dataLapangan[0]->lapangan_id)}}",
-                method: "POST",
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "tanggal" : date
-                },
-                dataType: "json",
-                success:function(data){
-                    $.each({!! $dataLapangan !!}, function (key, value) {
-                        $('#table-court-'+value.nomor_court).DataTable().clear().draw();
-                        $('#table-court-'+value.nomor_court).DataTable().rows.add(data['court_'+value.nomor_court]);
-                        $('#table-court-'+value.nomor_court).DataTable().columns.adjust().draw();
-                    });
-                },
-                error: function(xhr, ajaxOptions, thrownError){
-                    console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
-                }
-            });
-            return $('#tanggal').trigger('change');
+    $('#filter-tanggal').daterangepicker({
+        autoUpdateInput: false,
+        // maxDate: moment(),
+        ranges: {
+            'Today': [moment(), moment()],
+            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'This Month': [moment().startOf('month'), moment().endOf('month')],
+            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        },
+        "alwaysShowCalendars": true,
+        locale: {
+            format: 'DD-MM-YYYY',
+            cancelLabel: 'Clear'
         }
-    }).datepicker('setDate', new Date());
-    $('.ui-datepicker-current-day').click();
-
-    $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-        $.fn.dataTable.tables({ visible: true, api: true}).columns.adjust();
     });
 
-    function getPenyewa(penggunaPenyewaId, court, pembayaranId){
-        link = "{{route('pemilikLapangan.getPenyewaProfil', [':penggunaPenyewaId',':date', ':pembayaranId'])}}";
-        link = link.replace(":penggunaPenyewaId", penggunaPenyewaId);
-        link = link.replace(":date", date);
-        link = link.replace(":pembayaranId", pembayaranId);
-        $.ajax({
-            url: link,
-            method: "GET",
-            dataType: 'json',
-            success: function(data){
-                bookingCounting(data)
+    $(".filter-status").click(function() {
+        if($(this).hasClass('reset-filter')){
+            filterDateStart= null;
+            filterDateEnd= null;
+            filterTrx = null;
+
+            $('#filter-tanggal').val('');
+            $('#filter-tanggal').data('daterangepicker').setStartDate(moment().format("DD-MM-YYYY"));
+            $('#filter-tanggal').data('daterangepicker').setEndDate(moment().format("DD-MM-YYYY"));
+
+            $('.btn-showcase').find('.active').removeClass('active');
+            $("#filter-semua").addClass('active');
+
+            $('#data-riwayat-penyewa').DataTable().ajax.reload();
+        }else{
+            $('.btn-showcase').find('.active').removeClass('active');
+            $(this).addClass('active');
+            filterTrx = $(this).val();
+            console.log(filterTrx)
+            $('#data-riwayat-penyewa').DataTable().ajax.reload();
+        }
+    });
+
+    var table = $('#data-riwayat-penyewa').DataTable({
+        bFilter: true,
+        processing: true,
+        serverSide: true,
+        // scrollY: true,
+        // scrollX: true,
+        // paging: true,
+        // searching: { "regex": true },
+        preDrawCallback: function(settings) {
+            api = new $.fn.dataTable.Api(settings);
+        },
+        ajax: {
+            type: "POST",
+            url: "",
+            dataType: "json",
+            contentType: 'application/json',
+            data: function (data) {
+                var form = {};
+                // Add options used by Datatables
+                var info = { "_token": "{{ csrf_token() }}", "start": api.page.info().start, "length": api.page.info().length, "draw": api.page.info().draw, "filterTanggalStart" : filterDateStart, "filterTanggalEnd" : filterDateEnd, "filterStatusTrx": filterTrx };
+                $.extend(form, info);
+                return JSON.stringify(form);
             },
-            error: function(data){
-                console.log("asdsad", data)
-            }
+        },
+        "columns": [
+            { "defaultContent": "", "orderable": true, "width": "7%", render: function (data, type, row, meta){ return meta.row + meta.settings._iDisplayStart + 1; } },
+            { "data": "name", "orderable": true},
+            { "data": "tgl_booking", "orderable": true, "width": "16%" },
+            { "data": "status_pembayaran", "orderable": true, "width": "14%" },
+            { "data": "tanggal_pembayaran", "orderable": true, "width": "18%",
+                render: function (data, type, row) {
+                    if(data !== null){
+                        return data;
+                    }else{
+                        return '-';
+                    }
+                 }
+            },
+            { "orderable": false, "width": "10%", "defaultContent": '\
+                <button type="button" class="btn btn-outline-primary" id="view-data-penyewaan" style="width: 37px; padding-top: 2px; padding-left: 0px; padding-right: 0px; padding-bottom: 2px; margin-right:5px;"><i class="fa fa-edit" style="font-size:20px;"></i></button>',
+                // render: function (data, type, row) { console.log(row) }
+            },
+        ],
+        order: [[ 0, "asc" ]],
+        initComplete:function( settings, json){
+            $('#data-riwayat-penyewa_length').appendTo('#length-data-riwayat-penyewa');
+            $('#data-riwayat-penyewa_filter').appendTo('#length-data-riwayat-penyewa');
+            $('#data-riwayat-penyewa_info').appendTo('#pagination-data-riwayat-penyewa');
+            $('#data-riwayat-penyewa_paginate').appendTo('#pagination-data-riwayat-penyewa');
+            $('#data-riwayat-penyewa tbody').on('click', "#view-data-penyewaan", function() {
+                let row = $(this).parents('tr')[0];
+                console.log(table.row(row).data().id_pengguna);
+
+                link = "";
+                // link = link.replace(":penggunaPenyewaId", table.row(row).data().id_pengguna);
+                // link = link.replace(":date", table.row(row).data().tgl_booking);
+                // link = link.replace(":pembayaranId", table.row(row).data().id_pembayaran);
+                $.ajax({
+                    url: link,
+                    method: "GET",
+                    dataType: 'json',
+                    success: function(data){
+                        bookingCounting(data)
+                    },
+                    error: function(data){
+                        console.log("asdsad", data)
+                    }
+                });
+                // $('#view-data-penyewa').modal('show');
+            });
+        }
+    });
+    table.on('order.dt search.dt', function () {
+        let i = 1;
+
+        table.cells(null, 0, { search: 'applied', order: 'applied' }).every(function (cell) {
+            this.data(i++);
         });
-    }
+    }).draw();
 
     const formatter = new Intl.NumberFormat('id', {
         style: 'currency',
@@ -492,72 +460,25 @@
         }
     }
 
-    function editCourt(idLapangan, status_court_id, waktuLapangan){
+    $('#filter-tanggal').on('apply.daterangepicker', function(ev, picker) {
+        // $('#data-riwayat-penyewa').DataTable().destroy();
+        $(this).val(picker.startDate.format('DD-MM-YYYY') + ' - ' + picker.endDate.format('DD-MM-YYYY'));
+        filterDateStart= picker.startDate.format('DD-MM-YYYY');
+        filterDateEnd= picker.endDate.format('DD-MM-YYYY');
 
-        link = "{{route('pemilikLapangan.statusCourtLapanganStatus', [':idLapangan',':status_court_id'])}}";
-        link = link.replace(":idLapangan", idLapangan);
-        link = link.replace(":status_court_id", status_court_id);
-        $.ajax({
-            url: link,
-            method: "GET",
-            dataType: 'json',
-            success: function(data){
-                console.log(data)
-                data.forEach(function(item, index){
+        $('#data-riwayat-penyewa').DataTable().ajax.reload();
+    });
 
-                    var jamStatusBerlaku = item.jam_status_berlaku_dari.split(':');
-                    var waktuLapanganSplit = waktuLapangan.split(' - ');
-                    if(waktuLapanganSplit[0] === jamStatusBerlaku[0]+":"+jamStatusBerlaku[1]){
+    $('#filter-tanggal').on('cancel.daterangepicker', function(ev, picker) {
+        filterDateStart= null;
+        filterDateEnd= null;
 
-                        $('#edit-court-status').find('option').removeAttr('selected');
-                        $('#edit-court-status').find('option[value="'+item.tipe_status+'"]').prop('selected',true);
-                        $('#edit-court-alasan').val(item.detail_status);
-                        $('#update-court-button').attr("onclick", "updateCourt("+item.status_court_id+")");
-                    }
-                });
-                $('#edit-court-modal').modal('show');
-            },
-            error: function(data){
-                console.log("asdsad", data);
-            }
-        });
-    }
-
-    function updateCourt(status_court_id){
-        link = "{{route('pemilikLapangan.updateCourtLapanganStatus', ':id')}}";
-        link = link.replace(':id', status_court_id);
-
-		swal.fire({
-			title: "Edit Court?",
-			text: "Court will be edited on court list!",
-			icon: "warning",
-			showCancelButton: true,
-			// confirmButtonClass: "btn-danger",
-			confirmButtonText: "Save",
-            closeOnConfirm: true,
-            preConfirm: (login) => {
-                return $.ajax({
-                    type: "POST",
-                    url: link,
-                    datatype : "json",
-                    data: $("#editCourt").serialize() + "&lapangan_id={{ $dataLapangan[0]->lapangan_id }}",
-                    success: function(data){
-
-                    },
-                    error: function(data){
-                        swal.fire({title:"Ticket Failed to Approved!", text:"This ticket was not approved successfully", icon:"error"});
-                    }
-                });
-            }
-		}).then((result) => {
-            if(result.value){
-                swal.fire({title:"Ticket Approved!", text:"This ticket has been approved on tickets list", icon:"success"})
-                .then(function(){
-                    window.location.href = "";
-                });
-            }
-        });
-    }
+        $(this).val('');
+        $(this).data('daterangepicker').setStartDate(moment().format("DD-MM-YYYY")); //date now
+        $(this).data('daterangepicker').setEndDate(moment().format("DD-MM-YYYY"));//date
+        $(this).data('daterangepicker').show();
+        $('#data-riwayat-penyewa').DataTable().ajax.reload();
+    });
 
     function terimaPenyewaan(pembayaranId){
         if($("#update-status-pembayaran").val() === 'Batal' || $("#update-status-pembayaran").val() === null){
@@ -569,8 +490,8 @@
             $("#error-msg-update-status-pembayaran").remove();
             $("#update-status-pembayaran").addClass("is-valid");
 
-            link = "{{route('pemilikLapangan.updateStatusPembayaran', ':id')}}";
-            link = link.replace(':id', pembayaranId);
+            link = "";
+            // link = link.replace(':id', pembayaranId);
 
             swal.fire({
                 title: "Terima Penyewaan?",
@@ -606,53 +527,5 @@
         console.log($("#update-status-pembayaran").val())
     }
 
-    function tolakPenyewaan(pembayaranId){
-        if($("#update-status-pembayaran").val() === 'Lunas' || $("#update-status-pembayaran").val() === 'DP'){
-            $("#error-msg-update-status-pembayaran").remove();
-            $("#update-status-pembayaran").addClass("is-invalid");
-            $('#update-status-pembayaran-div').append('<div id="error-msg-update-status-pembayaran" class="text-danger">Update status tolak pesanan, hanya bisa dipilih "Batal".</div>');
-        }else{
-            $("#update-status-pembayaran").removeClass("is-invalid");
-            $("#error-msg-update-status-pembayaran").remove();
-            $("#update-status-pembayaran").addClass("is-valid");
-            // $("#update-status-pembayaran").val("Batal").change();
-
-            link = "{{route('pemilikLapangan.updateStatusPembayaran', ':id')}}";
-            link = link.replace(':id', pembayaranId);
-
-            swal.fire({
-                title: "Tolak Penyewaan?",
-                text: "Status pembayaran penyewa akan diperbaharui!",
-                icon: "warning",
-                showCancelButton: true,
-                // confirmButtonClass: "btn-danger",
-                confirmButtonText: "Save",
-                closeOnConfirm: true,
-                preConfirm: (login) => {
-                    return $.ajax({
-                        type: "POST",
-                        url: link,
-                        datatype : "json",
-                        data: {'pembayaranId':pembayaranId, "_token": "{{ csrf_token() }}", 'statusPembayaran': $("#update-status-pembayaran").val()},
-                        success: function(data){
-
-                        },
-                        error: function(data){
-                            swal.fire({title:"Tolak Penyewaan Gagal!", text:"Tolak penyewaan gagal di proses.", icon:"error"});
-                        }
-                    });
-                }
-            }).then((result) => {
-                if(result.value){
-                    swal.fire({title:"Tolak Penyewaan Berhasil!", text:"Status penyewaan telah berhasil di perbarui.", icon:"success"})
-                    .then(function(){
-                        window.location.href = "";
-                    });
-                }
-            });
-        }
-
-    }
 </script>
-
 @endsection

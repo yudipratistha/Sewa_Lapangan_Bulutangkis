@@ -31,7 +31,7 @@ class BookingController extends Controller
     }
 
     public function storeBookingLapanganPerJam(Request $request){
-        $currentDate = date('d-m-Y');
+        $currentDate = date('Y-m-d');
         $errorTextJamBooking = '';
         $errorTextPembayaran = '';
         $totalOrder = 0;

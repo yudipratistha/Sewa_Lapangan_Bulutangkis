@@ -41,7 +41,11 @@
                         <li><a href="{{route('pemilikLapangan.courts')}}">Edit Courts</a></li>
                         <li><a href="{{route('pemilikLapangan.editWaktuOperasionalLapangan')}}">Edit Waktu Operasional</a></li>
                         <li><a href="{{route('pemilikLapangan.listPaymentMethodPemilikLapangan')}}">Daftar Metode Pembayaran</a></li>
+                        <li><a href="{{route('pemilikLapangan.listPaymentMethodPemilikLapangan')}}">Edit Limit Waktu Sewa Lapangan</a></li>
                         <li><a href="{{route('pemilikLapangan.manajemenPaketBulananPemilikLapangan')}}">Manajemen Paket Bulanan</a></li>
+                        <li><a href="{{route('pemilikLapangan.hargaPromo')}}">Manajemen Harga Sewa Promo</a></li>
+                        <li><a href="{{route('pemilikLapangan.hargaNormal')}}">Manajemen Harga Sewa Normal</a></li>
+                        <li><a href="{{route('pemilikLapangan.manajemenLiburLapangan')}}">Manajemen Tanggal Libur Lapangan</a></li>
                       </ul>
                     </li>
                     <li class="dropdown "><a class="nav-link menu-title {{ isset($activeMenu) ? 'active' : '' }}" href="javascript:void(0)"><i class="icofont icofont-history" style="margin-right: 15px;vertical-align: bottom;float: none;margin-left: -3px;font-size: 21px;"></i><span>Reports</span></a>

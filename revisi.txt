@@ -1,0 +1,14 @@
+- lapangan hari libur per tanggal.
+
+- batas limit booking unlimited sebelumnya 3 bln.
+
+-manajemen menu harga lapangan
+- harga promo.
+- harga permanent.
+
+- notifikasi pembayaran
+- peringatan tiap 15 menit terakhir kirim notif.
+
+-link buat buka modal untuk penyewa lapangan di chat bot.
+
+
