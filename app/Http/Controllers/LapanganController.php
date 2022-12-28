@@ -464,7 +464,7 @@ class LapanganController extends Controller
     }
 
     public function pesanLapanganPerJam($idLapangan){
-        $dataLapangan = DB::table('tb_courts')->select('tb_lapangan.id as lapangan_id', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.jumlah_court','tb_lapangan.harga_per_jam',
+        $dataLapangan = DB::table('tb_courts')->select('tb_lapangan.id as lapangan_id', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.jumlah_court',
             'tb_riwayat_status_pembayaran.status_pembayaran')
             ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
             ->leftJoin('tb_booking', 'tb_booking.id_court', '=', 'tb_courts.id')
@@ -512,6 +512,31 @@ class LapanganController extends Controller
         // }
 
         return view('penyewa_lapangan.penyewa_lapangan_pesan_lapangan_per_jam', compact('idLapangan', 'dataLapangan', 'dataLapanganCourt', 'dataBookUser', 'dataDaftarJenisPembayaranLapangan'));
+    }
+
+    public function getHargaPerjam(Request $request){
+        $currentDate = date('d-m-Y');
+
+        if(date('Y-m-d', strtotime($currentDate)) <= date('Y-m-d', strtotime($request->tanggal))){
+            $hargaLapanganPerJamNormal = DB::table('tb_harga_sewa_perjam_normal')->select('tb_harga_sewa_perjam_normal.harga_normal AS harga_perjam')
+                ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_harga_sewa_perjam_normal.id_lapangan')
+                ->where('tb_lapangan.id', $request->idLapangan)
+                ->where('tgl_harga_normal_perjam_berlaku_mulai', '<=', date('Y-m-d', strtotime($request->tanggal)))
+                ->first();
+
+            $hargaLapanganPerJamPromo = DB::table('tb_harga_sewa_perjam_promo')->select('tb_harga_sewa_perjam_promo.harga_promo AS harga_perjam')
+                ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_harga_sewa_perjam_promo.id_lapangan')
+                ->where('tb_lapangan.id', $request->idLapangan)
+                ->where('tgl_promo_perjam_berlaku_dari', '<=', date('Y-m-d', strtotime($request->tanggal)))
+                ->where('tgl_promo_perjam_berlaku_sampai', '>=', date('Y-m-d', strtotime($request->tanggal)))
+                ->first();
+            
+            if(isset($hargaLapanganPerJamPromo)){
+                return response()->json($hargaLapanganPerJamPromo);
+            }
+
+            return response()->json($hargaLapanganPerJamNormal);
+        }
     }
 
     public function getAllDataLapangan(Request $request){

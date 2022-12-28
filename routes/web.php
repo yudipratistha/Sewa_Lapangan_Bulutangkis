@@ -150,6 +150,8 @@ Route::group(['prefix' => 'penyewa-lapangan/'], function(){
 
         Route::post('get-all-data-lapangan/{idLapangan}', 'LapanganController@getAllDataLapangan')->name('penyewaLapangan.getAllDataLapangan');
 
+        Route::post('get-harga-perjam/{idLapangan}', 'LapanganController@getHargaPerjam')->name('penyewaLapangan.getHargaPerjam');
+
         Route::get('get-data-lapangan', 'LapanganController@getDataLapangan')->name('penyewaLapangan.getDataLapangan');
         Route::get('get-lapangan-picture/{id}', 'LapanganController@getLapanganPicture')->name('penyewaLapangan.getLapanganPicture');
 

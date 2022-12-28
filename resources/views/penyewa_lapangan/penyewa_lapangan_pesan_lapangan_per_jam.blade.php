@@ -299,8 +299,7 @@
 </script> -->
 
 <script>
-    var harga_per_jam = {!! json_encode($dataLapangan->harga_per_jam) !!};
-
+    var harga_per_jam;
     var date;
     var court;
     var availableDates = [];
@@ -344,6 +343,22 @@
         onSelect: function(dateText) {
             // $('#tgl-booking').empty().append(dateText);
             date = dateText.split('-').reverse().join('-');
+
+            $.ajax({
+                url: "{{route('penyewaLapangan.getHargaPerjam', $dataLapangan->lapangan_id)}}",
+                method: "POST",
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "tanggal" : date
+                },
+                dataType: "json",
+                success:function(dataHargaPerjam){
+                    harga_per_jam = dataHargaPerjam.harga_perjam;
+                },
+                error: function(xhr, ajaxOptions, thrownError){
+                    console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+                }
+            });
 
             $.ajax({
                 url: "{{route('penyewaLapangan.getAllDataLapangan', $dataLapangan->lapangan_id)}}",
@@ -391,7 +406,9 @@
     $('.table-responsive').on('change', 'input[type="checkbox"]', function() {
         if($(this).prop("checked") === true){
             court = JSON.parse($(this).val()).court;
-
+            var bookingAttr = JSON.parse($(this).val());
+            $.extend(bookingAttr, {'harga_per_jam': harga_per_jam});
+            
             if(orderData[date] === undefined){
                 orderData[date]= {};
             }
@@ -399,15 +416,15 @@
             if(orderData[date][court] === undefined){
                 orderData[date][court] = [];
             }
-
+            
             // Object.assign(orderData[date], JSON.parse($(this).val()));
-            orderData[date][court].push(JSON.parse($(this).val()));
+            orderData[date][court].push(bookingAttr);
             total_biaya += harga_per_jam;
 
-            // console.log(orderData)
+            
         }else{
             var orderDataCancel = JSON.parse($(this).val());
-
+console.log(date)
             if(orderData[date] !== undefined){
                 for(let counterDate = 0; counterDate < Object.keys(orderData).length; ++counterDate){
                     var dateKey = Object.keys(orderData)[counterDate];
@@ -416,25 +433,27 @@
                         for(let counterData = 0; counterData < orderData[Object.keys(orderData)[counterDate]][courtKey].length; ++counterData){
                             var orderDataArr = orderData[dateKey][courtKey][counterData];
                             if(Object.keys(orderData)[counterDate] === dateKey && orderDataArr.court === orderDataCancel.court && orderDataArr.jam === orderDataCancel.jam){
-                                orderData[dateKey][courtKey].splice(counterData, 1);
+                                // orderData[dateKey][courtKey].splice(counterData, 1);
                             }
                         }
                         if (Object.keys(orderData[dateKey][courtKey]).length === 0) {
-                            delete orderData[dateKey][courtKey];
+                            // console.log('test')
+                            // delete orderData[dateKey][courtKey];
                         }
                     }
                 }
             }
 
-            if (Object.keys(orderData[date]).length === 0) {
-                delete orderData[date];
-            }
+            // if (Object.keys(orderData[date]).length === 0) {
+            //     console.log('test')
+            //     delete orderData[date];
+            // }
 
             total_biaya -= harga_per_jam;
         }
 
         $('#total-harga').empty().append(formatter.format(total_biaya));
-        console.log(orderData)
+        
         $.each({!! $dataLapanganCourt !!}, function (key, value) {
             $('#table-court-'+value.nomor_court).children().children().children().first().removeAttr('style');
             $('#table-court-'+value.nomor_court).children('tbody').children().find("td:first").removeAttr('style');
@@ -488,7 +507,7 @@
             },
             {}
         );
-
+        
         if(Object.keys(orderDataSort).length !== 0){
             for(let index = 0; index < Object.keys(orderDataSort).length; ++index){
                 for(let courtIndex = 0; courtIndex < Object.keys(orderDataSort[Object.keys(orderDataSort)[index]]).length; ++courtIndex){
@@ -506,14 +525,14 @@
                         if(bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]] === undefined){
                             bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]]= [];
                         }
-
-                        bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]].push(orderDataArr.jam)
-                        bubbleSort(bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]])
-
+                        
+                        bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]].push({'bookingTime': orderDataArr.jam, 'harga_per_jam': orderDataArr.harga_per_jam})
+                        bookingTime[orderDataArr.court+'-'+Object.keys(orderDataSort)[index]].sort(dynamicSort('bookingTime'))
+                        
                         if(courtStatus === true){
                             let dateConvert = new Date(Object.keys(orderDataSort)[index].split('-')[0] + '/' + Object.keys(orderDataSort)[index].split('-')[1] + '/' + Object.keys(orderDataSort)[index].split('-')[2]);
                             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-
+                            
                             $("#booking-counting").append('\
                                     <span style="font-size: 15px;font-weight: bold;">Court '+orderDataArr.court+'</span>\
                                     <p style="margin-top: 10px;">'+dateConvert.toLocaleDateString('id', options)+'</p>\
@@ -525,18 +544,18 @@
                 }
             }
 
-
+            
             $.each(bookingTime, function(index, value) {
-                $.each(value, function(bookingTimeIndex, bookingTimeValue){
-                        $('#booking-hour-counting-'+index).append('\
+                $.each(value, function(bookingTimeIndex, bookingValue){
+                    $('#booking-hour-counting-'+index).append('\
                         <div class="col-sm-12">\
                             <div class="card" style="border: 0;margin-bottom: 7px;">\
                                 <div class="media" style="background-color: azure;border-radius: 5px;border-left: 5px gray solid;padding: 3px 5px 0px 5px;">\
                                     <div class="media-body">\
-                                        <p>'+bookingTimeValue+'</p>\
+                                        <p>'+bookingValue.bookingTime+'</p>\
                                     </div>\
                                     <div>\
-                                        <p>'+formatter.format(harga_per_jam)+'</p>\
+                                        <p>'+formatter.format(bookingValue.harga_per_jam)+'</p>\
                                     </div>\
                                 </div>\
                             </div>\

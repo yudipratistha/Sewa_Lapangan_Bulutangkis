@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Riwayat Penyewaan')
+@section('title', 'Manajemen Harga Promo')
 
 @section('plugin_css')
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
@@ -24,7 +24,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-sm-6">
-                        <h3>Riwayat Penyewaan</h3>
+                        <h3>Manajemen Harga Promo</h3>
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="" data-bs-original-title="" title="">Home</a></li>
                             <li class="breadcrumb-item active">Manajemen Harga Promo</li>
@@ -62,6 +62,9 @@
                             <div id="pagination-data-riwayat-penyewa" class="dataTables_wrapper"></div>
                         </div>
                     </div>
+                    <button class="float btn btn-add btn btn-outline-primary mt-1 mb-1" data-toggle="modal" data-target="#modal-add-data-harga-promo" data-tooltip="tooltip" data-placement="left" title="" data-original-title="">
+                        <span class="btn-inner--icon"><i class="icon-plus" style="font-weight: bold;font-size: 20px;"></i></span>
+                    </button>
                 </div>
             </div>
             <!-- Container-fluid Ends-->
@@ -71,138 +74,34 @@
     </div>
 </div>
 
-<!-- Modal Data Profil Penyewa-->
-<div class="modal fade" id="data-profil-penyewa-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+<!-- Modal Add Data Harga Promo-->
+<div class="modal fade" id="modal-add-data-harga-promo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Data Profil Penyewa</h3>
+            <div class="modal-header text-center d-block">
+                <h4 class="modal-title ">Tambah Data Harga Promo</h3>
                 <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card pilih-pembayaran-card" style="border: 0;">
-                            <div class="card-header pb-2 mb-3" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
-                                <h6 class="mb-0">Data Penyewa</h6>
-                                <hr style="border-top: 1px dashed;"/>
-                                <div class="form-group">
-                                    <label>Nama Penyewa</label>
-                                    <div class="input-group"><span class="input-group-text"><i class="icon-user"></i></span>
-                                        <input type="text" disabled class="form-control" id="nama-penyewa" name="nama_penyewa" placeholder="Nama..." value="">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label>Nomor Telepon Penyewa</label>
-                                    <div class="input-group"><span class="input-group-text"><i data-feather="phone" style="width: 17px;"></i></span>
-                                        <input type="text" disabled class="form-control" id="nomor-telepon-penyewa" name="nomor_telepon_penyewa" placeholder="08x..." value="">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
-                                <h6 class="mb-0">Jadwal Booking</h6>
-                                <hr style="border-top: 1px dashed;"/>
-                                <div id="booking-counting">
-                                </div>
-                            </div>
-
-                            <div class="card-body mt-4" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
-                                <h6 class="mb-0">Ringkasan Pembayaran</h6>
-                                <hr style="border-top: 1px dashed;"/>
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <div class="card" style="border: 0;margin-bottom: 7px;">
-                                            <div class="media">
-                                                <div class="media-body">
-                                                    <p>Jenis Sewa</p>
-                                                </div>
-                                                <div>
-                                                    <p id="jenis-sewa">-</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <div class="card" style="border: 0;margin-bottom: 7px;">
-                                            <div class="media">
-                                                <div class="media-body">
-                                                    <p>Cara Pembayaran</p>
-                                                </div>
-                                                <div>
-                                                    <p id="cara-pembayaran">-</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <div class="card" style="border: 0;margin-bottom: 7px;">
-                                            <div class="media">
-                                                <div class="media-body">
-                                                    <p>Status Pembayaran</p>
-                                                </div>
-                                                <div>
-                                                    <p id="status-pembayaran">-</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <div class="card" style="border: 0;margin-bottom: 7px;">
-                                            <div class="media">
-                                                <div class="media-body">
-                                                    <p>Biaya Sewa</p>
-                                                </div>
-                                                <div>
-                                                    <p><span id="biaya-sewa">-</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <hr/>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <div class="card" style="border: 0;margin-bottom: 7px;">
-                                            <div class="media">
-                                                <div class="media-body">
-                                                    <p>Total</p>
-                                                </div>
-                                                <div>
-                                                    <p><span id="total-biaya-sewa">-</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body mt-4" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
-                                <h6 class="mb-0">Foto Bukti Pembayaran:</h6>
-                                <div class="gallery my-gallery card-body p-0 mt-3" itemscope="">
-                                    <figure class="col-md-12" itemprop="associatedMedia" itemscope="">
-                                        <a id="foto-bukti-pembayaran-full" href="" itemprop="contentUrl" data-size="1600x950">
-                                            <img id="foto-bukti-pembayaran-thumbnail" class="img-thumbnail" src="" itemprop="thumbnail" alt="Image description">
-                                        </a>
-                                        <figcaption itemprop="caption description">Image caption  1</figcaption>
-                                    </figure>
-                                </div>
-                            </div>
-                            <div class="card-body mt-4" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
-                                <h6 class="mb-3">Update Status Pembayaran:</h6>
-                                <div class="form-group" id="update-status-pembayaran-div">
-                                    <div class="input-group"><span class="input-group-text"><i class="icofont icofont-paperclip"></i></span>
-                                        <select class="form-select" id="update-status-pembayaran" name="status_pembayaran" required="">
-                                            <option selected="" disabled="" value="">Pilih Status Pembayaran...</option>
-                                            <option value="Lunas">Lunas</option>
-                                            <option value="DP">DP</option>
-                                            <option value="Batal">Batal</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <form id="form-add-data-harga-promo">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="harga-promo" class="form-label">Harga Promo</label>
+                        <input name="harga_promo" type="number" class="form-control @error('new_password') is-invalid @enderror" id="harga-promo" placeholder="Harga Promo" required="">
                     </div>
-                </div>
+                    <div class="mb-3">
+                        <label for="tanggal-promo-berlaku-dari" class="form-label">Tanggal Promo Berlaku Dari</label>
+                        <input name="tanggal_harga_promo_berlaku_dari" type="password" class="form-control" id="tanggal-promo-berlaku-dari" placeholder="Tanggal Promo Berlaku Dari" required="">
+                    </div>
+                    <div class="mb-3">
+                        <label for="tanggal-promo-berlaku-sampai" class="form-label">Tanggal Promo Berlaku Sampai</label>
+                        <input name="tanggal_harga_promo_berlaku_sampai" type="password" class="form-control" id="tanggal-promo-berlaku-sampai" placeholder="Tanggal Promo Berlaku Sampai" required="">
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-square btn-outline-light txt-dark" data-bs-dismiss="modal">Close</button>
+                <button type="button" onClick="addPromoData()" class="btn btn-success">Tambah Data Harga Promo</button>
+                <button type="button" class="btn btn-square btn-outline-light txt-dark" data-bs-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
@@ -243,29 +142,6 @@
         locale: {
             format: 'DD-MM-YYYY',
             cancelLabel: 'Clear'
-        }
-    });
-
-    $(".filter-status").click(function() {
-        if($(this).hasClass('reset-filter')){
-            filterDateStart= null;
-            filterDateEnd= null;
-            filterTrx = null;
-
-            $('#filter-tanggal').val('');
-            $('#filter-tanggal').data('daterangepicker').setStartDate(moment().format("DD-MM-YYYY"));
-            $('#filter-tanggal').data('daterangepicker').setEndDate(moment().format("DD-MM-YYYY"));
-
-            $('.btn-showcase').find('.active').removeClass('active');
-            $("#filter-semua").addClass('active');
-
-            $('#data-riwayat-penyewa').DataTable().ajax.reload();
-        }else{
-            $('.btn-showcase').find('.active').removeClass('active');
-            $(this).addClass('active');
-            filterTrx = $(this).val();
-            console.log(filterTrx)
-            $('#data-riwayat-penyewa').DataTable().ajax.reload();
         }
     });
 
@@ -359,107 +235,7 @@
         $('#booking-counting').children().remove();
     });
 
-    function bookingCounting(orderData){
-        var courtStatus= false;
-        var bookingTime = {};
-
-        if(Object.keys(orderData).length !== 0){
-            for(let index = 0; index < Object.keys(orderData).length; ++index){
-                for(let index2 = 0; index2 < orderData[Object.keys(orderData)[index]].length; ++index2){
-                    var orderDataArr = orderData[Object.keys(orderData)[index]][index2];
-                    var orderJam = orderDataArr.jam_mulai.substring(0, 5) +' - '+ orderDataArr.jam_selesai.substring(0, 5);
-                    var hargaPerJam = orderDataArr.harga_per_jam;
-                    var jenisBooking = orderDataArr.jenis_booking;
-                    var caraPembayaran = orderDataArr.nama_jenis_pembayaran;
-                    var statusPembayaran = orderDataArr.status_pembayaran;
-                    var totalBiaya = orderDataArr.total_biaya;
-                    var namaLapangan = orderDataArr.nama_lapangan;
-                    var alamatLapangan = orderDataArr.alamat_lapangan;
-                    var pembayaranId = orderDataArr.pembayaran_id;
-                    var namaPenyewa = orderDataArr.nama_penyewa;
-                    var nomorTeleponPenyewa = orderDataArr.nomor_telepon_penyewa;
-
-                    if(index2 === 0 || Object.keys(bookingTime).includes((orderDataArr.nomor_court+'-'+Object.keys(orderData)[index]).toString()) === false){
-                        courtStatus = true;
-                    }else{
-                        courtStatus = false;
-                    }
-
-                    if(bookingTime[orderDataArr.nomor_court+'-'+Object.keys(orderData)[index]] === undefined){
-                        bookingTime[orderDataArr.nomor_court+'-'+Object.keys(orderData)[index]]= [];
-                    }
-
-                    bookingTime[orderDataArr.nomor_court+'-'+Object.keys(orderData)[index]].push(orderJam);
-
-                    if(courtStatus === true){
-                        let dateConvert = new Date(Object.keys(orderData)[index].split('-')[0] + '/' + Object.keys(orderData)[index].split('-')[1] + '/' + Object.keys(orderData)[index].split('-')[2]);
-                        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-
-                        $("#booking-counting").append('\
-                            <span style="font-size: 15px;font-weight: bold;">Court '+orderDataArr.nomor_court+'</span>\
-                            <p style="margin-top: 10px;">'+dateConvert.toLocaleDateString('id', options)+'</p>\
-                            <div id="booking-hour-counting-'+orderDataArr.nomor_court+'-'+Object.keys(orderData)[index]+'" class="row booking-hour-counting">\
-                            </div>\
-                        ');
-                    }
-                }
-            }
-
-            // console.log(bookingTime)
-            $.each(bookingTime, function(index, value) {
-                // console.log(value);
-                $.each(value, function(bookingTimeIndex, bookingTimeValue){
-                    // console.log(bookingTimeValue);
-                    $('#booking-hour-counting-'+index).append('\
-                        <div class="col-sm-12">\
-                            <div class="card" style="border: 0;margin-bottom: 7px;">\
-                                <div class="media" style="background-color: azure;border-radius: 5px;border-left: 5px gray solid;padding: 3px 5px 0px 5px;">\
-                                    <div class="media-body">\
-                                        <p>'+bookingTimeValue+'</p>\
-                                    </div>\
-                                    <div>\
-                                        <p>'+((jenisBooking === 'per_jam') ? formatter.format(hargaPerJam) : 'Harga Sudah Disesuaikan!')+'</p>\
-                                    </div>\
-                                </div>\
-                            </div>\
-                        </div>\
-                    ');
-                });
-                $('#booking-hour-counting-'+index).children().last().append('<hr/>');
-            });
-
-            $('#nama-penyewa').val(namaPenyewa);
-            $('#nomor-telepon-penyewa').val(nomorTeleponPenyewa);
-            $('#nama-lapangan-invc').empty().append(namaLapangan);
-            $('#alamat-lapangan-invc').empty().append(alamatLapangan);
-            $('#jenis-sewa').empty().append(((jenisBooking === 'per_jam') ? 'Per Jam' : 'Bulanan'));
-            $('#cara-pembayaran').empty().append(caraPembayaran);
-            $('#status-pembayaran').empty().append(statusPembayaran);
-            $('#biaya-sewa').empty().append(formatter.format(totalBiaya));
-            $('#total-biaya-sewa').empty().append(formatter.format(totalBiaya));
-
-            if(statusPembayaran === 'DP' || statusPembayaran === 'Lunas'){
-                $("#update-status-pembayaran").val(statusPembayaran).change();
-            }
-
-            if(statusPembayaran === 'Batal'){
-                $("#update-status-pembayaran").val(statusPembayaran).change();
-            }
-
-            linkFotoBuktiBayar = "{{route('pemilikLapangan.getFileBuktiPembayaran', ':pembayaran_id')}}";
-            linkFotoBuktiBayar = linkFotoBuktiBayar.replace(":pembayaran_id", pembayaranId);
-
-            $("#foto-bukti-pembayaran-full").attr("href", linkFotoBuktiBayar);
-            $("#foto-bukti-pembayaran-thumbnail").attr("src", linkFotoBuktiBayar);
-
-            $('#data-profil-penyewa-modal').find('.modal-footer').children('button').after('\
-                <button type="button" onclick="tolakPenyewaan('+pembayaranId+')" class="btn btn-square btn-outline-warning">Tolak</button>\
-                <button type="button" onclick="terimaPenyewaan('+pembayaranId+')" class="btn btn-square btn-outline-primary">Terima</button>'
-            )
-            $('#data-profil-penyewa-modal').modal('show');
-        }
-    }
-
+    
     $('#filter-tanggal').on('apply.daterangepicker', function(ev, picker) {
         // $('#data-riwayat-penyewa').DataTable().destroy();
         $(this).val(picker.startDate.format('DD-MM-YYYY') + ' - ' + picker.endDate.format('DD-MM-YYYY'));
@@ -479,53 +255,6 @@
         $(this).data('daterangepicker').show();
         $('#data-riwayat-penyewa').DataTable().ajax.reload();
     });
-
-    function terimaPenyewaan(pembayaranId){
-        if($("#update-status-pembayaran").val() === 'Batal' || $("#update-status-pembayaran").val() === null){
-            $("#error-msg-update-status-pembayaran").remove();
-            $("#update-status-pembayaran").addClass("is-invalid");
-            $('#update-status-pembayaran-div').append('<div id="error-msg-update-status-pembayaran" class="text-danger">Update status terima pesanan, hanya bisa dipilih "Lunas atau DP".</div>');
-        }else{
-            $("#update-status-pembayaran").removeClass("is-invalid");
-            $("#error-msg-update-status-pembayaran").remove();
-            $("#update-status-pembayaran").addClass("is-valid");
-
-            link = "";
-            // link = link.replace(':id', pembayaranId);
-
-            swal.fire({
-                title: "Terima Penyewaan?",
-                text: "Status pembayaran penyewa akan diperbaharui!",
-                icon: "warning",
-                showCancelButton: true,
-                // confirmButtonClass: "btn-danger",
-                confirmButtonText: "Save",
-                closeOnConfirm: true,
-                preConfirm: (login) => {
-                    return $.ajax({
-                        type: "POST",
-                        url: link,
-                        datatype : "json",
-                        data: {'pembayaranId':pembayaranId, "_token": "{{ csrf_token() }}", 'statusPembayaran': $("#update-status-pembayaran").val()},
-                        success: function(data){
-
-                        },
-                        error: function(data){
-                            swal.fire({title:"Terima Penyewaan Gagal!", text:"Terima penyewaan gagal di proses.", icon:"error"});
-                        }
-                    });
-                }
-            }).then((result) => {
-                if(result.value){
-                    swal.fire({title:"Terima Penyewaan Berhasil!", text:"Status penyewaan telah berhasil di perbarui.", icon:"success"})
-                    .then(function(){
-                        window.location.href = "";
-                    });
-                }
-            });
-        }
-        console.log($("#update-status-pembayaran").val())
-    }
 
 </script>
 @endsection
