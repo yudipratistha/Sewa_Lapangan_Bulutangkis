@@ -1,6 +1,6 @@
 - lapangan hari libur per tanggal.
 
-- batas limit booking unlimited sebelumnya 3 bln.
+- batas limit booking unlimited sebelumnya 3 jam.
 
 -manajemen menu harga lapangan
 - harga promo.

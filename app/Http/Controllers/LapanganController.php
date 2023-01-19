@@ -6,8 +6,12 @@ use App\Models\User;
 use App\Models\Booking;
 use App\Models\Lapangan;
 use App\Models\Courts;
+use App\Models\HargaPerJamNormal;
+use App\Models\HargaPerJamPromo;
+use App\Models\LapanganLibur;
 use App\Models\StatusCourt;
-use App\Models\PaketSewaBulanan;
+use App\Models\PaketSewaBulananNormal;
+use App\Models\PaketSewaBulananPromo;
 use App\Models\StatusVerifikasiLapangan;
 use App\Models\TipeStatusCourt;
 use Illuminate\Http\Request;
@@ -149,10 +153,10 @@ class LapanganController extends Controller
             'tb_pengguna.name AS nama_pemilik_lapangan, tb_lapangan.id as lapangan_id, tb_lapangan.nama_lapangan, tb_lapangan.alamat_lapangan,
             tb_lapangan.harga_per_jam, tb_lapangan.buka_dari_hari, tb_lapangan.buka_sampai_hari, tb_lapangan.buka_dari_jam, tb_lapangan.buka_sampai_jam, tb_lapangan.jumlah_court,
             tb_lapangan.titik_koordinat_lat, tb_lapangan.titik_koordinat_lng, foto_lapangan_1, foto_lapangan_2, foto_lapangan_3,
-            IFNULL(tb_paket_sewa_bulanan.id, "Tidak Tersedia") as status_paket_bulanan'
+            IFNULL(tb_paket_sewa_bulanan_normal.id, "Tidak Tersedia") as status_paket_bulanan'
             )
             ->leftJoin('tb_pengguna', 'tb_pengguna.id', '=', 'tb_lapangan.id_pengguna')
-            ->leftJoin('tb_paket_sewa_bulanan', 'tb_paket_sewa_bulanan.id_lapangan', '=', 'tb_lapangan.id')
+            ->leftJoin('tb_paket_sewa_bulanan_normal', 'tb_paket_sewa_bulanan_normal.id_lapangan', '=', 'tb_lapangan.id')
             ->where('tb_lapangan.id', $idLapangan)
             ->first();
             // dd($dataLapangan);
@@ -320,10 +324,10 @@ class LapanganController extends Controller
             'tb_lapangan.id as lapangan_id, tb_lapangan.nama_lapangan, tb_lapangan.alamat_lapangan,
             tb_lapangan.buka_dari_jam, tb_lapangan.buka_sampai_jam, tb_lapangan.jumlah_court,
             tb_lapangan.titik_koordinat_lat, tb_lapangan.titik_koordinat_lng, foto_lapangan_1, foto_lapangan_2, foto_lapangan_3,
-            IFNULL(tb_paket_sewa_bulanan.id, "Tidak Tersedia") as status_paket_bulanan, tb_courts.nomor_court'
+            IFNULL(tb_paket_sewa_bulanan_normal.id, "Tidak Tersedia") as status_paket_bulanan, tb_courts.nomor_court'
             )
         ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
-        ->leftJoin('tb_paket_sewa_bulanan', 'tb_paket_sewa_bulanan.id_lapangan', '=', 'tb_lapangan.id')
+        ->leftJoin('tb_paket_sewa_bulanan_normal', 'tb_paket_sewa_bulanan_normal.id_lapangan', '=', 'tb_lapangan.id')
         ->where('tb_lapangan.id', $idLapangan)
         ->first();
 
@@ -338,10 +342,18 @@ class LapanganController extends Controller
 
     public function getDataProfilLapangan(Request $request){
         $currentDate = date('d-m-Y');
+        $selectedDate = date("Y-m-d", strtotime($request->tanggal));
 
         if($currentDate <= $request->tanggal){
-            $dataLapangan = DB::table('tb_courts')->select('tb_courts.nomor_court', 'tb_lapangan.id as lapangan_id', 'tb_lapangan.buka_dari_jam', 'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court')
+            $dataLapangan = DB::table('tb_courts')->select('tb_courts.nomor_court', 'tb_lapangan.id as lapangan_id', 'tb_lapangan.buka_dari_jam', 'tb_lapangan.buka_sampai_jam',
+                'tb_lapangan_libur.tgl_libur_dari', 'tb_lapangan_libur.tgl_libur_sampai', 'tb_lapangan.jumlah_court', 'tb_limit_waktu_booking_lapangan.limit_booking')
                 ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
+                ->leftJoin('tb_lapangan_libur', function($join) use ($selectedDate) {
+                    $join->on('tb_lapangan_libur.id_lapangan', '=', 'tb_lapangan.id')
+                    ->whereRaw('tb_lapangan_libur.id IN (SELECT MAX(tb_lapangan_libur.id) FROM tb_lapangan_libur
+                        WHERE tb_lapangan_libur.`tgl_libur_dari` <= "'.$selectedDate.'" AND tb_lapangan_libur.`tgl_libur_sampai` >= "'.$selectedDate.'")');
+                })
+                ->leftJoin('tb_limit_waktu_booking_lapangan', 'tb_limit_waktu_booking_lapangan.lapangan_id', '=', 'tb_lapangan.id')
                 ->where('tb_lapangan.id', $request->idLapangan)
                 ->get();
 
@@ -375,6 +387,10 @@ class LapanganController extends Controller
             $lapanganBuka = strtotime($dataLapangan[0]->buka_dari_jam);
             $lapanganTutup = strtotime($dataLapangan[0]->buka_sampai_jam);
 
+            $str_time = preg_replace("/^([\d]{1,2})\:([\d]{2})$/", "00:$1:$2", $dataLapangan[0]->limit_booking);
+            sscanf($str_time, "%d:%d:%d", $hours, $minutes, $seconds);
+            $limitBookToSec = $hours * 3600 + $minutes * 60 + $seconds;
+
             foreach($dataLapangan as $dataLapanganValue){
                 $row = 0;
                 for($dataWaktuLapangan=$lapanganBuka; $dataWaktuLapangan<$lapanganTutup; $dataWaktuLapangan+=3600) {
@@ -384,7 +400,7 @@ class LapanganController extends Controller
                     if(isset($dataLapanganBooking)){
                         foreach($dataLapanganBooking as $dataLapanganBookingKey => $dataLapanganBookingValue){
                             if($dataLapanganValue->nomor_court === $dataLapanganBookingValue->nomor_court){
-                                if(strtotime($request->tanggal.' '.$dataLapanganBookingValue->jam_mulai) > strtotime(date('d-m-Y H:i'))+10800){
+                                if(strtotime($request->tanggal.' '.$dataLapanganBookingValue->jam_mulai) > strtotime(date('d-m-Y H:i')) + $limitBookToSec){
                                     if($waktuLapangan === date('H:i', strtotime($dataLapanganBookingValue->jam_mulai)) . " - ". date('H:i', strtotime($dataLapanganBookingValue->jam_selesai))){
                                         $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $waktuLapangan;
                                         $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = "Booked";
@@ -396,14 +412,16 @@ class LapanganController extends Controller
                     }
                     foreach($dataStatusLapangan as $dataStatusLapanganKey => $dataStatusLapanganValue){
                         if($dataLapanganValue->nomor_court === $dataStatusLapanganValue->nomor_court){
-
                             if($statusPenyewa !== true && $waktuLapangan === date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_dari)) . " - ". date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_sampai))){
-                                if(strtotime($request->tanggal.' '.$dataStatusLapanganValue->jam_status_berlaku_dari) > strtotime(date('d-m-Y H:i'))+10800){
+                                if(isset($dataLapanganValue->tgl_libur_dari) && $dataLapanganValue->tgl_libur_dari <= $selectedDate && $dataLapanganValue->tgl_libur_sampai >= $selectedDate){
                                     $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $waktuLapangan;
-                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $dataStatusLapanganValue->tipe_status;
-                                }else{
+                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = "Lapangan Libur";
+                                }else if(strtotime($request->tanggal.' '.$dataStatusLapanganValue->jam_status_berlaku_dari) < strtotime(date('d-m-Y H:i')) + $limitBookToSec){
                                     $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $waktuLapangan;
                                     $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = "Tidak Tersedia Melebihi Batas Waktu Booking";
+                                }else{
+                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $waktuLapangan;
+                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $dataStatusLapanganValue->tipe_status;
                                 }
                             }
                         }
@@ -418,7 +436,7 @@ class LapanganController extends Controller
     }
 
     public function pesanLapanganBulanan($idLapangan){
-        $dataLapangan = DB::table('tb_courts')->select('tb_lapangan.id as lapangan_id', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.jumlah_court','tb_lapangan.harga_per_jam',
+        $dataLapangan = DB::table('tb_courts')->select('tb_lapangan.id as lapangan_id', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.jumlah_court',
         'tb_riwayat_status_pembayaran.status_pembayaran')
         ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
         ->leftJoin('tb_booking', 'tb_booking.id_court', '=', 'tb_courts.id')
@@ -446,11 +464,11 @@ class LapanganController extends Controller
         ->where('tb_lapangan.id', $idLapangan)
         ->get();
 
-        $dataPaketSewaBulanan = DB::table('tb_lapangan')->select('tb_paket_sewa_bulanan.id AS paket_sewa_bulanan_id', 'tb_paket_sewa_bulanan.total_durasi_jam',
-            'tb_paket_sewa_bulanan.total_harga')
-            ->leftJoin('tb_paket_sewa_bulanan', 'tb_paket_sewa_bulanan.id_lapangan', '=', 'tb_lapangan.id')
-            ->where('tb_lapangan.id', $idLapangan)
-            ->get();
+        // $dataPaketSewaBulanan = DB::table('tb_lapangan')->select('tb_paket_sewa_bulanan_normal.id AS paket_sewa_bulanan_id', 'tb_paket_sewa_bulanan_normal.total_durasi_jam',
+        //     )
+        //     ->leftJoin('tb_paket_sewa_bulanan_normal', 'tb_paket_sewa_bulanan_normal.id_lapangan', '=', 'tb_lapangan.id')
+        //     ->where('tb_lapangan.id', $idLapangan)
+        //     ->get();
 
         $dataLapanganCourt = DB::table('tb_courts')->select('tb_courts.nomor_court')
             ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
@@ -460,7 +478,37 @@ class LapanganController extends Controller
 
         $jenisBooking = "bulanan";
 
-        return view('penyewa_lapangan.penyewa_lapangan_pesan_lapangan_bulanan', compact('idLapangan', 'dataLapangan', 'dataLapanganCourt', 'dataBookUser', 'dataDaftarJenisPembayaranLapangan', 'jenisBooking', 'dataPaketSewaBulanan'));
+        return view('penyewa_lapangan.penyewa_lapangan_pesan_lapangan_bulanan', compact('idLapangan', 'dataLapangan', 'dataLapanganCourt', 'dataBookUser', 'dataDaftarJenisPembayaranLapangan', 'jenisBooking'));
+    }
+
+    public function getHargaBulanan(Request $request){
+        $currentDate = date('d-m-Y');
+
+        if(count((array)$request->orderData) === 0 && date('Y-m-d', strtotime($currentDate)) <= date('Y-m-d', strtotime($request->tanggal))){
+            $hargaLapanganBulananNormal = DB::table('tb_paket_sewa_bulanan_normal')->select('tb_paket_sewa_bulanan_normal.harga_normal AS harga_paket_bulanan',
+                'tb_paket_sewa_bulanan_normal.total_durasi_jam_normal AS total_durasi_jam')
+                ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_paket_sewa_bulanan_normal.id_lapangan')
+                ->where('tb_lapangan.id', $request->idLapangan)
+                ->where('tgl_harga_normal_bulanan_berlaku_mulai', '<=', date('Y-m-d', strtotime($request->tanggal)))
+                ->orderBy('tb_paket_sewa_bulanan_normal.id', 'DESC')
+                ->first();
+
+            $hargaLapanganPerJamPromo = DB::table('tb_paket_sewa_bulanan_promo')->select('tb_paket_sewa_bulanan_promo.harga_promo AS harga_paket_bulanan',
+                'tb_paket_sewa_bulanan_promo.total_durasi_jam_promo AS total_durasi_jam')
+                ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_paket_sewa_bulanan_promo.id_lapangan')
+                ->where('tb_lapangan.id', $request->idLapangan)
+                ->where('tgl_promo_paket_bulanan_berlaku_dari', '<=', date('Y-m-d', strtotime($request->tanggal)))
+                ->where('tgl_promo_paket_bulanan_berlaku_sampai', '>=', date('Y-m-d', strtotime($request->tanggal)))
+                ->first();
+            // dd($hargaLapanganPerJamPromo);
+            if(isset($hargaLapanganPerJamPromo)){
+                return response()->json($hargaLapanganPerJamPromo);
+            }
+
+            return response()->json($hargaLapanganBulananNormal);
+        }
+
+        return response()->json('Not Modified', 304);
     }
 
     public function pesanLapanganPerJam($idLapangan){
@@ -522,6 +570,7 @@ class LapanganController extends Controller
                 ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_harga_sewa_perjam_normal.id_lapangan')
                 ->where('tb_lapangan.id', $request->idLapangan)
                 ->where('tgl_harga_normal_perjam_berlaku_mulai', '<=', date('Y-m-d', strtotime($request->tanggal)))
+                ->orderBy('tb_harga_sewa_perjam_normal.id', 'DESC')
                 ->first();
 
             $hargaLapanganPerJamPromo = DB::table('tb_harga_sewa_perjam_promo')->select('tb_harga_sewa_perjam_promo.harga_promo AS harga_perjam')
@@ -530,7 +579,7 @@ class LapanganController extends Controller
                 ->where('tgl_promo_perjam_berlaku_dari', '<=', date('Y-m-d', strtotime($request->tanggal)))
                 ->where('tgl_promo_perjam_berlaku_sampai', '>=', date('Y-m-d', strtotime($request->tanggal)))
                 ->first();
-            
+
             if(isset($hargaLapanganPerJamPromo)){
                 return response()->json($hargaLapanganPerJamPromo);
             }
@@ -541,10 +590,18 @@ class LapanganController extends Controller
 
     public function getAllDataLapangan(Request $request){
         $currentDate = date('d-m-Y');
+        $selectedDate = date("Y-m-d", strtotime($request->tanggal));
 
         if(date('Y-m-d', strtotime($currentDate)) <= date('Y-m-d', strtotime($request->tanggal))){
-            $dataLapangan = DB::table('tb_courts')->select('tb_courts.nomor_court', 'tb_lapangan.id as lapangan_id', 'tb_lapangan.buka_dari_jam', 'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court')
+            $dataLapangan = DB::table('tb_courts')->select('tb_courts.nomor_court', 'tb_lapangan.id as lapangan_id', 'tb_lapangan.buka_dari_jam', 'tb_lapangan.buka_sampai_jam', 'tb_lapangan.jumlah_court',
+                'tb_lapangan_libur.tgl_libur_dari', 'tb_lapangan_libur.tgl_libur_sampai', 'tb_lapangan.jumlah_court', 'tb_limit_waktu_booking_lapangan.limit_booking')
                 ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
+                ->leftJoin('tb_lapangan_libur', function($join) use ($selectedDate) {
+                    $join->on('tb_lapangan_libur.id_lapangan', '=', 'tb_lapangan.id')
+                    ->whereRaw('tb_lapangan_libur.id IN (SELECT MAX(tb_lapangan_libur.id) FROM tb_lapangan_libur
+                        WHERE tb_lapangan_libur.`tgl_libur_dari` <= "'.$selectedDate.'" AND tb_lapangan_libur.`tgl_libur_sampai` >= "'.$selectedDate.'")');
+                })
+                ->leftJoin('tb_limit_waktu_booking_lapangan', 'tb_limit_waktu_booking_lapangan.lapangan_id', '=', 'tb_lapangan.id')
                 ->where('tb_lapangan.id', $request->idLapangan)
                 ->get();
 
@@ -587,6 +644,9 @@ class LapanganController extends Controller
             $lapanganBuka = strtotime($dataLapangan[0]->buka_dari_jam);
             $lapanganTutup = strtotime($dataLapangan[0]->buka_sampai_jam);
             $lapanganId = $dataLapangan[0]->lapangan_id;
+            $str_time = preg_replace("/^([\d]{1,2})\:([\d]{2})$/", "00:$1:$2", $dataLapangan[0]->limit_booking);
+            sscanf($str_time, "%d:%d:%d", $hours, $minutes, $seconds);
+            $limitBookToSec = $hours * 3600 + $minutes * 60 + $seconds;
 
            foreach($dataLapangan as $dataLapanganValue){
                 $row = 0;
@@ -598,7 +658,7 @@ class LapanganController extends Controller
                     if(isset($dataLapanganBooking)){
                         foreach($dataLapanganBooking as $dataLapanganBookingKey => $dataLapanganBookingValue){
                             if($dataLapanganValue->nomor_court === $dataLapanganBookingValue->nomor_court){
-                                if(strtotime($request->tanggal.' '.$dataLapanganBookingValue->jam_mulai) > strtotime(date('d-m-Y H:i'))+10800){
+                                if(strtotime($request->tanggal.' '.$dataLapanganBookingValue->jam_mulai) > strtotime(date('d-m-Y H:i')) + $limitBookToSec){
                                     if($waktuLapangan === date('H:i', strtotime($dataLapanganBookingValue->jam_mulai)) . " - ". date('H:i', strtotime($dataLapanganBookingValue->jam_selesai))){
                                         $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = '<input name="checkBook[]" value="" type="checkbox" style="cursor: not-allowed;" disabled>';
                                         $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $waktuLapangan;
@@ -612,9 +672,16 @@ class LapanganController extends Controller
 
                     foreach($dataStatusLapangan as $dataStatusLapanganKey => $dataStatusLapanganValue){
                         if($dataLapanganValue->nomor_court === $dataStatusLapanganValue->nomor_court){
-
                             if($statusPenyewa !== true && $waktuLapangan === date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_dari)) . " - ". date('H:i', strtotime($dataStatusLapanganValue->jam_status_berlaku_sampai))){
-                                if(strtotime($request->tanggal.' '.$dataStatusLapanganValue->jam_status_berlaku_dari) > strtotime(date('d-m-Y H:i'))+10800){
+                                if(isset($dataLapanganValue->tgl_libur_dari) && $dataLapanganValue->tgl_libur_dari <= $selectedDate && $dataLapanganValue->tgl_libur_sampai >= $selectedDate){
+                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = '<input name="checkBook[]" value="" type="checkbox" style="cursor: not-allowed;" disabled>';
+                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $waktuLapangan;
+                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = "Lapangan Libur";
+                                }else if(strtotime($request->tanggal.' '.$dataStatusLapanganValue->jam_status_berlaku_dari) < strtotime(date('d-m-Y H:i')) + $limitBookToSec){
+                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = '<input name="checkBook[]" value="" type="checkbox" style="cursor: not-allowed;" disabled>';
+                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $waktuLapangan;
+                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = "Tidak Tersedia Melebihi Batas Waktu Booking";
+                                }else{
                                     if($dataStatusLapanganValue->status_pembayaran === 'Belum Lunas' || isset($dataBookUser->status_pembayaran) && $dataBookUser->status_pembayaran === 'Belum Lunas'){
                                         $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = '<input name="checkBook[]" value="" type="checkbox" style="cursor: not-allowed;" disabled>';
                                     }else{
@@ -622,10 +689,6 @@ class LapanganController extends Controller
                                     }
                                     $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $waktuLapangan;
                                     $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $dataStatusLapanganValue->tipe_status;
-                                }else{
-                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = '<input name="checkBook[]" value="" type="checkbox" style="cursor: not-allowed;" disabled>';
-                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = $waktuLapangan;
-                                    $dataLapanganArr['court_'.$dataLapanganValue->nomor_court][$row][] = "Tidak Tersedia Melebihi Batas Waktu Booking";
                                 }
                             }
                         }
@@ -637,30 +700,225 @@ class LapanganController extends Controller
         }
     }
 
-    public function manajemenPaketBulananPemilik(){
-        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
-
-        $dataPaketSewaBulanan = DB::table('tb_lapangan')->select('tb_paket_sewa_bulanan.id AS paket_sewa_bulanan_id', 'tb_paket_sewa_bulanan.total_durasi_jam',
-            'tb_paket_sewa_bulanan.total_harga')
-            ->leftJoin('tb_paket_sewa_bulanan', 'tb_paket_sewa_bulanan.id_lapangan', '=', 'tb_lapangan.id')
-            ->where('tb_lapangan.id', $lapanganId->id)
-            ->get();
-
-        return view('pemilik_lapangan.pemilik_lapangan_manajemen_paket_bulanan', compact('dataPaketSewaBulanan'));
+    public function pemilikLapanganmanajemenPaketBulananNormal(){
+        return view('pemilik_lapangan.pemilik_lapangan_manajemen_paket_bulanan_normal');
     }
 
-    public function updateOrCreatePaketBulananPemilik(Request $request){
+    public function pemilikLapanganGetPaketBulananNormal(Request $request){
+        $draw = $request->get('draw');
+        $start = $request->get("start");
+        $rowperpage = $request->get("length");
+
+        $columnIndex_arr = $request->get('order');
+        $columnName_arr = $request->get('columns');
+        $order_arr = $request->get('order');
+        $search_arr = $request->get('search');
+
         $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
-        PaketSewaBulanan::updateOrCreate([
-            'tb_paket_sewa_bulanan.id' => $request->paket_sewa_bulanan_id
-        ],[
-            'id_lapangan' => $lapanganId->id,
-            'total_durasi_jam' => $request->total_durasi_waktu_jam,
-            'total_harga' => $request->total_harga
-        ]);
+        $totalRecords = DB::table('tb_lapangan')->select('tb_paket_sewa_bulanan_normal.id AS paket_sewa_bulanan_id', 'tb_paket_sewa_bulanan_normal.total_durasi_jam_normal',
+            'tb_paket_sewa_bulanan_normal.harga_normal', 'tb_paket_sewa_bulanan_normal.tgl_harga_normal_bulanan_berlaku_mulai')
+            ->leftJoin('tb_paket_sewa_bulanan_normal', 'tb_paket_sewa_bulanan_normal.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_paket_sewa_bulanan_normal.id_lapangan', $lapanganId->id)
+            ->count();
+
+        $dataPaketSewaBulananNormal = DB::table('tb_lapangan')->select('tb_paket_sewa_bulanan_normal.id AS paket_sewa_bulanan_id', 'tb_paket_sewa_bulanan_normal.total_durasi_jam_normal',
+            'tb_paket_sewa_bulanan_normal.harga_normal', 'tb_paket_sewa_bulanan_normal.tgl_harga_normal_bulanan_berlaku_mulai', 'tb_paket_sewa_bulanan_normal.status_delete')
+            ->leftJoin('tb_paket_sewa_bulanan_normal', 'tb_paket_sewa_bulanan_normal.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_paket_sewa_bulanan_normal.id_lapangan', $lapanganId->id)
+            ->orderBy('tb_paket_sewa_bulanan_normal.id', 'DESC')
+            ->get();
+
+        $response = array(
+            "draw" => intval($draw),
+            "iTotalRecords" => $totalRecords,
+            "iTotalDisplayRecords" => $totalRecords,
+            "aaData" => $dataPaketSewaBulananNormal
+        );
+
+        return response()->json($response);
+    }
+
+    public function pemilikLapanganCreatePaketBulananNormal(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $paketSewaBulananNormal = new PaketSewaBulananNormal;
+        $paketSewaBulananNormal->id_lapangan = $lapanganId->id;
+        $paketSewaBulananNormal->harga_normal = $request->harga_normal;
+        $paketSewaBulananNormal->total_durasi_jam_normal = $request->total_durasi_waktu_jam;
+        $paketSewaBulananNormal->tgl_harga_normal_bulanan_berlaku_mulai = date("Y-m-d", strtotime($request->tanggal_mulai_berlaku_dari));
+        $paketSewaBulananNormal->status_delete = 1;
+        $paketSewaBulananNormal->save();
 
         return response()->json('success');
+    }
+
+    public function pemilikLapanganEditPaketBulananNormal(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataPaketSewaBulananNormal = DB::table('tb_lapangan')->select('tb_paket_sewa_bulanan_normal.id AS paket_sewa_bulanan_id', 'tb_paket_sewa_bulanan_normal.total_durasi_jam_normal',
+            'tb_paket_sewa_bulanan_normal.harga_normal', 'tb_paket_sewa_bulanan_normal.tgl_harga_normal_bulanan_berlaku_mulai')
+            ->leftJoin('tb_paket_sewa_bulanan_normal', 'tb_paket_sewa_bulanan_normal.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_paket_sewa_bulanan_normal.id_lapangan', $lapanganId->id)
+            ->where('tb_paket_sewa_bulanan_normal.id', $request->paket_sewa_bulanan_id)
+            ->first();
+
+        return response()->json($dataPaketSewaBulananNormal);
+    }
+
+    public function pemilikLapanganUpdatePaketBulananNormal(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataPaketSewaBulanan = PaketSewaBulananNormal::where(['tb_paket_sewa_bulanan_normal.id' => $request->paket_sewa_bulanan_id, 'tb_paket_sewa_bulanan_normal.id_lapangan' => $lapanganId->id])->first();
+        $dataPaketSewaBulanan->total_durasi_jam_normal = $request->edit_total_durasi_waktu_jam;
+        $dataPaketSewaBulanan->harga_normal = $request->edit_harga_normal;
+        $dataPaketSewaBulanan->tgl_harga_normal_bulanan_berlaku_mulai = date("Y-m-d", strtotime($request->edit_tanggal_mulai_berlaku_dari));
+        $dataPaketSewaBulanan->save();
+
+        return response()->json('success', 200);
+    }
+
+    public function pemilikLapanganRestorePaketBulananNormal(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataPaketSewaBulanan = PaketSewaBulananNormal::where(['tb_paket_sewa_bulanan_normal.id' => $request->paket_sewa_bulanan_id, 'tb_paket_sewa_bulanan_normal.id_lapangan' => $lapanganId->id])->first();
+        $dataPaketSewaBulanan->status_delete = 1;
+        $dataPaketSewaBulanan->save();
+
+        return response()->json('success', 200);
+    }
+
+    public function pemilikLapanganDeletePaketBulananNormal(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataPaketSewaBulanan = PaketSewaBulananNormal::where(['tb_paket_sewa_bulanan_normal.id' => $request->paket_sewa_bulanan_id, 'tb_paket_sewa_bulanan_normal.id_lapangan' => $lapanganId->id])->first();
+        $dataPaketSewaBulanan->status_delete = 0;
+        $dataPaketSewaBulanan->save();
+
+        return response()->json('success', 200);
+    }
+
+    public function pemilikLapanganDestroyPaketBulananNormal(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataPaketSewaBulanan = PaketSewaBulananNormal::where(['tb_paket_sewa_bulanan_normal.id' => $request->paket_sewa_bulanan_id, 'tb_paket_sewa_bulanan_normal.id_lapangan' => $lapanganId->id])->first();
+        // $dataPaketSewaBulanan->status_delete = 0;
+        $dataPaketSewaBulanan->delete();
+
+        return response()->json('success', 200);
+    }
+
+    public function pemilikLapanganManajemenPaketBulananPromo(){
+        return view('pemilik_lapangan.pemilik_lapangan_manajemen_paket_bulanan_promo');
+    }
+
+    public function pemilikLapanganGetPaketBulananPromo(Request $request){
+        $draw = $request->get('draw');
+        $start = $request->get("start");
+        $rowperpage = $request->get("length");
+
+        $columnIndex_arr = $request->get('order');
+        $columnName_arr = $request->get('columns');
+        $order_arr = $request->get('order');
+        $search_arr = $request->get('search');
+
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $totalRecords = DB::table('tb_lapangan')
+            ->leftJoin('tb_paket_sewa_bulanan_promo', 'tb_paket_sewa_bulanan_promo.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_paket_sewa_bulanan_promo.id_lapangan', $lapanganId->id)
+            ->count();
+
+        $dataPaketSewaBulananNormal = DB::table('tb_lapangan')->select('tb_paket_sewa_bulanan_promo.id AS paket_sewa_bulanan_id', 'tb_paket_sewa_bulanan_promo.total_durasi_jam_promo',
+            'tb_paket_sewa_bulanan_promo.harga_promo', 'tb_paket_sewa_bulanan_promo.tgl_promo_paket_bulanan_berlaku_dari', 'tb_paket_sewa_bulanan_promo.tgl_promo_paket_bulanan_berlaku_sampai',
+            'tb_paket_sewa_bulanan_promo.status_delete')
+            ->leftJoin('tb_paket_sewa_bulanan_promo', 'tb_paket_sewa_bulanan_promo.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_paket_sewa_bulanan_promo.id_lapangan', $lapanganId->id)
+            ->orderBy('tb_paket_sewa_bulanan_promo.id', 'DESC')
+            ->get();
+
+        $response = array(
+            "draw" => intval($draw),
+            "iTotalRecords" => $totalRecords,
+            "iTotalDisplayRecords" => $totalRecords,
+            "aaData" => $dataPaketSewaBulananNormal
+        );
+
+        return response()->json($response);
+    }
+
+    public function pemilikLapanganCreatePaketBulananPromo(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $paketSewaBulananPromo = new PaketSewaBulananPromo;
+        $paketSewaBulananPromo->id_lapangan = $lapanganId->id;
+        $paketSewaBulananPromo->harga_promo = $request->harga_promo;
+        $paketSewaBulananPromo->total_durasi_jam_promo = $request->total_durasi_waktu_jam;
+        $paketSewaBulananPromo->tgl_promo_paket_bulanan_berlaku_dari = date("Y-m-d", strtotime($request->tgl_promo_paket_bulanan_berlaku_dari));
+        $paketSewaBulananPromo->tgl_promo_paket_bulanan_berlaku_sampai = date("Y-m-d", strtotime($request->tgl_promo_paket_bulanan_berlaku_sampai));
+        $paketSewaBulananPromo->status_delete = 1;
+        $paketSewaBulananPromo->save();
+
+        return response()->json('success');
+    }
+
+    public function pemilikLapanganEditPaketBulananPromo(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataPaketSewaBulananPromo = DB::table('tb_lapangan')->select('tb_paket_sewa_bulanan_promo.id AS paket_sewa_bulanan_id', 'tb_paket_sewa_bulanan_promo.total_durasi_jam_promo',
+        'tb_paket_sewa_bulanan_promo.harga_promo', 'tb_paket_sewa_bulanan_promo.tgl_promo_paket_bulanan_berlaku_dari', 'tb_paket_sewa_bulanan_promo.tgl_promo_paket_bulanan_berlaku_sampai',
+        'tb_paket_sewa_bulanan_promo.status_delete')
+            ->leftJoin('tb_paket_sewa_bulanan_promo', 'tb_paket_sewa_bulanan_promo.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_paket_sewa_bulanan_promo.id_lapangan', $lapanganId->id)
+            ->where('tb_paket_sewa_bulanan_promo.id', $request->paket_sewa_bulanan_id)
+            ->first();
+
+        return response()->json($dataPaketSewaBulananPromo);
+    }
+
+    public function pemilikLapanganUpdatePaketBulananPromo(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $paketSewaBulananPromo = PaketSewaBulananPromo::where(['tb_paket_sewa_bulanan_promo.id' => $request->paket_sewa_bulanan_id, 'tb_paket_sewa_bulanan_promo.id_lapangan' => $lapanganId->id])->first();
+        $paketSewaBulananPromo->id_lapangan = $lapanganId->id;
+        $paketSewaBulananPromo->harga_promo = $request->edit_harga_promo;
+        $paketSewaBulananPromo->total_durasi_jam_promo = $request->edit_total_durasi_waktu_jam;
+        $paketSewaBulananPromo->tgl_promo_paket_bulanan_berlaku_dari = date("Y-m-d", strtotime($request->edit_tgl_promo_paket_bulanan_berlaku_dari));
+        $paketSewaBulananPromo->tgl_promo_paket_bulanan_berlaku_sampai = date("Y-m-d", strtotime($request->edit_tgl_promo_paket_bulanan_berlaku_sampai));
+        $paketSewaBulananPromo->status_delete = 1;
+        $paketSewaBulananPromo->save();
+
+        return response()->json('success', 200);
+    }
+
+    public function pemilikLapanganRestorePaketBulananPromo(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataPaketSewaBulanan = PaketSewaBulananPromo::where(['tb_paket_sewa_bulanan_promo.id' => $request->paket_sewa_bulanan_id, 'tb_paket_sewa_bulanan_promo.id_lapangan' => $lapanganId->id])->first();
+        $dataPaketSewaBulanan->status_delete = 1;
+        $dataPaketSewaBulanan->save();
+
+        return response()->json('success', 200);
+    }
+
+    public function pemilikLapanganDeletePaketBulananPromo(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataPaketSewaBulanan = PaketSewaBulananPromo::where(['tb_paket_sewa_bulanan_promo.id' => $request->paket_sewa_bulanan_id, 'tb_paket_sewa_bulanan_promo.id_lapangan' => $lapanganId->id])->first();
+        $dataPaketSewaBulanan->status_delete = 0;
+        $dataPaketSewaBulanan->save();
+
+        return response()->json('success', 200);
+    }
+
+    public function pemilikLapanganDestroyPaketBulananPromo(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataPaketSewaBulanan = PaketSewaBulananPromo::where(['tb_paket_sewa_bulanan_promo.id' => $request->paket_sewa_bulanan_id, 'tb_paket_sewa_bulanan_promo.id_lapangan' => $lapanganId->id])->first();
+        // $dataPaketSewaBulanan->status_delete = 0;
+        $dataPaketSewaBulanan->delete();
+
+        return response()->json('success', 200);
     }
 
     public function pemilikLapanganCourts(){
@@ -800,64 +1058,325 @@ class LapanganController extends Controller
         StatusCourt::insert($statusCourtArr);
     }
 
-    public function pemilikLapanganHargaPromo(){
-        return view('pemilik_lapangan.pemilik_lapangan_harga_promo');
+    public function pemilikLapanganHargaNormalPerjam(){
+        return view('pemilik_lapangan.pemilik_lapangan_harga_normal_perjam');
     }
 
-    public function pemilikLapanganGetHargaPromo(){
+    public function pemilikLapanganGetHargaNormalPerjam(Request $request){
+        $draw = $request->get('draw');
+        $start = $request->get("start");
+        $rowperpage = $request->get("length");
 
+        $columnIndex_arr = $request->get('order');
+        $columnName_arr = $request->get('columns');
+        $order_arr = $request->get('order');
+        $search_arr = $request->get('search');
+
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $totalRecords = DB::table('tb_lapangan')
+            ->leftJoin('tb_harga_sewa_perjam_normal', 'tb_harga_sewa_perjam_normal.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_harga_sewa_perjam_normal.id_lapangan', $lapanganId->id)
+            ->count();
+
+        $hargaNormalPerJam = DB::table('tb_lapangan')->select('tb_harga_sewa_perjam_normal.id AS harga_per_jam_id',
+            'tb_harga_sewa_perjam_normal.harga_normal', 'tb_harga_sewa_perjam_normal.tgl_harga_normal_perjam_berlaku_mulai', 'tb_harga_sewa_perjam_normal.status_delete')
+            ->leftJoin('tb_harga_sewa_perjam_normal', 'tb_harga_sewa_perjam_normal.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_harga_sewa_perjam_normal.id_lapangan', $lapanganId->id)
+            ->orderBy('tb_harga_sewa_perjam_normal.id', 'DESC')
+            ->get();
+
+        $response = array(
+            "draw" => intval($draw),
+            "iTotalRecords" => $totalRecords,
+            "iTotalDisplayRecords" => $totalRecords,
+            "aaData" => $hargaNormalPerJam
+        );
+
+        return response()->json($response);
     }
 
-    public function pemilikLapanganAddHargaPromo(){
+    public function pemilikLapanganCreateHargaNormalPerjam(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
+        $hargaNormalPerJam = new HargaPerJamNormal;
+        $hargaNormalPerJam->id_lapangan = $lapanganId->id;
+        $hargaNormalPerJam->harga_normal = $request->harga_normal;
+        $hargaNormalPerJam->tgl_harga_normal_perjam_berlaku_mulai = date("Y-m-d", strtotime($request->tanggal_mulai_berlaku_dari));
+        $hargaNormalPerJam->status_delete = 1;
+        $hargaNormalPerJam->save();
+
+        return response()->json('success');
     }
 
-    public function pemilikLapanganUpdateHargaPromo(){
+    public function pemilikLapanganEditHargaNormalPerjam(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
+        $dataHargaNormalPerJam = DB::table('tb_lapangan')->select('tb_harga_sewa_perjam_normal.id AS harga_per_jam_id',
+            'tb_harga_sewa_perjam_normal.harga_normal', 'tb_harga_sewa_perjam_normal.tgl_harga_normal_perjam_berlaku_mulai')
+            ->leftJoin('tb_harga_sewa_perjam_normal', 'tb_harga_sewa_perjam_normal.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_harga_sewa_perjam_normal.id_lapangan', $lapanganId->id)
+            ->where('tb_harga_sewa_perjam_normal.id', $request->harga_per_jam_id)
+            ->first();
+
+        return response()->json($dataHargaNormalPerJam);
     }
 
-    public function pemilikLapanganDeleteHargaPromo(){
+    public function pemilikLapanganUpdateHargaNormalPerjam(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
+        $dataHargaNormalPerJam = HargaPerJamNormal::where(['tb_harga_sewa_perjam_normal.id' => $request->harga_per_jam_id, 'tb_harga_sewa_perjam_normal.id_lapangan' => $lapanganId->id])->first();
+        $dataHargaNormalPerJam->harga_normal = $request->edit_harga_normal;
+        $dataHargaNormalPerJam->tgl_harga_normal_perjam_berlaku_mulai = date("Y-m-d", strtotime($request->edit_tanggal_mulai_berlaku_dari));
+        $dataHargaNormalPerJam->save();
+
+        return response()->json('success', 200);
     }
 
-    public function pemilikLapanganHargaNormal(){
-        return view('pemilik_lapangan.pemilik_lapangan_harga_normal');
+    public function pemilikLapanganRestoreHargaNormalPerjam(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataHargaNormalPerJam = HargaPerJamNormal::where(['tb_harga_sewa_perjam_normal.id' => $request->harga_per_jam_id, 'tb_harga_sewa_perjam_normal.id_lapangan' => $lapanganId->id])->first();
+        $dataHargaNormalPerJam->status_delete = 1;
+        $dataHargaNormalPerJam->save();
+
+        return response()->json('success', 200);
     }
 
-    public function pemilikLapanganGetHargaNormal(){
+    public function pemilikLapanganDeleteHargaNormalPerjam(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
+        $dataHargaNormalPerJam = HargaPerJamNormal::where(['tb_harga_sewa_perjam_normal.id' => $request->harga_per_jam_id, 'tb_harga_sewa_perjam_normal.id_lapangan' => $lapanganId->id])->first();
+        $dataHargaNormalPerJam->status_delete = 0;
+        $dataHargaNormalPerJam->save();
+
+        return response()->json('success', 200);
     }
 
-    public function pemilikLapanganAddHargaNormal(){
+    public function pemilikLapanganDestroyHargaNormalPerjam(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
+        $dataHargaNormalPerJam = HargaPerJamNormal::where(['tb_harga_sewa_perjam_normal.id' => $request->harga_per_jam_id, 'tb_harga_sewa_perjam_normal.id_lapangan' => $lapanganId->id])->first();
+        // $dataHargaNormalPerJam->status_delete = 0;
+        $dataHargaNormalPerJam->delete();
+
+        return response()->json('success', 200);
     }
 
-    public function pemilikLapanganUpdateHargaNormal(){
-
+    public function pemilikLapanganHargaPromoPerJam(){
+        return view('pemilik_lapangan.pemilik_lapangan_harga_promo_perjam');
     }
 
-    public function pemilikLapanganDeleteHargaNormal(){
+    public function pemilikLapanganGetHargaPromoPerJam(Request $request){
+        $draw = $request->get('draw');
+        $start = $request->get("start");
+        $rowperpage = $request->get("length");
 
+        $columnIndex_arr = $request->get('order');
+        $columnName_arr = $request->get('columns');
+        $order_arr = $request->get('order');
+        $search_arr = $request->get('search');
+
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $totalRecords = DB::table('tb_lapangan')
+            ->leftJoin('tb_harga_sewa_perjam_promo', 'tb_harga_sewa_perjam_promo.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_harga_sewa_perjam_promo.id_lapangan', $lapanganId->id)
+            ->count();
+
+        $hargaPromoPerJam = DB::table('tb_lapangan')->select('tb_harga_sewa_perjam_promo.id AS harga_per_jam_id', 'tb_harga_sewa_perjam_promo.harga_promo',
+            'tb_harga_sewa_perjam_promo.tgl_promo_perjam_berlaku_dari', 'tb_harga_sewa_perjam_promo.tgl_promo_perjam_berlaku_sampai', 'tb_harga_sewa_perjam_promo.status_delete')
+            ->leftJoin('tb_harga_sewa_perjam_promo', 'tb_harga_sewa_perjam_promo.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_harga_sewa_perjam_promo.id_lapangan', $lapanganId->id)
+            ->orderBy('tb_harga_sewa_perjam_promo.id', 'DESC')
+            ->get();
+
+        $response = array(
+            "draw" => intval($draw),
+            "iTotalRecords" => $totalRecords,
+            "iTotalDisplayRecords" => $totalRecords,
+            "aaData" => $hargaPromoPerJam
+        );
+
+        return response()->json($response);
+    }
+
+    public function pemilikLapanganCreateHargaPromoPerJam(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $hargaPromoPerJam = new HargaPerJamPromo;
+        $hargaPromoPerJam->id_lapangan = $lapanganId->id;
+        $hargaPromoPerJam->harga_promo = $request->harga_promo;
+        $hargaPromoPerJam->tgl_promo_perjam_berlaku_dari = date("Y-m-d", strtotime($request->tgl_promo_perjam_berlaku_dari));
+        $hargaPromoPerJam->tgl_promo_perjam_berlaku_sampai = date("Y-m-d", strtotime($request->tgl_promo_perjam_berlaku_sampai));
+        $hargaPromoPerJam->status_delete = 1;
+        $hargaPromoPerJam->save();
+
+        return response()->json('success');
+    }
+
+    public function pemilikLapanganEditHargaPromoPerJam(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataHargaPromoPerJam = DB::table('tb_lapangan')->select('tb_harga_sewa_perjam_promo.id AS harga_per_jam_id',
+            'tb_harga_sewa_perjam_promo.harga_promo', 'tb_harga_sewa_perjam_promo.tgl_promo_perjam_berlaku_dari', 'tb_harga_sewa_perjam_promo.tgl_promo_perjam_berlaku_sampai')
+            ->leftJoin('tb_harga_sewa_perjam_promo', 'tb_harga_sewa_perjam_promo.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_harga_sewa_perjam_promo.id_lapangan', $lapanganId->id)
+            ->where('tb_harga_sewa_perjam_promo.id', $request->harga_per_jam_id)
+            ->first();
+
+        return response()->json($dataHargaPromoPerJam);
+    }
+
+    public function pemilikLapanganUpdateHargaPromoPerJam(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataHargaNormalPerJam = HargaPerJamPromo::where(['tb_harga_sewa_perjam_promo.id' => $request->harga_per_jam_id, 'tb_harga_sewa_perjam_promo.id_lapangan' => $lapanganId->id])->first();
+        $dataHargaNormalPerJam->harga_promo = $request->edit_harga_promo;
+        $dataHargaNormalPerJam->tgl_promo_perjam_berlaku_dari = date("Y-m-d", strtotime($request->tgl_promo_perjam_berlaku_dari));
+        $dataHargaNormalPerJam->tgl_promo_perjam_berlaku_sampai = date("Y-m-d", strtotime($request->tgl_promo_perjam_berlaku_sampai));
+        $dataHargaNormalPerJam->save();
+
+        return response()->json('success', 200);
+    }
+
+    public function pemilikLapanganRestoreHargaPromoPerJam(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataHargaNormalPerJam = HargaPerJamPromo::where(['tb_harga_sewa_perjam_promo.id' => $request->harga_per_jam_id, 'tb_harga_sewa_perjam_promo.id_lapangan' => $lapanganId->id])->first();
+        $dataHargaNormalPerJam->status_delete = 1;
+        $dataHargaNormalPerJam->save();
+
+        return response()->json('success', 200);
+    }
+
+    public function pemilikLapanganDeleteHargaPromoPerJam(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataHargaNormalPerJam = HargaPerJamPromo::where(['tb_harga_sewa_perjam_promo.id' => $request->harga_per_jam_id, 'tb_harga_sewa_perjam_promo.id_lapangan' => $lapanganId->id])->first();
+        $dataHargaNormalPerJam->status_delete = 0;
+        $dataHargaNormalPerJam->save();
+
+        return response()->json('success', 200);
+    }
+
+    public function pemilikLapanganDestroyHargaPromoPerJam(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataHargaNormalPerJam = HargaPerJamPromo::where(['tb_harga_sewa_perjam_promo.id' => $request->harga_per_jam_id, 'tb_harga_sewa_perjam_promo.id_lapangan' => $lapanganId->id])->first();
+        // $dataHargaNormalPerJam->status_delete = 0;
+        $dataHargaNormalPerJam->delete();
+
+        return response()->json('success', 200);
     }
 
     public function pemilikLapanganManajemenLiburLapangan(){
         return view('pemilik_lapangan.pemilik_lapangan_manajemen_libur_lapangan');
-
     }
 
-    public function pemilikLapanganGetManajemenLiburLapangan(){
+    public function pemilikLapanganGetDataLiburLapangan(Request $request){
+        $draw = $request->get('draw');
+        $start = $request->get("start");
+        $rowperpage = $request->get("length");
 
+        $columnIndex_arr = $request->get('order');
+        $columnName_arr = $request->get('columns');
+        $order_arr = $request->get('order');
+        $search_arr = $request->get('search');
+
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $totalRecords = DB::table('tb_lapangan')
+            ->leftJoin('tb_lapangan_libur', 'tb_lapangan_libur.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_lapangan_libur.id_lapangan', $lapanganId->id)
+            ->count();
+
+        $dataLiburLapangan = DB::table('tb_lapangan')->select('tb_lapangan_libur.id AS libur_lapangan_id', 'tb_lapangan_libur.tgl_libur_dari',
+            'tb_lapangan_libur.tgl_libur_sampai', 'tb_lapangan_libur.status_delete')
+            ->leftJoin('tb_lapangan_libur', 'tb_lapangan_libur.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_lapangan_libur.id_lapangan', $lapanganId->id)
+            ->orderBy('tb_lapangan_libur.id', 'DESC')
+            ->get();
+
+        $response = array(
+            "draw" => intval($draw),
+            "iTotalRecords" => $totalRecords,
+            "iTotalDisplayRecords" => $totalRecords,
+            "aaData" => $dataLiburLapangan
+        );
+
+        return response()->json($response);
     }
 
-    public function pemilikLapanganAddManajemenLiburLapangan(){
+    public function pemilikLapanganCreateManajemenLiburLapangan(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
+        $dataLiburLapangan = new LapanganLibur;
+        $dataLiburLapangan->id_lapangan = $lapanganId->id;
+        $dataLiburLapangan->tgl_libur_dari = date("Y-m-d", strtotime($request->tgl_libur_dari));
+        $dataLiburLapangan->tgl_libur_sampai = date("Y-m-d", strtotime($request->tgl_libur_sampai));
+        $dataLiburLapangan->status_delete = 1;
+        $dataLiburLapangan->save();
+
+        return response()->json('success');
     }
 
-    public function pemilikLapanganUpdateManajemenLiburLapangan(){
+    public function pemilikLapanganEditManajemenLiburLapangan(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
+        $dataLiburLapangan = DB::table('tb_lapangan')->select('tb_lapangan_libur.id AS libur_lapangan_id', 'tb_lapangan_libur.tgl_libur_dari',
+            'tb_lapangan_libur.tgl_libur_sampai', 'tb_lapangan_libur.status_delete')
+            ->leftJoin('tb_lapangan_libur', 'tb_lapangan_libur.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_lapangan_libur.id', $request->libur_lapangan_id)
+            ->where('tb_lapangan_libur.id_lapangan', $lapanganId->id)
+            ->first();
+
+        return response()->json($dataLiburLapangan);
     }
 
-    public function pemilikLapanganDeleteManajemenLiburLapangan(){
+    public function pemilikLapanganUpdateManajemenLiburLapangan(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
+        $dataLiburLapangan = LapanganLibur::where(['tb_lapangan_libur.id' => $request->libur_lapangan_id, 'tb_lapangan_libur.id_lapangan' => $lapanganId->id])->first();
+        $dataLiburLapangan->tgl_libur_dari = date("Y-m-d", strtotime($request->tgl_libur_dari));
+        $dataLiburLapangan->tgl_libur_sampai = date("Y-m-d", strtotime($request->tgl_libur_sampai));
+        $dataLiburLapangan->save();
+
+        return response()->json('success', 200);
+    }
+
+    public function pemilikLapanganDestroyManajemenLiburLapangan(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataLiburLapangan = LapanganLibur::where(['tb_lapangan_libur.id' => $request->libur_lapangan_id, 'tb_lapangan_libur.id_lapangan' => $lapanganId->id])->first();
+        $dataLiburLapangan->delete();
+
+        return response()->json('success', 200);
+    }
+
+    public function manajemenBookingLimitTime(){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        $dataLimitBookingTime = DB::table('tb_lapangan')->select('tb_limit_waktu_booking_lapangan.id AS limit_booking_time_id',
+            'tb_limit_waktu_booking_lapangan.limit_booking')
+            ->leftJoin('tb_limit_waktu_booking_lapangan', 'tb_limit_waktu_booking_lapangan.id_lapangan', '=', 'tb_lapangan.id')
+            ->where('tb_lapangan.id', $lapanganId->id)
+            ->first();
+
+        return view('pemilik_lapangan.pemilik_lapangan_booking_limit_time', compact('dataLimitBookingTime'));
+    }
+
+    public function pemilikLapanganUpdateOrCreateLimitBookingTime(Request $request){
+        $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
+
+        PaketSewaBulananNormal::updateOrCreate([
+            'tb_limit_waktu_booking_lapangan.id' => $request->paket_sewa_bulanan_id
+        ],[
+            'id_lapangan' => $lapanganId->id,
+            'total_durasi_jam' => $request->total_durasi_waktu_jam,
+            'total_harga' => $request->total_harga
+        ]);
+
+        return response()->json('success');
     }
 }

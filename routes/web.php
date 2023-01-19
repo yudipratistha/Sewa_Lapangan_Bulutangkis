@@ -95,9 +95,6 @@ Route::group(['prefix' => 'pemilik-lapangan/'], function(){
         Route::post('restore-payment-method', 'PembayaranController@restorePaymentMethodPemilikLapangan')->name('pemilikLapangan.restorePaymentMethodPemilikLapangan');
         Route::post('destroy-payment-method', 'PembayaranController@destroyPaymentMethodPemilikLapangan')->name('pemilikLapangan.destroyPaymentMethodPemilikLapangan');
 
-        Route::get('manajemen-paket-sewa-bulanan', 'LapanganController@manajemenPaketBulananPemilik')->name('pemilikLapangan.manajemenPaketBulananPemilikLapangan');
-        Route::post('update-or-create-paket-sewa-bulanan', 'LapanganController@updateOrCreatePaketBulananPemilik')->name('pemilikLapangan.updateOrCreatePaketBulananPemilik');
-
         Route::get('profil', 'ProfilController@pemilikLapanganProfil')->name('pemilikLapangan.profil');
         Route::post('update-profil-lapangan', 'ProfilController@pemilikLapanganUpdateProfil')->name('pemilikLapangan.updateProfil');
 
@@ -110,23 +107,48 @@ Route::group(['prefix' => 'pemilik-lapangan/'], function(){
         Route::get('edit-waktu-operasional-lapangan', 'LapanganController@pemilikLapanganEditWaktuOperasionalLapangan')->name('pemilikLapangan.editWaktuOperasionalLapangan');
         Route::post('update-waktu-operasional-lapangan', 'LapanganController@pemilikLapanganUpdateWaktuOperasionalLapangan')->name('pemilikLapangan.updateWaktuOperasionalLapangan');
 
-        Route::get('manajemen-harga-promo-lapangan', 'LapanganController@pemilikLapanganHargaPromo')->name('pemilikLapangan.hargaPromo');
-        Route::post('get-harga-promo-lapangan', 'LapanganController@pemilikLapanganGetHargaPromo')->name('pemilikLapangan.getDataHargaPromo');
-        Route::post('add-harga-promo-lapangan', 'LapanganController@pemilikLapanganAddHargaPromo')->name('pemilikLapangan.addHargaPromo');
-        Route::post('update-harga-promo-lapangan', 'LapanganController@pemilikLapanganUpdateHargaPromo')->name('pemilikLapangan.updateHargaPromo');
-        Route::post('delete-harga-promo-lapangan', 'LapanganController@pemilikLapanganDeleteHargaPromo')->name('pemilikLapangan.deleteHargaPromo');
+        Route::get('manajemen-harga-promo-per-jam', 'LapanganController@pemilikLapanganHargaPromoPerJam')->name('pemilikLapangan.hargaPromoPerJam');
+        Route::post('get-harga-promo-per-jam', 'LapanganController@pemilikLapanganGetHargaPromoPerJam')->name('pemilikLapangan.getDataHargaPromoPerJam');
+        Route::post('create-harga-promo-per-jam', 'LapanganController@pemilikLapanganCreateHargaPromoPerJam')->name('pemilikLapangan.createHargaPromoPerJam');
+        Route::post('edit-harga-promo-per-jam', 'LapanganController@pemilikLapanganEditHargaPromoPerJam')->name('pemilikLapangan.editHargaPromoPerJam');
+        Route::post('update-harga-promo-per-jam', 'LapanganController@pemilikLapanganUpdateHargaPromoPerJam')->name('pemilikLapangan.updateHargaPromoPerJam');
+        Route::post('restore-harga-promo-per-jam', 'LapanganController@pemilikLapanganRestoreHargaPromoPerJam')->name('pemilikLapangan.restoreHargaPromoPerJam');
+        Route::post('delete-harga-promo-per-jam', 'LapanganController@pemilikLapanganDeleteHargaPromoPerJam')->name('pemilikLapangan.deleteHargaPromoPerJam');
+        Route::post('destroy-harga-promo-per-jam', 'LapanganController@pemilikLapanganDestroyHargaPromoPerJam')->name('pemilikLapangan.destroyHargaPromoPerJam');
 
-        Route::get('manajemen-harga-normal-lapangan', 'LapanganController@pemilikLapanganHargaNormal')->name('pemilikLapangan.hargaNormal');
-        Route::post('get-harga-normal-lapangan', 'LapanganController@pemilikLapanganGetHargaNormal')->name('pemilikLapangan.getDataHargaNormal');
-        Route::post('add-harga-normal-lapangan', 'LapanganController@pemilikLapanganAddHargaNormal')->name('pemilikLapangan.addHargaNormal');
-        Route::post('update-harga-normal-lapangan', 'LapanganController@pemilikLapanganUpdateHargaNormal')->name('pemilikLapangan.restoreHargaNormal');
-        Route::post('delete-harga-normal-lapangan', 'LapanganController@pemilikLapanganDeleteHargaNormal')->name('pemilikLapangan.deleteHargaNormal');
+        Route::get('manajemen-harga-normal-per-jam', 'LapanganController@pemilikLapanganHargaNormalPerjam')->name('pemilikLapangan.hargaNormalPerJam');
+        Route::post('get-harga-normal-per-jam', 'LapanganController@pemilikLapanganGetHargaNormalPerjam')->name('pemilikLapangan.getDataHargaNormalPerJam');
+        Route::post('create-harga-normal-per-jam', 'LapanganController@pemilikLapanganCreateHargaNormalPerjam')->name('pemilikLapangan.createHargaNormalPerJam');
+        Route::post('edit-harga-normal-per-jam', 'LapanganController@pemilikLapanganEditHargaNormalPerjam')->name('pemilikLapangan.editHargaNormalPerjam');
+        Route::post('update-harga-normal-per-jam', 'LapanganController@pemilikLapanganUpdateHargaNormalPerjam')->name('pemilikLapangan.updateHargaNormalPerJam');
+        Route::post('restore-harga-normal-per-jam', 'LapanganController@pemilikLapanganRestoreHargaNormalPerjam')->name('pemilikLapangan.restoreHargaNormalPerjam');
+        Route::post('delete-harga-normal-per-jam', 'LapanganController@pemilikLapanganDeleteHargaNormalPerjam')->name('pemilikLapangan.deleteHargaNormalPerJam');
+        Route::post('destroy-harga-normal-per-jam', 'LapanganController@pemilikLapanganDestroyHargaNormalPerjam')->name('pemilikLapangan.destroyHargaNormalPerjam');
+
+        Route::get('manajemen-paket-sewa-bulanan-normal', 'LapanganController@pemilikLapanganManajemenPaketBulananNormal')->name('pemilikLapangan.manajemenPaketBulananNormal');
+        Route::post('get-paket-sewa-bulanan-normal', 'LapanganController@pemilikLapanganGetPaketBulananNormal')->name('pemilikLapangan.getPaketBulananNormal');
+        Route::post('create-paket-sewa-bulanan-normal', 'LapanganController@pemilikLapanganCreatePaketBulananNormal')->name('pemilikLapangan.createPaketBulananNormal');
+        Route::post('edit-paket-sewa-bulanan-normal', 'LapanganController@pemilikLapanganEditPaketBulananNormal')->name('pemilikLapangan.editPaketBulananNormal');
+        Route::post('update-paket-sewa-bulanan-normal', 'LapanganController@pemilikLapanganUpdatePaketBulananNormal')->name('pemilikLapangan.updatePaketBulananNormal');
+        Route::post('restore-paket-sewa-bulanan-normal', 'LapanganController@pemilikLapanganRestorePaketBulananNormal')->name('pemilikLapangan.restorePaketBulananNormal');
+        Route::post('delete-paket-sewa-bulanan-normal', 'LapanganController@pemilikLapanganDeletePaketBulananNormal')->name('pemilikLapangan.deletePaketBulananNormal');
+        Route::post('destroy-paket-sewa-bulanan-normal', 'LapanganController@pemilikLapanganDestroyPaketBulananNormal')->name('pemilikLapangan.destroyPaketBulananNormal');
+
+        Route::get('manajemen-paket-sewa-bulanan-promo', 'LapanganController@pemilikLapanganManajemenPaketBulananPromo')->name('pemilikLapangan.manajemenPaketBulananPromo');
+        Route::post('get-paket-sewa-bulanan-promo', 'LapanganController@pemilikLapanganGetPaketBulananPromo')->name('pemilikLapangan.getPaketBulananPromo');
+        Route::post('create-paket-sewa-bulanan-promo', 'LapanganController@pemilikLapanganCreatePaketBulananPromo')->name('pemilikLapangan.createPaketBulananPromo');
+        Route::post('edit-paket-sewa-bulanan-promo', 'LapanganController@pemilikLapanganEditPaketBulananPromo')->name('pemilikLapangan.editPaketBulananPromo');
+        Route::post('update-paket-sewa-bulanan-promo', 'LapanganController@pemilikLapanganUpdatePaketBulananPromo')->name('pemilikLapangan.updatePaketBulananPromo');
+        Route::post('restore-paket-sewa-bulanan-promo', 'LapanganController@pemilikLapanganRestorePaketBulananPromo')->name('pemilikLapangan.restorePaketBulananPromo');
+        Route::post('delete-paket-sewa-bulanan-promo', 'LapanganController@pemilikLapanganDeletePaketBulananPromo')->name('pemilikLapangan.deletePaketBulananPromo');
+        Route::post('destroy-paket-sewa-bulanan-promo', 'LapanganController@pemilikLapanganDestroyPaketBulananPromo')->name('pemilikLapangan.destroyPaketBulananPromo');
 
         Route::get('manajemen-libur-lapangan', 'LapanganController@pemilikLapanganManajemenLiburLapangan')->name('pemilikLapangan.manajemenLiburLapangan');
-        Route::post('get-libur-lapangan', 'LapanganController@pemilikLapanganGetManajemenLiburLapangan')->name('pemilikLapangan.getDataManajemenLiburLapangan');
-        Route::post('add-libur-lapangan', 'LapanganController@pemilikLapanganAddManajemenLiburLapangan')->name('pemilikLapangan.addLiburLapangan');
+        Route::post('get-libur-lapangan', 'LapanganController@pemilikLapanganGetDataLiburLapangan')->name('pemilikLapangan.getDataLiburLapangan');
+        Route::post('create-libur-lapangan', 'LapanganController@pemilikLapanganCreateManajemenLiburLapangan')->name('pemilikLapangan.createLiburLapangan');
+        Route::post('edit-libur-lapangan', 'LapanganController@pemilikLapanganEditManajemenLiburLapangan')->name('pemilikLapangan.editLiburLapangan');
         Route::post('update-libur-lapangan', 'LapanganController@pemilikLapanganUpdateManajemenLiburLapangan')->name('pemilikLapangan.updateLiburLapangan');
-        Route::post('delete-libur-lapangan', 'LapanganController@pemilikLapanganDeleteManajemenLiburLapangan')->name('pemilikLapangan.deleteLiburLapangan');
+        Route::post('destroy-libur-lapangan', 'LapanganController@pemilikLapanganDestroyManajemenLiburLapangan')->name('pemilikLapangan.destroyLiburLapangan');
 
         Route::get('riwayat-penyewaan', 'RiwayatController@pemilikLapanganRiwayatPenyewaan')->name('pemilikLapangan.riwayatPenyewaan');
         Route::post('data-riwayat-penyewaan/', 'RiwayatController@getDataRiwayatPenyewaanPemilikLapangan')->name('pemilikLapangan.getDataRiwayatPenyewaanPemilikLapangan');
@@ -139,6 +161,9 @@ Route::group(['prefix' => 'pemilik-lapangan/'], function(){
 
         Route::get('riwayat-penyewaan-booking-jam-terbanyak', 'RiwayatController@pemilikLapanganRiwayatBookingJamTerbanyak')->name('pemilikLapangan.pemilikLapanganRiwayatBookingJamTerbanyak');
         Route::post('data-riwayat-penyewaan-booking-jam-terbanyak/', 'RiwayatController@getDataRiwayatBookingJamTerbanyakPemilikLapangan')->name('pemilikLapangan.getDataRiwayatBookingJamTerbanyakPemilikLapangan');
+
+        Route::get('manajemen-booking-limit-time', 'LapanganController@manajemenBookingLimitTime')->name('pemilikLapangan.manajemenBookingLimitTime');
+        Route::post('update-or-create-limit-booking-time', 'LapanganController@pemilikLapanganUpdateOrCreateLimitBookingTime')->name('pemilikLapangan.updateOrCreateLimitBookingTime');
     });
 });
 
@@ -151,6 +176,7 @@ Route::group(['prefix' => 'penyewa-lapangan/'], function(){
         Route::post('get-all-data-lapangan/{idLapangan}', 'LapanganController@getAllDataLapangan')->name('penyewaLapangan.getAllDataLapangan');
 
         Route::post('get-harga-perjam/{idLapangan}', 'LapanganController@getHargaPerjam')->name('penyewaLapangan.getHargaPerjam');
+        Route::post('get-harga-bulanan/{idLapangan}', 'LapanganController@getHargaBulanan')->name('penyewaLapangan.getHargaBulanan');
 
         Route::get('get-data-lapangan', 'LapanganController@getDataLapangan')->name('penyewaLapangan.getDataLapangan');
         Route::get('get-lapangan-picture/{id}', 'LapanganController@getLapanganPicture')->name('penyewaLapangan.getLapanganPicture');

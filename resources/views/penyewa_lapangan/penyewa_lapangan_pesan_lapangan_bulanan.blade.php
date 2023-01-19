@@ -308,13 +308,11 @@
 </script> -->
 
 <script>
-    var harga_per_jam = {!! json_encode($dataLapangan->harga_per_jam) !!};
-    var dataPaketSewaBulanan = {!! json_encode($dataPaketSewaBulanan[0]) !!};
-
     var date;
     var availableDates = [];
     var orderData = {};
-    var sisaDurasi = dataPaketSewaBulanan.total_durasi_jam;
+    var hargaPaketBulanan;
+    var totalDurasiJam;
 
     const formatter = new Intl.NumberFormat('id', {
         style: 'currency',
@@ -329,10 +327,10 @@
         )
     );
 
-    console.log(dataPaketSewaBulanan.total_durasi_jam)
-    $('#total-durasi').empty().append(dataPaketSewaBulanan.total_durasi_jam);
-    $('#sisa-durasi').empty().append(dataPaketSewaBulanan.total_durasi_jam);
-    $('#total-harga').empty().append(formatter.format(dataPaketSewaBulanan.total_harga));
+    // console.log(dataPaketSewaBulanan.total_durasi_jam)
+    // $('#total-durasi').empty().append(dataPaketSewaBulanan.total_durasi_jam);
+    // $('#sisa-durasi').empty().append(dataPaketSewaBulanan.total_durasi_jam);
+    // $('#total-harga').empty().append(formatter.format(dataPaketSewaBulanan.total_harga));
 
     $.each({!! $dataLapanganCourt !!}, function (key, value) {
         $('#table-court-'+value.nomor_court).DataTable({
@@ -382,6 +380,30 @@
         onSelect: function(dateText) {
             $('#tgl-booking').empty().append(dateText);
             date = dateText.split('-').reverse().join('-');
+            console.log(orderData)
+            $.ajax({
+                url: "{{route('penyewaLapangan.getHargaBulanan', $dataLapangan->lapangan_id)}}",
+                method: "POST",
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "tanggal" : date,
+                    "orderData": orderData,
+                },
+                dataType: "json",
+                success:function(dataPaketSewaBulanan){
+                    if(typeof(dataPaketSewaBulanan) !== "undefined" && dataPaketSewaBulanan !== null) {
+                        hargaPaketBulanan = dataPaketSewaBulanan.harga_paket_bulanan;
+                        totalDurasiJam = dataPaketSewaBulanan.total_durasi_jam;
+
+                        $('#total-durasi').empty().append(dataPaketSewaBulanan.total_durasi_jam);
+                        $('#sisa-durasi').empty().append(dataPaketSewaBulanan.total_durasi_jam);
+                        $('#total-harga').empty().append(formatter.format(dataPaketSewaBulanan.harga_paket_bulanan));
+                    }
+                },
+                error: function(xhr, ajaxOptions, thrownError){
+                    console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+                }
+            });
 
             $.ajax({
                 url: "{{route('penyewaLapangan.getAllDataLapangan', $dataLapangan->lapangan_id)}}",
@@ -415,7 +437,7 @@
                             }
                         }
 
-                        if(sisaDurasi === 0){
+                        if(totalDurasiJam === 0){
                             $('input[type="checkbox"]:not(:checked)').prop('disabled', true);
                             $('input[type="checkbox"]:not(:checked)').css('cursor', 'not-allowed');
                         }
@@ -432,7 +454,7 @@
 
     $('.table-responsive').on('change', 'input[type="checkbox"]', function() {
         if($(this).prop("checked") === true){
-            sisaDurasi -= 1;
+            totalDurasiJam -= 1;
             court = JSON.parse($(this).val()).court;
 
             if(orderData[date] === undefined){
@@ -451,14 +473,14 @@
             $("#tanggal").datepicker("option", "minDate", new Date(Object.keys(orderData)[0]));
             $("#tanggal").datepicker("option", "maxDate", in30Days);
 
-            if(sisaDurasi === 0){
+            if(totalDurasiJam === 0){
                 $('input[type="checkbox"]:not(:checked)').prop('disabled', true);
                 $('input[type="checkbox"]:not(:checked)').css('cursor', 'not-allowed');
             }
 
         }else{
             var orderDataCancel = JSON.parse($(this).val());
-            sisaDurasi += 1;
+            totalDurasiJam += 1;
 
             if(orderData[date] !== undefined){
                 for(let counterDate = 0; counterDate < Object.keys(orderData).length; ++counterDate){
@@ -494,7 +516,7 @@
                 }
             }
 
-            if(sisaDurasi !== 0){
+            if(totalDurasiJam !== 0){
                 $('input[type="checkbox"]:not(:checked)').filter(function(){return $(this).val() !== ''}).prop('disabled', false);
                 $('input[type="checkbox"]:not(:checked)').filter(function(){return $(this).val() !== ''}).removeAttr('style');
             }
@@ -505,7 +527,7 @@
                 $('#table-court-'+value.nomor_court).children('tbody').children('tr:last').find("td:first").removeAttr('style');
             });
         }
-        $('#sisa-durasi').empty().append(sisaDurasi);
+        $('#sisa-durasi').empty().append(totalDurasiJam);
     });
 
     $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -616,8 +638,8 @@
                 $('#booking-hour-counting-'+index).children().last().append('<hr/>');
             });
 
-            $('#biaya-sewa').empty().append(formatter.format(dataPaketSewaBulanan.total_harga));
-            $('#total-biaya-sewa').empty().append(formatter.format(dataPaketSewaBulanan.total_harga));
+            $('#biaya-sewa').empty().append(formatter.format(hargaPaketBulanan));
+            $('#total-biaya-sewa').empty().append(formatter.format(hargaPaketBulanan));
             $('#modal-booking-counting').modal('show');
         }
     }

@@ -212,7 +212,7 @@ class PembayaranController extends Controller
             if(isset($chatIdLapangan)){
                 $pesan = new Pesan;
                 $pesan->chat_id = $chatIdLapangan->chat_id;
-                $pesan->pesan = 'Transaksi oleh '. $namaPenyewa->name .' telah dibayar. Mohon untuk diperiksa kelengkapan pembayaran dan mengubah status. Terima kasih!';
+                $pesan->pesan = 'Transaksi oleh '. $namaPenyewa->name .' telah dibayar. Berikut link rincian penyewaan <a href="'. rawurlencode($_SERVER['SERVER_NAME'].'/pemilik-lapangan/dashboard?tanggalSewa='.$request->tglBooking.'&penggunaPenyewaId='.Auth::user()->id.'&court=1&pembayaranId='.$dataPembayaran->pembayaran_id) .'">klik disini</a>. Mohon untuk diperiksa kelengkapan pembayaran dan mengubah status. Terima kasih!';
                 $pesan->save();
 
                 // DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdLapangan[0]->chat_id, 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa[0]->name .' pada tanggal '. $request->tglBooking .'. Mohon untuk diperiksa. Terima kasih!']);

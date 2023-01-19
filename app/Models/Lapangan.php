@@ -22,4 +22,24 @@ class Lapangan extends Model
     public function Courts(){
         return $this->hasMany('App\Models\Courts', 'id_lapangan');
     }
+
+    public function PaketSewaBulananNormal(){
+        return $this->hasMany('App\Models\PaketSewaBulananNormal', 'id_lapangan');
+    }
+
+    public function PaketSewaBulananPromo(){
+        return $this->hasMany('App\Models\PaketSewaBulananPromo', 'id_lapangan');
+    }
+
+    public function HargaPerJamNormal(){
+        return $this->hasMany('App\Models\HargaPerJamNormal', 'id_lapangan');
+    }
+
+    public function HargaPerJamPromo(){
+        return $this->hasMany('App\Models\HargaPerJamPromo', 'id_lapangan');
+    }
+
+    public function LapanganLibur(){
+        return $this->hasMany('App\Models\LapanganLibur', 'id_lapangan');
+    }
 }
