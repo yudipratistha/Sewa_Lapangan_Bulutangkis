@@ -102,7 +102,6 @@ class BookingController extends Controller
 
                             if($dataHargaLapangan->tgl_promo_perjam_berlaku_dari <= $orderDataDate && $dataHargaLapangan->tgl_promo_perjam_berlaku_sampai >= $orderDataDate){
                                 $totalOrderPromo += count($request->orderData[$orderDataDate][$courtKey]);
-                                $totalHargaBookingLapanganPromo =  $totalOrderPromo * $dataHargaLapangan->harga_promo;
                                 array_push($dataBookArr, array(
                                     'jam_mulai' => $jam[0],
                                     'jam_selesai' => $jam[1],
@@ -110,7 +109,6 @@ class BookingController extends Controller
                                 ));
                             }else if($dataHargaLapangan->tgl_harga_normal_perjam_berlaku_mulai <= $orderDataDate){
                                 $totalOrderNormal += count($request->orderData[$orderDataDate][$courtKey]);
-                                $totalHargaBookingLapanganNormal =  $totalOrderNormal * $dataHargaLapangan->harga_normal;
                                 array_push($dataBookArr, array(
                                     'jam_mulai' => $jam[0],
                                     'jam_selesai' => $jam[1],
@@ -120,8 +118,6 @@ class BookingController extends Controller
                         }
                     }
                 }
-
-                // dd($dataBookArr);
 
                 $totalHargaBookingLapangan = $totalHargaBookingLapanganNormal + $totalHargaBookingLapanganPromo;
 

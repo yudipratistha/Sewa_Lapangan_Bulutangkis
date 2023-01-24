@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 
 use App\Models\StatusLapangan;
 use App\Models\TipeStatusCourt;
+use App\Models\HargaPerJamNormal;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -18,6 +19,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use App\Models\StatusVerifikasiLapangan;
+use App\Models\LimitWaktuBookingLapangan;
 use Illuminate\Foundation\Auth\RegistersUsers;
 
 class AuthController extends Controller
@@ -91,7 +93,6 @@ class AuthController extends Controller
         $lapangan->buka_sampai_jam = $request->lapangan_buka_sampai_jam;
         $lapangan->titik_koordinat_lat = $request->lat_alamat_pemilik_lapangan;
         $lapangan->titik_koordinat_lng = $request->lng_alamat_pemilik_lapangan;
-        $lapangan->harga_per_jam = $request->harga_lapangan_per_jam;
         $lapangan->jumlah_court = $request->jumlah_court_pemilik_lapangan;
 
         if ($request->hasFile('foto_lapangan_1')) {
@@ -159,6 +160,18 @@ class AuthController extends Controller
         }
 
         StatusCourt::insert($statusCourtArr);
+
+        $hargaNormalPerJam = new HargaPerJamNormal;
+        $hargaNormalPerJam->id_lapangan = $lapangan->id;
+        $hargaNormalPerJam->harga_normal = $request->harga_lapangan_per_jam;
+        $hargaNormalPerJam->tgl_harga_normal_perjam_berlaku_mulai = date("Y-m-d");
+        $hargaNormalPerJam->status_delete = 0;
+        $hargaNormalPerJam->save();
+
+        $limitWaktuBookingLapangan = new LimitWaktuBookingLapangan;
+        $limitWaktuBookingLapangan->id_lapangan = $lapangan->id;
+        $limitWaktuBookingLapangan->limit_booking = '00:00:00';
+        $limitWaktuBookingLapangan->save();
 
         $statusLapanganVerif = new StatusVerifikasiLapangan();
         $statusLapanganVerif->id_lapangan = $lapangan->id;

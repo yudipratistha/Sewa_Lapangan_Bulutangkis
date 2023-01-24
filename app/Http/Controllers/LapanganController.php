@@ -9,6 +9,7 @@ use App\Models\Courts;
 use App\Models\HargaPerJamNormal;
 use App\Models\HargaPerJamPromo;
 use App\Models\LapanganLibur;
+use App\Models\LimitWaktuBookingLapangan;
 use App\Models\StatusCourt;
 use App\Models\PaketSewaBulananNormal;
 use App\Models\PaketSewaBulananPromo;
@@ -151,12 +152,13 @@ class LapanganController extends Controller
     public function administratorViewProfilLapangan($idLapangan){
         $dataLapangan = DB::table('tb_lapangan')->selectRaw(
             'tb_pengguna.name AS nama_pemilik_lapangan, tb_lapangan.id as lapangan_id, tb_lapangan.nama_lapangan, tb_lapangan.alamat_lapangan,
-            tb_lapangan.harga_per_jam, tb_lapangan.buka_dari_hari, tb_lapangan.buka_sampai_hari, tb_lapangan.buka_dari_jam, tb_lapangan.buka_sampai_jam, tb_lapangan.jumlah_court,
+            tb_harga_sewa_perjam_normal.harga_normal AS harga_per_jam, tb_lapangan.buka_dari_hari, tb_lapangan.buka_sampai_hari, tb_lapangan.buka_dari_jam, tb_lapangan.buka_sampai_jam, tb_lapangan.jumlah_court,
             tb_lapangan.titik_koordinat_lat, tb_lapangan.titik_koordinat_lng, foto_lapangan_1, foto_lapangan_2, foto_lapangan_3,
             IFNULL(tb_paket_sewa_bulanan_normal.id, "Tidak Tersedia") as status_paket_bulanan'
             )
             ->leftJoin('tb_pengguna', 'tb_pengguna.id', '=', 'tb_lapangan.id_pengguna')
             ->leftJoin('tb_paket_sewa_bulanan_normal', 'tb_paket_sewa_bulanan_normal.id_lapangan', '=', 'tb_lapangan.id')
+            ->leftJoin('tb_harga_sewa_perjam_normal', 'tb_harga_sewa_perjam_normal.id_lapangan', '=', 'tb_lapangan.id')
             ->where('tb_lapangan.id', $idLapangan)
             ->first();
             // dd($dataLapangan);
@@ -353,7 +355,7 @@ class LapanganController extends Controller
                     ->whereRaw('tb_lapangan_libur.id IN (SELECT MAX(tb_lapangan_libur.id) FROM tb_lapangan_libur
                         WHERE tb_lapangan_libur.`tgl_libur_dari` <= "'.$selectedDate.'" AND tb_lapangan_libur.`tgl_libur_sampai` >= "'.$selectedDate.'")');
                 })
-                ->leftJoin('tb_limit_waktu_booking_lapangan', 'tb_limit_waktu_booking_lapangan.lapangan_id', '=', 'tb_lapangan.id')
+                ->leftJoin('tb_limit_waktu_booking_lapangan', 'tb_limit_waktu_booking_lapangan.id_lapangan', '=', 'tb_lapangan.id')
                 ->where('tb_lapangan.id', $request->idLapangan)
                 ->get();
 
@@ -601,7 +603,7 @@ class LapanganController extends Controller
                     ->whereRaw('tb_lapangan_libur.id IN (SELECT MAX(tb_lapangan_libur.id) FROM tb_lapangan_libur
                         WHERE tb_lapangan_libur.`tgl_libur_dari` <= "'.$selectedDate.'" AND tb_lapangan_libur.`tgl_libur_sampai` >= "'.$selectedDate.'")');
                 })
-                ->leftJoin('tb_limit_waktu_booking_lapangan', 'tb_limit_waktu_booking_lapangan.lapangan_id', '=', 'tb_lapangan.id')
+                ->leftJoin('tb_limit_waktu_booking_lapangan', 'tb_limit_waktu_booking_lapangan.id_lapangan', '=', 'tb_lapangan.id')
                 ->where('tb_lapangan.id', $request->idLapangan)
                 ->get();
 
@@ -1103,7 +1105,7 @@ class LapanganController extends Controller
         $hargaNormalPerJam->id_lapangan = $lapanganId->id;
         $hargaNormalPerJam->harga_normal = $request->harga_normal;
         $hargaNormalPerJam->tgl_harga_normal_perjam_berlaku_mulai = date("Y-m-d", strtotime($request->tanggal_mulai_berlaku_dari));
-        $hargaNormalPerJam->status_delete = 1;
+        $hargaNormalPerJam->status_delete = 0;
         $hargaNormalPerJam->save();
 
         return response()->json('success');
@@ -1137,7 +1139,7 @@ class LapanganController extends Controller
         $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
         $dataHargaNormalPerJam = HargaPerJamNormal::where(['tb_harga_sewa_perjam_normal.id' => $request->harga_per_jam_id, 'tb_harga_sewa_perjam_normal.id_lapangan' => $lapanganId->id])->first();
-        $dataHargaNormalPerJam->status_delete = 1;
+        $dataHargaNormalPerJam->status_delete = 0;
         $dataHargaNormalPerJam->save();
 
         return response()->json('success', 200);
@@ -1147,7 +1149,7 @@ class LapanganController extends Controller
         $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
         $dataHargaNormalPerJam = HargaPerJamNormal::where(['tb_harga_sewa_perjam_normal.id' => $request->harga_per_jam_id, 'tb_harga_sewa_perjam_normal.id_lapangan' => $lapanganId->id])->first();
-        $dataHargaNormalPerJam->status_delete = 0;
+        $dataHargaNormalPerJam->status_delete = 1;
         $dataHargaNormalPerJam->save();
 
         return response()->json('success', 200);
@@ -1209,7 +1211,7 @@ class LapanganController extends Controller
         $hargaPromoPerJam->harga_promo = $request->harga_promo;
         $hargaPromoPerJam->tgl_promo_perjam_berlaku_dari = date("Y-m-d", strtotime($request->tgl_promo_perjam_berlaku_dari));
         $hargaPromoPerJam->tgl_promo_perjam_berlaku_sampai = date("Y-m-d", strtotime($request->tgl_promo_perjam_berlaku_sampai));
-        $hargaPromoPerJam->status_delete = 1;
+        $hargaPromoPerJam->status_delete = 0;
         $hargaPromoPerJam->save();
 
         return response()->json('success');
@@ -1244,7 +1246,7 @@ class LapanganController extends Controller
         $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
         $dataHargaNormalPerJam = HargaPerJamPromo::where(['tb_harga_sewa_perjam_promo.id' => $request->harga_per_jam_id, 'tb_harga_sewa_perjam_promo.id_lapangan' => $lapanganId->id])->first();
-        $dataHargaNormalPerJam->status_delete = 1;
+        $dataHargaNormalPerJam->status_delete = 0;
         $dataHargaNormalPerJam->save();
 
         return response()->json('success', 200);
@@ -1254,7 +1256,7 @@ class LapanganController extends Controller
         $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
         $dataHargaNormalPerJam = HargaPerJamPromo::where(['tb_harga_sewa_perjam_promo.id' => $request->harga_per_jam_id, 'tb_harga_sewa_perjam_promo.id_lapangan' => $lapanganId->id])->first();
-        $dataHargaNormalPerJam->status_delete = 0;
+        $dataHargaNormalPerJam->status_delete = 1;
         $dataHargaNormalPerJam->save();
 
         return response()->json('success', 200);
@@ -1264,7 +1266,7 @@ class LapanganController extends Controller
         $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
         $dataHargaNormalPerJam = HargaPerJamPromo::where(['tb_harga_sewa_perjam_promo.id' => $request->harga_per_jam_id, 'tb_harga_sewa_perjam_promo.id_lapangan' => $lapanganId->id])->first();
-        // $dataHargaNormalPerJam->status_delete = 0;
+        // $dataHargaNormalPerJam->status_delete = 1;
         $dataHargaNormalPerJam->delete();
 
         return response()->json('success', 200);
@@ -1369,12 +1371,11 @@ class LapanganController extends Controller
     public function pemilikLapanganUpdateOrCreateLimitBookingTime(Request $request){
         $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
-        PaketSewaBulananNormal::updateOrCreate([
-            'tb_limit_waktu_booking_lapangan.id' => $request->paket_sewa_bulanan_id
+        LimitWaktuBookingLapangan::updateOrCreate([
+            'tb_limit_waktu_booking_lapangan.id_lapangan' => $lapanganId->id
         ],[
             'id_lapangan' => $lapanganId->id,
-            'total_durasi_jam' => $request->total_durasi_waktu_jam,
-            'total_harga' => $request->total_harga
+            'limit_booking' => $request->limit_booking,
         ]);
 
         return response()->json('success');
