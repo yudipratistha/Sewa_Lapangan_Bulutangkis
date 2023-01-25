@@ -491,6 +491,7 @@ class LapanganController extends Controller
                 'tb_paket_sewa_bulanan_normal.total_durasi_jam_normal AS total_durasi_jam')
                 ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_paket_sewa_bulanan_normal.id_lapangan')
                 ->where('tb_lapangan.id', $request->idLapangan)
+                ->where('tb_paket_sewa_bulanan_normal.status_delete', 0)
                 ->where('tgl_harga_normal_bulanan_berlaku_mulai', '<=', date('Y-m-d', strtotime($request->tanggal)))
                 ->orderBy('tb_paket_sewa_bulanan_normal.id', 'DESC')
                 ->first();
@@ -499,6 +500,7 @@ class LapanganController extends Controller
                 'tb_paket_sewa_bulanan_promo.total_durasi_jam_promo AS total_durasi_jam')
                 ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_paket_sewa_bulanan_promo.id_lapangan')
                 ->where('tb_lapangan.id', $request->idLapangan)
+                ->where('tb_paket_sewa_bulanan_promo.status_delete', 0)
                 ->where('tgl_promo_paket_bulanan_berlaku_dari', '<=', date('Y-m-d', strtotime($request->tanggal)))
                 ->where('tgl_promo_paket_bulanan_berlaku_sampai', '>=', date('Y-m-d', strtotime($request->tanggal)))
                 ->first();
@@ -571,6 +573,7 @@ class LapanganController extends Controller
             $hargaLapanganPerJamNormal = DB::table('tb_harga_sewa_perjam_normal')->select('tb_harga_sewa_perjam_normal.harga_normal AS harga_perjam')
                 ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_harga_sewa_perjam_normal.id_lapangan')
                 ->where('tb_lapangan.id', $request->idLapangan)
+                ->where('tb_harga_sewa_perjam_normal.status_delete', 0)
                 ->where('tgl_harga_normal_perjam_berlaku_mulai', '<=', date('Y-m-d', strtotime($request->tanggal)))
                 ->orderBy('tb_harga_sewa_perjam_normal.id', 'DESC')
                 ->first();
@@ -578,6 +581,7 @@ class LapanganController extends Controller
             $hargaLapanganPerJamPromo = DB::table('tb_harga_sewa_perjam_promo')->select('tb_harga_sewa_perjam_promo.harga_promo AS harga_perjam')
                 ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_harga_sewa_perjam_promo.id_lapangan')
                 ->where('tb_lapangan.id', $request->idLapangan)
+                ->where('tb_harga_sewa_perjam_promo.status_delete', 0)
                 ->where('tgl_promo_perjam_berlaku_dari', '<=', date('Y-m-d', strtotime($request->tanggal)))
                 ->where('tgl_promo_perjam_berlaku_sampai', '>=', date('Y-m-d', strtotime($request->tanggal)))
                 ->first();

@@ -78,12 +78,12 @@ class BookingController extends Controller
                         ->leftJoin('tb_harga_sewa_perjam_normal', function($join) use ($orderDataDate){
                             $join->on('tb_harga_sewa_perjam_normal.id_lapangan', '=', 'tb_lapangan.id')
                             ->whereRaw('tb_harga_sewa_perjam_normal.id IN (SELECT MAX(tb_harga_sewa_perjam_normal.id) FROM tb_harga_sewa_perjam_normal
-                                WHERE tb_harga_sewa_perjam_normal.`tgl_harga_normal_perjam_berlaku_mulai` <= "'.$orderDataDate.'")');
+                                WHERE tb_harga_sewa_perjam_normal.`tgl_harga_normal_perjam_berlaku_mulai` <= "'.$orderDataDate.'" AND tb_harga_sewa_perjam_normal.status_delete = 0)');
                         })
                         ->leftJoin('tb_harga_sewa_perjam_promo', function($join) use ($orderDataDate){
                             $join->on('tb_harga_sewa_perjam_promo.id_lapangan', '=', 'tb_lapangan.id')
                             ->whereRaw('tb_harga_sewa_perjam_promo.id IN (SELECT MAX(tb_harga_sewa_perjam_promo.id) FROM tb_harga_sewa_perjam_promo
-                                WHERE tb_harga_sewa_perjam_promo.`tgl_promo_perjam_berlaku_dari` <= "'.$orderDataDate.'" AND tb_harga_sewa_perjam_promo.`tgl_promo_perjam_berlaku_sampai` >= "'.$orderDataDate.'")');
+                                WHERE tb_harga_sewa_perjam_promo.`tgl_promo_perjam_berlaku_dari` <= "'.$orderDataDate.'" AND tb_harga_sewa_perjam_promo.`tgl_promo_perjam_berlaku_sampai` >= "'.$orderDataDate.'" AND tb_harga_sewa_perjam_promo.status_delete = 0)');
                         })
                         ->where('tb_lapangan.id', $request->lapanganId)
                         ->first();
@@ -198,7 +198,8 @@ class BookingController extends Controller
         $errorTextPembayaran = '';
         // dd($request->orderData);
         // if(!isset($request->checkBook)) dd($request->checkBook);
-        if($request->tglBooking >= $currentDate){
+
+        if($request->tglBooking <= $currentDate){
             $dataBookArr = array();
 
             $dataLapangan = DB::table('tb_courts')->select('tb_riwayat_status_pembayaran.status_pembayaran',
@@ -215,17 +216,16 @@ class BookingController extends Controller
                 ->leftJoin('tb_paket_sewa_bulanan_normal', function($join) use ($request) {
                     $join->on('tb_paket_sewa_bulanan_normal.id_lapangan', '=', 'tb_lapangan.id')
                     ->whereRaw('tb_paket_sewa_bulanan_normal.id IN (SELECT MAX(tb_paket_sewa_bulanan_normal.id) FROM tb_paket_sewa_bulanan_normal
-                        WHERE tb_paket_sewa_bulanan_normal.`tgl_harga_normal_bulanan_berlaku_mulai` <= "'.$request->tglBooking.'")');
+                        WHERE tb_paket_sewa_bulanan_normal.`tgl_harga_normal_bulanan_berlaku_mulai` <= "'.$request->tglBooking.'" AND tb_paket_sewa_bulanan_normal.status_delete = 0)');
                 })
                 ->leftJoin('tb_paket_sewa_bulanan_promo', function($join) use ($request) {
                     $join->on('tb_paket_sewa_bulanan_promo.id_lapangan', '=', 'tb_lapangan.id')
                     ->whereRaw('tb_paket_sewa_bulanan_promo.id IN (SELECT MAX(tb_paket_sewa_bulanan_promo.id) FROM tb_paket_sewa_bulanan_promo
-                        WHERE tb_paket_sewa_bulanan_promo.`tgl_promo_paket_bulanan_berlaku_dari` <= "'.$request->tglBooking.'" AND tb_paket_sewa_bulanan_promo.`tgl_promo_paket_bulanan_berlaku_sampai` >= "'.$request->tglBooking.'")');
+                        WHERE tb_paket_sewa_bulanan_promo.`tgl_promo_paket_bulanan_berlaku_dari` <= "'.$request->tglBooking.'" AND tb_paket_sewa_bulanan_promo.`tgl_promo_paket_bulanan_berlaku_sampai` >= "'.$request->tglBooking.'" AND tb_paket_sewa_bulanan_promo.status_delete = 0)');
                 })
                 ->where('tb_lapangan.id', $request->lapanganId)
                 ->first();
-                // dd($request->tglBooking);
-                dd((isset($dataLapangan->harga_promo) ? $dataLapangan->harga_promo : $dataLapangan->harga_normal));
+
             if($dataLapangan->status_pembayaran === 'Belum Lunas'){
                 return response()->json(['error' => "Ada data pembayaran belum lunas"], 400);
             }
