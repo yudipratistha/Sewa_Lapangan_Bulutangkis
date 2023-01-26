@@ -107,12 +107,12 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="form-group">
+                                            {{-- <div class="form-group">
                                                 <label>Harga Lapangan Per Jam</label>
                                                 <div class="input-group"><span class="input-group-text"><i class="icofont icofont-money"></i></span>
                                                     <input id="harga-lapangan-per-jam" type="number" class="form-control" name="harga_lapangan_per_jam" placeholder="Harga Lapangan Per Jam..." value="{{$dataProfilPemilikLapangan->harga_per_jam}}" required>
                                                 </div>
-                                            </div>
+                                            </div> --}}
                                             <div class="form-group">
                                                 <label class="form-label">Alamat</label>
                                                 <div style="height:360px;width:100%;" id="map-container">

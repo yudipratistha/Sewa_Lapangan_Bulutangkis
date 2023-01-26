@@ -62,7 +62,7 @@ class ProfilController extends Controller
         $dataLapanganUpdate->alamat_lapangan = $request->alamat_tertulis_pemilik_lapangan;
         $dataLapanganUpdate->titik_koordinat_lat = $request->lat_alamat_pemilik_lapangan;
         $dataLapanganUpdate->titik_koordinat_lng = $request->lng_alamat_pemilik_lapangan;
-        $dataLapanganUpdate->harga_per_jam = $request->harga_lapangan_per_jam;
+        // $dataLapanganUpdate->harga_per_jam = $request->harga_lapangan_per_jam;
 
         $dataPemilikUpdate = User::find(Auth::user()->id);
         $dataPemilikUpdate->name = $request->nama_pemilik_lapangan;

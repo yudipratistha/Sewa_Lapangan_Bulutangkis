@@ -81,7 +81,7 @@
                                 <input class="form-control payment-method" type="text" name="total_durasi_waktu_jam" placeholder="..." value="" required="">
                             </div>
                             <div class="col-md-12 payment-method-name-div">
-                                <label class="form-label" for="">Harga Normal</label>
+                                <label class="form-label" for="">Harga Promo</label>
                                 <input class="form-control payment-method" type="number" name="harga_promo" placeholder="..." value="" required="">
                             </div>
                             <div class="col-md-12 payment-method-name-div">
