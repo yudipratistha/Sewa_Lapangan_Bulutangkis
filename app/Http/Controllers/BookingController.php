@@ -44,7 +44,7 @@ class BookingController extends Controller
         if($request->tglBooking >= $currentDate){
             $dataBookArr = array();
 
-            $dataLapangan = DB::table('tb_courts')->select('harga_normal', 'tgl_harga_normal_perjam_berlaku_mulai', 'harga_promo', 'tgl_promo_perjam_berlaku_dari', 'tgl_promo_perjam_berlaku_sampai', 'tb_riwayat_status_pembayaran.status_pembayaran')
+            $dataLapangan = DB::table('tb_courts')->select('tb_riwayat_status_pembayaran.status_pembayaran')
                 ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
                 ->leftJoin('tb_booking', 'tb_booking.id_court', '=', 'tb_courts.id')
                 ->leftJoin('tb_detail_booking', 'tb_detail_booking.id_booking', '=', 'tb_booking.id')
@@ -52,16 +52,6 @@ class BookingController extends Controller
                 ->leftJoin('tb_riwayat_status_pembayaran', function($join){
                     $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
                     ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran GROUP BY tb_riwayat_status_pembayaran.id_pembayaran)');
-                })
-                ->leftJoin('tb_harga_sewa_perjam_normal', function($join){
-                    $join->on('tb_harga_sewa_perjam_normal.id_lapangan', '=', 'tb_lapangan.id')
-                    ->whereRaw('tb_harga_sewa_perjam_normal.id IN (SELECT MAX(tb_harga_sewa_perjam_normal.id) FROM tb_harga_sewa_perjam_normal
-                        WHERE tb_harga_sewa_perjam_normal.`tgl_harga_normal_perjam_berlaku_mulai` <= "'.date('Y-m-d').'")');
-                })
-                ->leftJoin('tb_harga_sewa_perjam_promo', function($join){
-                    $join->on('tb_harga_sewa_perjam_promo.id_lapangan', '=', 'tb_lapangan.id')
-                    ->whereRaw('tb_harga_sewa_perjam_promo.id IN (SELECT MAX(tb_harga_sewa_perjam_promo.id) FROM tb_harga_sewa_perjam_promo
-                        WHERE tb_harga_sewa_perjam_promo.`tgl_promo_perjam_berlaku_dari` <= "'.date('Y-m-d').'" AND tb_harga_sewa_perjam_promo.`tgl_promo_perjam_berlaku_sampai` >= "'.date('Y-m-d').'")');
                 })
                 ->where('tb_lapangan.id', $request->lapanganId)
                 ->first();
@@ -78,7 +68,7 @@ class BookingController extends Controller
                         ->leftJoin('tb_harga_sewa_perjam_normal', function($join) use ($orderDataDate){
                             $join->on('tb_harga_sewa_perjam_normal.id_lapangan', '=', 'tb_lapangan.id')
                             ->whereRaw('tb_harga_sewa_perjam_normal.id IN (SELECT MAX(tb_harga_sewa_perjam_normal.id) FROM tb_harga_sewa_perjam_normal
-                                WHERE tb_harga_sewa_perjam_normal.`tgl_harga_normal_perjam_berlaku_mulai` <= "'.$orderDataDate.'" AND tb_harga_sewa_perjam_normal.status_delete = 0)');
+                                WHERE tb_harga_sewa_perjam_normal.`tgl_harga_normal_perjam_berlaku_mulai` <= "'.$orderDataDate.'" AND tb_harga_sewa_perjam_normal.status_delete = 0 GROUP BY tb_harga_sewa_perjam_normal.id_lapangan)');
                         })
                         ->leftJoin('tb_harga_sewa_perjam_promo', function($join) use ($orderDataDate){
                             $join->on('tb_harga_sewa_perjam_promo.id_lapangan', '=', 'tb_lapangan.id')
@@ -89,19 +79,12 @@ class BookingController extends Controller
                         ->first();
 
                     foreach($orderDataCourt as $courtKey => $orderDataVal){
-                        if($dataHargaLapangan->tgl_promo_perjam_berlaku_dari <= $orderDataDate && $dataHargaLapangan->tgl_promo_perjam_berlaku_sampai >= $orderDataDate){
-                            $totalOrderPromo += count($request->orderData[$orderDataDate][$courtKey]);
-                            $totalHargaBookingLapanganPromo =  $totalOrderPromo * $dataHargaLapangan->harga_promo;
-                        }else if($dataHargaLapangan->tgl_harga_normal_perjam_berlaku_mulai <= $orderDataDate){
-                            $totalOrderNormal += count($request->orderData[$orderDataDate][$courtKey]);
-                            $totalHargaBookingLapanganNormal =  $totalOrderNormal * $dataHargaLapangan->harga_normal;
-                        }
-
                         foreach($orderDataVal as $bookingDataKey => $bookingDataVal){
                             $jam = explode(" - ", $bookingDataVal['jam']);
 
                             if($dataHargaLapangan->tgl_promo_perjam_berlaku_dari <= $orderDataDate && $dataHargaLapangan->tgl_promo_perjam_berlaku_sampai >= $orderDataDate){
                                 $totalOrderPromo += count($request->orderData[$orderDataDate][$courtKey]);
+                                $totalHargaBookingLapanganPromo =  $totalOrderPromo * $dataHargaLapangan->harga_promo;
                                 array_push($dataBookArr, array(
                                     'jam_mulai' => $jam[0],
                                     'jam_selesai' => $jam[1],
@@ -109,6 +92,7 @@ class BookingController extends Controller
                                 ));
                             }else if($dataHargaLapangan->tgl_harga_normal_perjam_berlaku_mulai <= $orderDataDate){
                                 $totalOrderNormal += count($request->orderData[$orderDataDate][$courtKey]);
+                                $totalHargaBookingLapanganNormal =  $totalOrderNormal * $dataHargaLapangan->harga_normal;
                                 array_push($dataBookArr, array(
                                     'jam_mulai' => $jam[0],
                                     'jam_selesai' => $jam[1],
@@ -135,6 +119,21 @@ class BookingController extends Controller
                 // PembayaranLimitTimeJob::dispatch($pembayaran)->onConnection('paymentConnection');
 
                 foreach($request->orderData as $orderDataDate => $orderDataCourt){
+                    $dataHargaLapangan = DB::table('tb_courts')->select('harga_normal', 'harga_promo', 'tgl_harga_normal_perjam_berlaku_mulai', 'tgl_promo_perjam_berlaku_dari',
+                        'tgl_promo_perjam_berlaku_sampai')
+                        ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
+                        ->leftJoin('tb_harga_sewa_perjam_normal', function($join) use ($orderDataDate){
+                            $join->on('tb_harga_sewa_perjam_normal.id_lapangan', '=', 'tb_lapangan.id')
+                            ->whereRaw('tb_harga_sewa_perjam_normal.id IN (SELECT MAX(tb_harga_sewa_perjam_normal.id) FROM tb_harga_sewa_perjam_normal
+                                WHERE tb_harga_sewa_perjam_normal.`tgl_harga_normal_perjam_berlaku_mulai` <= "'.$orderDataDate.'" AND tb_harga_sewa_perjam_normal.status_delete = 0 GROUP BY tb_harga_sewa_perjam_normal.id_lapangan)');
+                        })
+                        ->leftJoin('tb_harga_sewa_perjam_promo', function($join) use ($orderDataDate){
+                            $join->on('tb_harga_sewa_perjam_promo.id_lapangan', '=', 'tb_lapangan.id')
+                            ->whereRaw('tb_harga_sewa_perjam_promo.id IN (SELECT MAX(tb_harga_sewa_perjam_promo.id) FROM tb_harga_sewa_perjam_promo
+                                WHERE tb_harga_sewa_perjam_promo.`tgl_promo_perjam_berlaku_dari` <= "'.$orderDataDate.'" AND tb_harga_sewa_perjam_promo.`tgl_promo_perjam_berlaku_sampai` >= "'.$orderDataDate.'" AND tb_harga_sewa_perjam_promo.status_delete = 0)');
+                        })
+                        ->where('tb_lapangan.id', $request->lapanganId)
+                        ->first();
                     foreach($orderDataCourt as $courtKey => $orderDataVal){
                         $dataCourt = DB::table('tb_courts')->select('id AS court_id')->where('id_lapangan', $request->lapanganId)->where('nomor_court', $courtKey)->first();
                         $booking = new Booking();
@@ -145,9 +144,9 @@ class BookingController extends Controller
                         $booking->save();
 
                         foreach($orderDataVal as $bookingDataKey => $bookingDataVal){
-                            if($dataLapangan->tgl_promo_perjam_berlaku_dari <= $orderDataDate && $dataLapangan->tgl_promo_perjam_berlaku_sampai >= $orderDataDate){
+                            if($dataHargaLapangan->tgl_promo_perjam_berlaku_dari <= $orderDataDate && $dataHargaLapangan->tgl_promo_perjam_berlaku_sampai >= $orderDataDate){
                                 $dataBookArr[$bookingCounter]['id_booking'] = $booking->id;
-                            }else if($dataLapangan->tgl_harga_normal_perjam_berlaku_mulai <= $orderDataDate){
+                            }else if($dataHargaLapangan->tgl_harga_normal_perjam_berlaku_mulai <= $orderDataDate){
                                 $dataBookArr[$bookingCounter]['id_booking'] = $booking->id;
                             }
                             $bookingCounter++;
@@ -169,7 +168,7 @@ class BookingController extends Controller
                 if(isset($chatIdLapangan)){
                     $pesan = new Pesan;
                     $pesan->chat_id = $chatIdLapangan->chat_id;
-                    $pesan->pesan = 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa->name .' pada tanggal '. date('d-m-Y', strtotime($request->tglBooking)) .'. Berikut link rincian penyewaan <a href="'. rawurlencode($_SERVER['SERVER_NAME'].'/pemilik-lapangan/dashboard?tanggalSewa='.$request->tglBooking.'&penggunaPenyewaId='.Auth::user()->id.'&court=1&pembayaranId='.$pembayaran->id) .'">klik disini</a>. Mohon untuk diperiksa. Terima kasih!';
+                    $pesan->pesan = 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa->name .' pada tanggal '. date('d-m-Y', strtotime($request->tglBooking)) .'. Berikut link rincian penyewaan <a href="'. rawurlencode('http://'.$_SERVER['SERVER_NAME'].':8000/pemilik-lapangan/dashboard?tanggalSewa='.$request->tglBooking.'&penggunaPenyewaId='.Auth::user()->id.'&court=1&pembayaranId='.$pembayaran->id) .'">klik disini</a>. Mohon untuk diperiksa. Terima kasih!';
                     $pesan->save();
 
                     PembayaranLimitTimeJob::dispatch($pembayaran, $pesan)->onConnection('paymentConnection');
@@ -274,7 +273,7 @@ class BookingController extends Controller
 
                 $pesan = new Pesan;
                 $pesan->chat_id = $chatIdLapangan->chat_id;
-                $pesan->pesan = 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa->name .' pada tanggal '. date('d-m-Y', strtotime($request->tglBooking)) .'. Berikut link rincian penyewaan <a href="'. rawurlencode($_SERVER['SERVER_NAME'].'/pemilik-lapangan/dashboard?tanggalSewa='.$request->tglBooking.'&penggunaPenyewaId='.Auth::user()->id.'&court=1&pembayaranId='.$pembayaran->id) .'">klik disini</a>. Mohon untuk diperiksa. Terima kasih!';
+                $pesan->pesan = 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa->name .' pada tanggal '. date('d-m-Y', strtotime($request->tglBooking)) .'. Berikut link rincian penyewaan <a href="'. rawurlencode('http://'.$_SERVER['SERVER_NAME'].':8000/pemilik-lapangan/dashboard?tanggalSewa='.$request->tglBooking.'&penggunaPenyewaId='.Auth::user()->id.'&court=1&pembayaranId='.$pembayaran->id) .'">klik disini</a>. Mohon untuk diperiksa. Terima kasih!';
                 $pesan->save();
 
                 PembayaranLimitTimeJob::dispatch($pembayaran, $pesan);

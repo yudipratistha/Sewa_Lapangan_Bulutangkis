@@ -550,19 +550,6 @@ class LapanganController extends Controller
             ->where('tb_courts.status_court', '!=', 0)
             ->get();
 
-        //
-        // $snapToken = $dataLapangan->snap_token;
-        // if (empty($snapToken)) {
-        //     $pembayaran = Pembayaran::find($dataMenungguPembayaran->pembayaran_id);
-        //     // Jika snap token masih NULL, buat token snap dan simpan ke database
-
-        //     $midtrans = new CreateSnapTokenService($dataMenungguPembayaran->pembayaran_id);
-        //     $snapToken = $midtrans->getSnapToken();
-        //     // dd($snapToken);
-        //     $pembayaran->snap_token = $snapToken;
-        //     $pembayaran->save();
-        // }
-
         return view('penyewa_lapangan.penyewa_lapangan_pesan_lapangan_per_jam', compact('idLapangan', 'dataLapangan', 'dataLapanganCourt', 'dataBookUser', 'dataDaftarJenisPembayaranLapangan'));
     }
 
@@ -573,17 +560,17 @@ class LapanganController extends Controller
             $hargaLapanganPerJamNormal = DB::table('tb_harga_sewa_perjam_normal')->select('tb_harga_sewa_perjam_normal.harga_normal AS harga_perjam')
                 ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_harga_sewa_perjam_normal.id_lapangan')
                 ->where('tb_lapangan.id', $request->idLapangan)
-                ->where('tb_harga_sewa_perjam_normal.status_delete', 0)
                 ->where('tgl_harga_normal_perjam_berlaku_mulai', '<=', date('Y-m-d', strtotime($request->tanggal)))
+                ->where('tb_harga_sewa_perjam_normal.status_delete', 0)
                 ->orderBy('tb_harga_sewa_perjam_normal.id', 'DESC')
                 ->first();
 
             $hargaLapanganPerJamPromo = DB::table('tb_harga_sewa_perjam_promo')->select('tb_harga_sewa_perjam_promo.harga_promo AS harga_perjam')
                 ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_harga_sewa_perjam_promo.id_lapangan')
                 ->where('tb_lapangan.id', $request->idLapangan)
-                ->where('tb_harga_sewa_perjam_promo.status_delete', 0)
                 ->where('tgl_promo_perjam_berlaku_dari', '<=', date('Y-m-d', strtotime($request->tanggal)))
                 ->where('tgl_promo_perjam_berlaku_sampai', '>=', date('Y-m-d', strtotime($request->tanggal)))
+                ->where('tb_harga_sewa_perjam_promo.status_delete', 0)
                 ->first();
 
             if(isset($hargaLapanganPerJamPromo)){
