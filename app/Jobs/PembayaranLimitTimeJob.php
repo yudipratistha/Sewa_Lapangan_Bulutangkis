@@ -47,13 +47,12 @@ class PembayaranLimitTimeJob implements ShouldQueue
 
         $status = true;
         while($status){
-            echo $pembayaranTimeLimit.' ';
             sleep(1);
             $now = Carbon::now('Asia/Singapore');
             $now->addMinute(0);
             $timeNow  = $now->format('H:i:s');
 
-            if($timeNow > $pembayaranCreated && $timeNow > $pembayaranTimeLimit){
+            if($timeNow >= $pembayaranCreated && $timeNow >= $pembayaranTimeLimit){
                 $pembayaranGetBukti = Pembayaran::find($this->pembayaran->id);
 
                 if(!isset($pembayaranGetBukti->foto_bukti_pembayaran)){
@@ -66,7 +65,7 @@ class PembayaranLimitTimeJob implements ShouldQueue
                 $status = false;
             }
 
-            if(date('H:i:s', strtotime('+15 minute', strtotime($timeNow))) === $pembayaranTimeLimit){
+            if($timeNow === date('H:i:s', strtotime('-15 minute', strtotime($pembayaranTimeLimit)))){
                 $pesanToPengguna = $this->pesanToPengguna;
                 $sendto = env('TELEGRAM_API_URL').env('TELEGRAM_BOT_TOKEN')."/sendmessage?chat_id=".$pesanToPengguna->chat_id."&text=".$pesanToPengguna->pesan."&parse_mode=html";
                 file_get_contents($sendto);
