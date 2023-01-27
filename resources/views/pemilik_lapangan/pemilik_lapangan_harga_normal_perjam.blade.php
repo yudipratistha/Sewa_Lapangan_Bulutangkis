@@ -206,18 +206,18 @@
                 defaultContent:'',
                 render: function (data, type, row) {
                     console.log(row)
-                    if(row.status_delete === 0) return 'Nonaktif';
-                    if(row.status_delete === 1) return 'Aktif';
+                    if(row.status_delete === 1) return 'Nonaktif';
+                    if(row.status_delete === 0) return 'Aktif';
                 }
             },
             { orderable: false, defaultContent: '',
                 render: function (data, type, row) {
-                    if(row.status_delete === 0){
+                    if(row.status_delete === 1){
                         button = '<button type="button" class="btn btn-outline-primary" id="restore-data-harga-per-jam" style="width: 37px; padding-top: 2px; padding-left: 0px; padding-right: 0px; padding-bottom: 2px; margin-right:5px;"><i class="fa fa-edit" style="font-size:20px;"></i></button>\
                             <button type="button" class="btn btn-outline-danger" id="destroy-data-harga-per-jam" style="width: 37px; padding-top: 2px; padding-left: 0px; padding-right: 0px; padding-bottom: 2px; margin-right:5px;"><i class="fa fa-trash" style="font-size:20px;"></i></button>';
                         return button;
                     }
-                    if(row.status_delete === 1){
+                    if(row.status_delete === 0){
                         button = '<button type="button" class="btn btn-outline-primary" id="edit-data-harga-per-jam" style="width: 37px; padding-top: 2px; padding-left: 0px; padding-right: 0px; padding-bottom: 2px; margin-right:5px;"><i class="icon-pencil-alt" style="font-size:20px;"></i></button>\
                             <button type="button" class="btn btn-outline-danger" id="delete-data-harga-per-jam" style="width: 37px; padding-top: 2px; padding-left: 0px; padding-right: 0px; padding-bottom: 2px; margin-right:5px;"><i class="fa fa-trash" style="font-size:20px;"></i></button>';
                         return button;
