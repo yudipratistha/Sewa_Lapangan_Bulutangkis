@@ -504,7 +504,7 @@ class LapanganController extends Controller
                 ->where('tgl_promo_paket_bulanan_berlaku_dari', '<=', date('Y-m-d', strtotime($request->tanggal)))
                 ->where('tgl_promo_paket_bulanan_berlaku_sampai', '>=', date('Y-m-d', strtotime($request->tanggal)))
                 ->first();
-            // dd($hargaLapanganPerJamPromo);
+
             if(isset($hargaLapanganPerJamPromo)){
                 return response()->json($hargaLapanganPerJamPromo);
             }
