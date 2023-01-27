@@ -740,7 +740,7 @@ class LapanganController extends Controller
         $paketSewaBulananNormal->harga_normal = $request->harga_normal;
         $paketSewaBulananNormal->total_durasi_jam_normal = $request->total_durasi_waktu_jam;
         $paketSewaBulananNormal->tgl_harga_normal_bulanan_berlaku_mulai = date("Y-m-d", strtotime($request->tanggal_mulai_berlaku_dari));
-        $paketSewaBulananNormal->status_delete = 1;
+        $paketSewaBulananNormal->status_delete = 0;
         $paketSewaBulananNormal->save();
 
         return response()->json('success');
@@ -775,7 +775,7 @@ class LapanganController extends Controller
         $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
         $dataPaketSewaBulanan = PaketSewaBulananNormal::where(['tb_paket_sewa_bulanan_normal.id' => $request->paket_sewa_bulanan_id, 'tb_paket_sewa_bulanan_normal.id_lapangan' => $lapanganId->id])->first();
-        $dataPaketSewaBulanan->status_delete = 1;
+        $dataPaketSewaBulanan->status_delete = 0;
         $dataPaketSewaBulanan->save();
 
         return response()->json('success', 200);
@@ -785,7 +785,7 @@ class LapanganController extends Controller
         $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
         $dataPaketSewaBulanan = PaketSewaBulananNormal::where(['tb_paket_sewa_bulanan_normal.id' => $request->paket_sewa_bulanan_id, 'tb_paket_sewa_bulanan_normal.id_lapangan' => $lapanganId->id])->first();
-        $dataPaketSewaBulanan->status_delete = 0;
+        $dataPaketSewaBulanan->status_delete = 1;
         $dataPaketSewaBulanan->save();
 
         return response()->json('success', 200);
@@ -849,7 +849,7 @@ class LapanganController extends Controller
         $paketSewaBulananPromo->total_durasi_jam_promo = $request->total_durasi_waktu_jam;
         $paketSewaBulananPromo->tgl_promo_paket_bulanan_berlaku_dari = date("Y-m-d", strtotime($request->tgl_promo_paket_bulanan_berlaku_dari));
         $paketSewaBulananPromo->tgl_promo_paket_bulanan_berlaku_sampai = date("Y-m-d", strtotime($request->tgl_promo_paket_bulanan_berlaku_sampai));
-        $paketSewaBulananPromo->status_delete = 1;
+        $paketSewaBulananPromo->status_delete = 0;
         $paketSewaBulananPromo->save();
 
         return response()->json('success');
@@ -878,7 +878,6 @@ class LapanganController extends Controller
         $paketSewaBulananPromo->total_durasi_jam_promo = $request->edit_total_durasi_waktu_jam;
         $paketSewaBulananPromo->tgl_promo_paket_bulanan_berlaku_dari = date("Y-m-d", strtotime($request->edit_tgl_promo_paket_bulanan_berlaku_dari));
         $paketSewaBulananPromo->tgl_promo_paket_bulanan_berlaku_sampai = date("Y-m-d", strtotime($request->edit_tgl_promo_paket_bulanan_berlaku_sampai));
-        $paketSewaBulananPromo->status_delete = 1;
         $paketSewaBulananPromo->save();
 
         return response()->json('success', 200);
@@ -888,7 +887,7 @@ class LapanganController extends Controller
         $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
         $dataPaketSewaBulanan = PaketSewaBulananPromo::where(['tb_paket_sewa_bulanan_promo.id' => $request->paket_sewa_bulanan_id, 'tb_paket_sewa_bulanan_promo.id_lapangan' => $lapanganId->id])->first();
-        $dataPaketSewaBulanan->status_delete = 1;
+        $dataPaketSewaBulanan->status_delete = 0;
         $dataPaketSewaBulanan->save();
 
         return response()->json('success', 200);
@@ -898,7 +897,7 @@ class LapanganController extends Controller
         $lapanganId = Lapangan::select('tb_lapangan.id')->with('User')->where('tb_lapangan.id_pengguna', Auth::user()->id)->first();
 
         $dataPaketSewaBulanan = PaketSewaBulananPromo::where(['tb_paket_sewa_bulanan_promo.id' => $request->paket_sewa_bulanan_id, 'tb_paket_sewa_bulanan_promo.id_lapangan' => $lapanganId->id])->first();
-        $dataPaketSewaBulanan->status_delete = 0;
+        $dataPaketSewaBulanan->status_delete = 1;
         $dataPaketSewaBulanan->save();
 
         return response()->json('success', 200);
@@ -1308,7 +1307,7 @@ class LapanganController extends Controller
         $dataLiburLapangan->id_lapangan = $lapanganId->id;
         $dataLiburLapangan->tgl_libur_dari = date("Y-m-d", strtotime($request->tgl_libur_dari));
         $dataLiburLapangan->tgl_libur_sampai = date("Y-m-d", strtotime($request->tgl_libur_sampai));
-        $dataLiburLapangan->status_delete = 1;
+        $dataLiburLapangan->status_delete = 0;
         $dataLiburLapangan->save();
 
         return response()->json('success');
