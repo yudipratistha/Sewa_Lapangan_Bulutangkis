@@ -343,10 +343,10 @@ class LapanganController extends Controller
     }
 
     public function getDataProfilLapangan(Request $request){
-        $currentDate = date('d-m-Y');
+        $currentDate = date('Y-m-d');
         $selectedDate = date("Y-m-d", strtotime($request->tanggal));
 
-        if($currentDate <= $request->tanggal){
+        if($currentDate <= $selectedDate){
             $dataLapangan = DB::table('tb_courts')->select('tb_courts.nomor_court', 'tb_lapangan.id as lapangan_id', 'tb_lapangan.buka_dari_jam', 'tb_lapangan.buka_sampai_jam',
                 'tb_lapangan_libur.tgl_libur_dari', 'tb_lapangan_libur.tgl_libur_sampai', 'tb_lapangan.jumlah_court', 'tb_limit_waktu_booking_lapangan.limit_booking')
                 ->leftJoin('tb_lapangan', 'tb_lapangan.id', '=', 'tb_courts.id_lapangan')
