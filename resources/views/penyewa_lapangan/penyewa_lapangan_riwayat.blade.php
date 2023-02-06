@@ -376,9 +376,9 @@
     });
 
     function bookingCounting(orderData){
-
         var courtStatus= false;
-        var bookingTime = {};
+        var bookingArr = {};
+        var hargaPerJamArr = {};
         const orderDataSort = Object.keys(orderData).sort().reduce((obj, key) => {
                 obj[key] = orderData[key];
                 return obj;
@@ -399,19 +399,26 @@
                     var totalBiaya = orderDataArr.total_biaya;
                     var namaLapangan = orderDataArr.nama_lapangan;
                     var alamatLapangan = orderDataArr.alamat_lapangan;
+                    var namaPenyewa = orderDataArr.nama_penyewa;
+                    var nomorTeleponPenyewa = orderDataArr.nomor_telepon_penyewa;
 
-                    if(index2 === 0 || Object.keys(bookingTime).includes((orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]).toString()) === false){
+                    if(index2 === 0 || Object.keys(bookingArr).includes((orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]).toString()) === false){
                         courtStatus = true;
                     }else{
                         courtStatus = false;
                     }
 
-                    if(bookingTime[orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]] === undefined){
-                        bookingTime[orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]]= [];
+                    if(bookingArr[orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]] === undefined){
+                        bookingArr[orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]]= {};
+                        bookingArr[orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]]['booking_time']= [];
+                        bookingArr[orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]]['harga_per_jam']= [];
                     }
 
-                    bookingTime[orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]].push(orderJam);
-                    bubbleSort(bookingTime[orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]]);
+                    bookingArr[orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]]['booking_time'].push(orderJam);
+                    bookingArr[orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]]['harga_per_jam'].push(hargaPerJam);
+                    bubbleSort(bookingArr[orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]]);
+
+                    // hargaPerJamArr[orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]].push(orderJam);
 
                     if(courtStatus === true){
                         let dateConvert = new Date(Object.keys(orderDataSort)[index].split('-')[0] + '/' + Object.keys(orderDataSort)[index].split('-')[1] + '/' + Object.keys(orderDataSort)[index].split('-')[2]);
@@ -430,27 +437,25 @@
                 }
             }
 
-            // console.log(bookingTime)
-            $.each(bookingTime, function(index, value) {
-                // console.log(value);
-                $.each(value, function(bookingTimeIndex, bookingTimeValue){
-                    // console.log(bookingTimeValue);
-                    $('#booking-hour-counting-'+index).append('\
+            $.each(bookingArr, function(bookingArrIndex, bookingArrValue) {
+                for(let index = 0; index < bookingArrValue.booking_time.length; ++index){
+                        console.log(bookingArrValue.booking_time[index]);
+                        $('#booking-hour-counting-'+bookingArrIndex).append('\
                         <div class="col-sm-12">\
                             <div class="card" style="border: 0;margin-bottom: 7px;">\
                                 <div class="media" style="background-color: azure;border-radius: 5px;border-left: 5px gray solid;padding: 3px 5px 0px 5px;">\
                                     <div class="media-body">\
-                                        <p>'+bookingTimeValue+'</p>\
+                                        <p>'+bookingArrValue.booking_time[index]+'</p>\
                                     </div>\
                                     <div>\
-                                        <p>'+((jenisBooking === 'per_jam') ? formatter.format(hargaPerJam) : 'Harga Sudah Disesuaikan!')+'</p>\
+                                        <p>'+((jenisBooking === 'per_jam') ? formatter.format(bookingArrValue.harga_per_jam[index]) : 'Harga Sudah Disesuaikan!')+'</p>\
                                     </div>\
                                 </div>\
                             </div>\
                         </div>\
                     ');
-                });
-                $('#booking-hour-counting-'+index).children().last().append('<hr/>');
+                }
+                $('#booking-hour-counting-'+bookingArrIndex).children().last().append('<hr/>');
             });
 
             $('#nama-lapangan-invc').empty().append(namaLapangan);
