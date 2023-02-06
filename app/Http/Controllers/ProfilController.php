@@ -70,7 +70,7 @@ class ProfilController extends Controller
         $dataPemilikUpdate->nomor_telepon = $request->nomor_telepon_pemilik_lapangan;
 
 
-        
+
 
         if ($request->hasFile('foto_lapangan_1')) {
             File::delete($dataLapangan->foto_lapangan_1);

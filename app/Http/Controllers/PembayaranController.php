@@ -94,7 +94,7 @@ class PembayaranController extends Controller
         ->leftJoin('tb_daftar_jenis_pembayaran', 'tb_pembayaran.id_daftar_jenis_pembayaran', '=', 'tb_daftar_jenis_pembayaran.id')
         ->leftJoin('tb_riwayat_status_pembayaran', function($join){
             $join->on('tb_riwayat_status_pembayaran.id_pembayaran', '=', 'tb_pembayaran.id')
-            ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran)');
+            ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran GROUP BY tb_riwayat_status_pembayaran.id_pembayaran)');
         })
         ->where('tb_booking.id_pengguna', Auth::user()->id)
         ->where('tb_riwayat_status_pembayaran.status_pembayaran', 'Belum Lunas')
@@ -111,7 +111,7 @@ class PembayaranController extends Controller
         //     $pembayaran->snap_token = $snapToken;
         //     $pembayaran->save();
         // }
-
+        // dd($dataMenungguPembayaran);
         $limitWaktuUploadBuktiTrx = date('Y-m-d H:i:s', strtotime('+1 hour', strtotime(isset($dataMenungguPembayaran) ? $dataMenungguPembayaran->pembayaran_created_at : '')));
 
         return view('penyewa_lapangan.penyewa_lapangan_menunggu_pembayaran', compact('dataMenungguPembayaran', 'limitWaktuUploadBuktiTrx'));
@@ -252,14 +252,14 @@ class PembayaranController extends Controller
                                     ->first();
 
         if(isset($chatIdPenyewa)){
-            $pesan = new Pesan;
-            $pesan->chat_id = $chatIdPenyewa->chat_id;
-            $pesan->pesan = 'Pesanan penyewaan lapangan '. $chatIdPenyewa->nama_lapangan .' telah diupdate. Mohon untuk di periksa. Terima kasih!';
-            $pesan->save();
+            $pesanToPemilik = new Pesan;
+            $pesanToPemilik->chat_id = $chatIdPenyewa->chat_id;
+            $pesanToPemilik->pesan = 'Pesanan penyewaan lapangan '. $chatIdPenyewa->nama_lapangan .' telah diupdate. Mohon untuk di periksa. Terima kasih!';
+            $pesanToPemilik->save();
 
             // DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdLapangan[0]->chat_id, 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa[0]->name .' pada tanggal '. $request->tglBooking .'. Mohon untuk diperiksa. Terima kasih!']);
 
-            TelegramSenderBotJob::dispatch($pesan)->onConnection('telegramSenderBotConnection');
+            TelegramSenderBotJob::dispatch($pesanToPemilik)->onConnection('telegramSenderBotConnection');
         }
 
         // DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdPenyewa[0]->chat_id, 'Pesanan penyewaan lapangan '. $chatIdPenyewa[0]->nama_lapangan .' telah diupdate. Mohon untuk di periksa. Terima kasih!']);

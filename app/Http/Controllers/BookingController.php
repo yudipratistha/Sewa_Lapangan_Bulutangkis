@@ -177,7 +177,7 @@ class BookingController extends Controller
                     $pesanToPengguna->save();
 
                     PembayaranLimitTimeJob::dispatch($pembayaran, $pesanToPengguna)->onConnection('paymentConnection');
-                    TelegramSenderBotJob::dispatch($pesanToPemilik)->onConnection('telegramSenderBotConnection');
+                    TelegramSenderBotJob::dispatch($pembayaran, $pesanToPemilik, $pesanToPengguna)->onConnection('telegramSenderBotConnection');
                 }
 
                 return response()->json('success');

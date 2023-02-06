@@ -17,9 +17,11 @@ use Illuminate\Contracts\Queue\ShouldBeUnique;
 
 class PembayaranLimitTimeJob implements ShouldQueue
 {
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
     protected $pembayaran;
     protected $pesanToPengguna;
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    public $tries = 5;
 
     /**
      * Create a new job instance.
@@ -39,38 +41,52 @@ class PembayaranLimitTimeJob implements ShouldQueue
      */
     public function handle()
     {
-        $pembayaran = $this->pembayaran;
+        // $pembayaran = $this->pembayaran;
         $pesanToPengguna = $this->pesanToPengguna;
 
-        $pembayaranCreated = date('H:i:s', strtotime($pembayaran->created_at));
-        $pembayaranTimeLimit = date('H:i:s', strtotime('+1 hour', strtotime($pembayaran->created_at)));
+        $pembayaranCreated = date('H:i:s', strtotime($this->pembayaran->created_at));
+        $pembayaranTimeLimit = date('H:i:s', strtotime('+1 hour', strtotime($this->pembayaran->created_at)));
 
-        $status = true;
-        while($status){
-            sleep(1);
-            $now = Carbon::now('Asia/Singapore');
-            $now->addMinute(0);
-            $timeNow  = $now->format('H:i:s');
+        if($this->attempts() < 2){
 
-            if($timeNow >= $pembayaranCreated && $timeNow >= $pembayaranTimeLimit){
-                $pembayaranGetBukti = Pembayaran::find($this->pembayaran->id);
-
-                if(!isset($pembayaranGetBukti->foto_bukti_pembayaran)){
-                    $riwayatPembayaranStatus = new RiwayatStatusPembayaran;
-                    $riwayatPembayaranStatus->id_pembayaran = $this->pembayaran->id;
-                    $riwayatPembayaranStatus->status_pembayaran = 'Batal';
-                    $riwayatPembayaranStatus->save();
+            $status = true;
+            while($status){
+                sleep(1);
+                $now = Carbon::now('Asia/Singapore');
+                $now->addMinute(0);
+                $timeNow  = $now->format('H:i:s');
+                if($timeNow === date('H:i:s', strtotime('-15 minute', strtotime($pembayaranTimeLimit)))){
+                    $pesanToPengguna = $this->pesanToPengguna;
+                    $sendto = env('TELEGRAM_API_URL').env('TELEGRAM_BOT_TOKEN')."/sendmessage?chat_id=".$pesanToPengguna->chat_id."&text=".$pesanToPengguna->pesan."&parse_mode=html";
+                    file_get_contents($sendto);
+                    echo "Message was sent to ".$sendto."\n";
+                    $status = false;
+                    return $this->release(1);
                 }
 
-                $status = false;
             }
-
-            if($timeNow === date('H:i:s', strtotime('-15 minute', strtotime($pembayaranTimeLimit)))){
-                $pesanToPengguna = $this->pesanToPengguna;
-                $sendto = env('TELEGRAM_API_URL').env('TELEGRAM_BOT_TOKEN')."/sendmessage?chat_id=".$pesanToPengguna->chat_id."&text=".$pesanToPengguna->pesan."&parse_mode=html";
-                file_get_contents($sendto);
-                echo "Message was sent to ".$sendto."\n";
+        }else if($this->attempts() < 3){
+            $status = true;
+            while($status){
+                sleep(1);
+                $now = Carbon::now('Asia/Singapore');
+                $now->addMinute(0);
+                $timeNow  = $now->format('H:i:s');
+                $pembayaranGetBukti = Pembayaran::find($this->pembayaran->id);
+                if($timeNow >= $pembayaranTimeLimit){
+                    echo "batal";
+                    if(!isset($pembayaranGetBukti->foto_bukti_pembayaran)){
+                        $riwayatPembayaranStatus = new RiwayatStatusPembayaran;
+                        $riwayatPembayaranStatus->id_pembayaran = $this->pembayaran->id;
+                        $riwayatPembayaranStatus->status_pembayaran = 'Batal';
+                        $riwayatPembayaranStatus->save();
+                    }
+                    $status = false;
+                    $this->release(1);
+                }
             }
+        }else {
+            return;
         }
     }
 }

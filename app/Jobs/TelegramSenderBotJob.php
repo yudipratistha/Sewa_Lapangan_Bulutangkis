@@ -4,26 +4,30 @@ namespace App\Jobs;
 
 use App\Models\Pesan;
 
+use App\Models\Pembayaran;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Support\Carbon;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 
 class TelegramSenderBotJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    protected $pesan;
+    protected $pembayaran;
+    protected $pesanToPemilik;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Pesan $pesan)
+    public function __construct(Pembayaran $pembayaran, Pesan $pesanToPemilik)
     {
-        $this->pesan = $pesan;
+        $this->pembayaran = $pembayaran;
+        $this->pesanToPemilik = $pesanToPemilik;
     }
 
     /**
@@ -33,11 +37,9 @@ class TelegramSenderBotJob implements ShouldQueue
      */
     public function handle()
     {
-        $pesan = $this->pesan;
-        $sendto = env('TELEGRAM_API_URL').env('TELEGRAM_BOT_TOKEN')."/sendmessage?chat_id=".$pesan->chat_id."&text=".$pesan->pesan."&parse_mode=html";
+        $pesanToPemilik = $this->pesanToPemilik;
+        $sendto = env('TELEGRAM_API_URL').env('TELEGRAM_BOT_TOKEN')."/sendmessage?chat_id=".$pesanToPemilik->chat_id."&text=".$pesanToPemilik->pesan."&parse_mode=html";
         file_get_contents($sendto);
-        echo "Message was sent to ".$pesan->chat_id."\n";
-
-        Pesan::where('id', $pesan->id)->update(['status_pesan' => '1', 'updated_at' => date('Y-m-d H:i:s')]);
+        echo "Message was sent to ".$pesanToPemilik->chat_id."\n";
     }
 }
