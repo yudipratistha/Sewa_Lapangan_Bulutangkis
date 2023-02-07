@@ -427,6 +427,7 @@
                     var alamatLapangan = orderDataArr.alamat_lapangan;
                     var namaPenyewa = orderDataArr.nama_penyewa;
                     var nomorTeleponPenyewa = orderDataArr.nomor_telepon_penyewa;
+                    var pembayaranId = orderDataArr.pembayaran_id;
 
                     if(index2 === 0 || Object.keys(bookingArr).includes((orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]).toString()) === false){
                         courtStatus = true;
@@ -500,14 +501,14 @@
             }
 
             linkFotoBuktiBayar = "{{route('pemilikLapangan.getFileBuktiPembayaran', ':pembayaran_id')}}";
-            linkFotoBuktiBayar = linkFotoBuktiBayar.replace(":pembayaran_id", orderData.pembayaran_id);
+            linkFotoBuktiBayar = linkFotoBuktiBayar.replace(":pembayaran_id", pembayaranId);
 
             $("#foto-bukti-pembayaran-full").attr("href", linkFotoBuktiBayar);
             $("#foto-bukti-pembayaran-thumbnail").attr("src", linkFotoBuktiBayar);
 
             $('#data-profil-penyewa-modal').find('.modal-footer').children('button').after('\
-                <button type="button" onclick="tolakPenyewaan('+orderData.pembayaran_id+')" class="btn btn-square btn-outline-warning">Tolak</button>\
-                <button type="button" onclick="terimaPenyewaan('+orderData.pembayaran_id+')" class="btn btn-square btn-outline-primary">Terima</button>'
+                <button type="button" onclick="tolakPenyewaan('+pembayaranId+')" class="btn btn-square btn-outline-warning">Tolak</button>\
+                <button type="button" onclick="terimaPenyewaan('+pembayaranId+')" class="btn btn-square btn-outline-primary">Terima</button>'
             )
             $('#data-profil-penyewa-modal').modal('show');
         }

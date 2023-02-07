@@ -204,7 +204,7 @@ class BookingController extends Controller
         // dd($request->orderData);
         // if(!isset($request->checkBook)) dd($request->checkBook);
 
-        if($request->tglBooking <= $currentDate){
+        if($request->tglBooking >= $currentDate){
             $dataBookArr = array();
 
             $dataLapangan = DB::table('tb_courts')->select('tb_riwayat_status_pembayaran.status_pembayaran',
