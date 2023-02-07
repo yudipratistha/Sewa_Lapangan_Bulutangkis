@@ -16,7 +16,6 @@ use Illuminate\Contracts\Queue\ShouldBeUnique;
 class TelegramSenderBotJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    protected $pembayaran;
     protected $pesanToPemilik;
 
     /**
@@ -24,9 +23,8 @@ class TelegramSenderBotJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(Pembayaran $pembayaran, Pesan $pesanToPemilik)
+    public function __construct(Pesan $pesanToPemilik)
     {
-        $this->pembayaran = $pembayaran;
         $this->pesanToPemilik = $pesanToPemilik;
     }
 

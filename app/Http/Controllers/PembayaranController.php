@@ -195,29 +195,18 @@ class PembayaranController extends Controller
                                     ->where('tb_pembayaran.id', $dataPembayaran->pembayaran_id)
                                     ->first();
 
-            // $namaPenyewa = DB::table('tb_pengguna')->select('tb_pengguna.name')
-            //                     ->where('tb_pengguna.id', Auth::user()->id)
-            //                     ->get();
-
-            // DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdLapangan[0]->chat_id, 'Transaksi oleh '. $namaPenyewa[0]->name .' telah dibayar. Mohon untuk diperiksa kelengkapan pembayaran dan mengubah status. Terima kasih!']);
-
-            // $chatIdLapangan = DB::table('tb_pengguna')->select('tb_pengguna.chat_id')
-            //                         ->leftJoin('tb_lapangan', 'tb_pengguna.id', '=', 'tb_lapangan.id_pengguna')
-            //                         ->where('tb_lapangan.id', $request->lapanganId)
-            //                         ->first();
-
             $namaPenyewa = DB::table('tb_pengguna')->select('tb_pengguna.name')
                                 ->where('tb_pengguna.id', Auth::user()->id)
                                 ->first();
             if(isset($chatIdLapangan)){
-                $pesan = new Pesan;
-                $pesan->chat_id = $chatIdLapangan->chat_id;
-                $pesan->pesan = 'Transaksi oleh '. $namaPenyewa->name .' telah dibayar. Berikut link rincian penyewaan <a href="'. rawurlencode('http://'.$_SERVER['SERVER_NAME'].':8000/pemilik-lapangan/dashboard?tanggalSewa='.$request->tglBooking.'&penggunaPenyewaId='.Auth::user()->id.'&court=1&pembayaranId='.$dataPembayaran->pembayaran_id) .'">klik disini</a>. Mohon untuk diperiksa kelengkapan pembayaran dan mengubah status. Terima kasih!';
-                $pesan->save();
+                $pesanToPemilik = new Pesan;
+                $pesanToPemilik->chat_id = $chatIdLapangan->chat_id;
+                $pesanToPemilik->pesan = 'Transaksi oleh '. $namaPenyewa->name .' telah dibayar. Berikut link rincian penyewaan <a href="'. rawurlencode('http://'.$_SERVER['SERVER_NAME'].':8000/pemilik-lapangan/dashboard?tanggalSewa='.$request->tglBooking.'&penggunaPenyewaId='.Auth::user()->id.'&court=1&pembayaranId='.$dataPembayaran->pembayaran_id) .'">klik disini</a>. Mohon untuk diperiksa kelengkapan pembayaran dan mengubah status. Terima kasih!';
+                $pesanToPemilik->save();
 
                 // DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdLapangan[0]->chat_id, 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa[0]->name .' pada tanggal '. $request->tglBooking .'. Mohon untuk diperiksa. Terima kasih!']);
 
-                TelegramSenderBotJob::dispatch($pesan)->onConnection('telegramSenderBotConnection');
+                TelegramSenderBotJob::dispatch($pesanToPemilik)->onConnection('telegramSenderBotConnection');
             }
             return response()->json('success');
         }
@@ -252,14 +241,14 @@ class PembayaranController extends Controller
                                     ->first();
 
         if(isset($chatIdPenyewa)){
-            $pesanToPemilik = new Pesan;
-            $pesanToPemilik->chat_id = $chatIdPenyewa->chat_id;
-            $pesanToPemilik->pesan = 'Pesanan penyewaan lapangan '. $chatIdPenyewa->nama_lapangan .' telah diupdate. Mohon untuk di periksa. Terima kasih!';
-            $pesanToPemilik->save();
+            $pesanToPengguna = new Pesan;
+            $pesanToPengguna->chat_id = $chatIdPenyewa->chat_id;
+            $pesanToPengguna->pesan = 'Pesanan penyewaan lapangan '. $chatIdPenyewa->nama_lapangan .' telah diupdate. Mohon untuk di periksa. Terima kasih!';
+            $pesanToPengguna->save();
 
             // DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdLapangan[0]->chat_id, 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa[0]->name .' pada tanggal '. $request->tglBooking .'. Mohon untuk diperiksa. Terima kasih!']);
 
-            TelegramSenderBotJob::dispatch($pesanToPemilik)->onConnection('telegramSenderBotConnection');
+            TelegramSenderBotJob::dispatch($pesanToPengguna)->onConnection('telegramSenderBotConnection');
         }
 
         // DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdPenyewa[0]->chat_id, 'Pesanan penyewaan lapangan '. $chatIdPenyewa[0]->nama_lapangan .' telah diupdate. Mohon untuk di periksa. Terima kasih!']);
