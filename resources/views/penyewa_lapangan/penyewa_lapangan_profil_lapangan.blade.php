@@ -83,13 +83,18 @@
                     <div class="card" style="margin-bottom: 10px;">
                         <div class="col-md-12 card-header row pb-0 pe-0">
                             <div class="col-md-4 mb-3 mt-0 row g-3">
-                                <label class="col-md-3 mt-2 col-form-label">Pilih Tanggal</label>
-                                <div class="col-md-9 mt-2">
+                                <div class="md-6 mt-2">
+                                    <button type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#modal-jenis-booking" data-bs-original-title="" title="" class="btn btn-square btn-outline-blue mt-1" style="float:left;">Pesan sekarang!</button>
+                                </div>
+                                <label class="col-md-4 mt-2 col-form-label">Jadwal Lapangan</label>
+                                <div class="col-md-8 mt-2">
                                     <div class="input-group date">
                                         <input class="form-control digits" id="tanggal" name="tanggal" type="text" placeholder="dd-mm-yyyy" readonly>
                                         <div class="input-group-text"><i class="fa fa-calendar"> </i></div>
                                     </div>
                                 </div>
+                                
+
                             </div>
                             <div class="col-md-8">
                                 <ul class="pull-right nav nav-tabs border-tab nav-success" id="top-tabdanger" role="tablist">
@@ -134,7 +139,7 @@
                                 <input type="hidden" class="form-control" id="lng-location-lapangan" name="lng_alamat_pemilik_lapangan">
                             </div>
                             <!-- <a href="{{route('penyewaLapangan.pesanLapanganPerJam', [$dataLapangan->lapangan_id, str_replace(' ', '-', strtolower($dataLapangan->nama_lapangan))])}}"><button type="button" class="btn btn-square btn-outline-blue mt-1" style="float:right;">Pesan Sekarang!</button></a> -->
-                            <button type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#modal-jenis-booking" data-bs-original-title="" title="" class="btn btn-square btn-outline-blue mt-1" style="float:right;">Pilih Jenis Booking</button>
+                            
                         </div>
                     </div>
                 </div>
