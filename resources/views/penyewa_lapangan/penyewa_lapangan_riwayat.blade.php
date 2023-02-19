@@ -198,24 +198,45 @@
     var filterDateStart;
     var filterDateEnd;
     var filterTrx;
+    var pembayaranId;
 
-    $('#filter-tanggal').daterangepicker({
-        autoUpdateInput: false,
-        // maxDate: moment(),
-        ranges: {
-            'Today': [moment(), moment()],
-            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-            'This Month': [moment().startOf('month'), moment().endOf('month')],
-            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-        },
-        "alwaysShowCalendars": true,
-        locale: {
-            format: 'DD-MM-YYYY',
-            cancelLabel: 'Clear'
+    $( document ).ready(function() {
+        var filterDate = $('#filter-tanggal').daterangepicker({
+            autoUpdateInput: false,
+            // maxDate: moment(),
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            },
+            "alwaysShowCalendars": true,
+            locale: {
+                format: 'DD-MM-YYYY',
+                cancelLabel: 'Clear'
+            }
+        });
+
+        console.log(moment().format("DD-MM-YYYY"));
+
+
+        if(location.search !== ''){
+            var params = new URLSearchParams(window.location.search);
+            getInvoice(params.get('pembayaranId'));
+            $('#filter-tanggal').data('daterangepicker').setStartDate(params.get('tglPenyewaan')); //date now
+            $('#filter-tanggal').data('daterangepicker').setEndDate(params.get('tglPenyewaan'));
+            $('#filter-tanggal').click();
+            $('.applyBtn').click();
+
+            if (location.href.includes('?')) {
+                history.pushState({}, null, location.href.split('?')[0]);
+            }
         }
     });
+
+
 
     $(".filter-status").click(function() {
         if($(this).hasClass('reset-filter')){
@@ -239,6 +260,23 @@
             $('#data-riwayat-penyewa').DataTable().ajax.reload();
         }
     });
+
+    function getInvoice(pembayaranId){
+        link = "{{route('penyewaLapangan.getInvoice', ':pembayaranId')}}";
+        link = link.replace(":pembayaranId", pembayaranId);
+
+        $.ajax({
+            url: link,
+            method: "GET",
+            dataType: 'json',
+            success: function(data){
+                bookingCounting(data)
+            },
+            error: function(data){
+                console.log("asdsad", data)
+            }
+        });
+    }
 
 
     table = $('#data-riwayat-penyewa').DataTable({
@@ -291,21 +329,8 @@
             $('#data-riwayat-penyewa tbody').on('click', "#view-data-penyewaan-invoice", function() {
                 let row = $(this).parents('tr')[0];
                 console.log(table.row(row).data());
-
-                link = "{{route('penyewaLapangan.getInvoice', ':pembayaranId')}}";
-                link = link.replace(":pembayaranId", table.row(row).data().pembayaran_id);
-
-                $.ajax({
-                    url: link,
-                    method: "GET",
-                    dataType: 'json',
-                    success: function(data){
-                        bookingCounting(data)
-                    },
-                    error: function(data){
-                        console.log("asdsad", data)
-                    }
-                });
+                pembayaranId = table.row(row).data().pembayaran_id;
+                getInvoice(pembayaranId)
             });
         }
     });

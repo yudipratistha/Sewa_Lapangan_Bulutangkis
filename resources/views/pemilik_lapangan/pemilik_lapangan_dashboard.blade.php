@@ -521,11 +521,19 @@
                 $("#update-status-pembayaran").val(statusPembayaran).change();
             }
 
-            linkFotoBuktiBayar = "{{route('pemilikLapangan.getFileBuktiPembayaran', ':pembayaran_id')}}";
-            linkFotoBuktiBayar = linkFotoBuktiBayar.replace(":pembayaran_id", pembayaranId);
+            if(statusPembayaran === 'Proses' || statusPembayaran === 'DP' || statusPembayaran === 'Lunas'){
+                linkFotoBuktiBayar = "{{route('pemilikLapangan.getFileBuktiPembayaran', ':pembayaran_id')}}";
+                linkFotoBuktiBayar = linkFotoBuktiBayar.replace(":pembayaran_id", pembayaranId);
 
-            $("#foto-bukti-pembayaran-full").attr("href", linkFotoBuktiBayar);
-            $("#foto-bukti-pembayaran-thumbnail").attr("src", linkFotoBuktiBayar);
+                $("#foto-bukti-pembayaran-full").show();
+                $("#foto-bukti-pembayaran-full").attr("href", linkFotoBuktiBayar);
+                $("#foto-bukti-pembayaran-thumbnail").attr("src", linkFotoBuktiBayar);
+            }
+
+            if(statusPembayaran === 'Belum Lunas'){
+                $("#foto-bukti-pembayaran-full").hide();
+                $("#foto-bukti-pembayaran-full").after('Belum Memasukan Foto Nota Pembayaran')
+            }
 
             $('#data-profil-penyewa-modal').find('.modal-footer').children('button').after('\
                 <button type="button" onclick="tolakPenyewaan('+pembayaranId+')" class="btn btn-square btn-outline-warning">Tolak</button>\

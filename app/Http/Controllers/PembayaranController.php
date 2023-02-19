@@ -225,6 +225,7 @@ class PembayaranController extends Controller
 
     public function updateStatusPembayaranPenyewa(Request $request){
         $dataPembayaran = Pembayaran::find($request->pembayaranId);
+        $dataBooking = Booking::select('tgl_booking')->where('id_pembayaran', $request->pembayaranId)->first();
 
         $dataPembayaran->RiwayatStatusPembayaran()->insert(['id_pembayaran' => $request->pembayaranId,'status_pembayaran' => $request->statusPembayaran]);
 
@@ -243,8 +244,8 @@ class PembayaranController extends Controller
         if(isset($chatIdPenyewa)){
             $pesanToPengguna = new Pesan;
             $pesanToPengguna->chat_id = $chatIdPenyewa->chat_id;
-            $pesanToPengguna->pesan = 'Pesanan penyewaan lapangan '. $chatIdPenyewa->nama_lapangan .' telah diupdate. Berikut link rincian penyewaan <a href="'. rawurlencode('http://'.$_SERVER['SERVER_NAME'].':8000/penyewa-lapangan/riwayat-penyewaan/?pembayaranId='.$request->pembayaranId) .'">klik disini</a>. Mohon untuk di periksa. Terima kasih!';
-            
+            $pesanToPengguna->pesan = 'Pesanan penyewaan lapangan '. $chatIdPenyewa->nama_lapangan .' telah diupdate. Berikut link rincian penyewaan <a href="'. rawurlencode('http://'.$_SERVER['SERVER_NAME'].':8000/penyewa-lapangan/riwayat-penyewaan?pembayaranId='.$request->pembayaranId .'&tglPenyewaan='. date('d-m-Y', strtotime($dataBooking->tgl_booking))) .'">klik disini</a>. Mohon untuk di periksa. Terima kasih!';
+
             $pesanToPengguna->save();
 
             // $pesanToPemilik->pesan = 'Transaksi oleh '. $namaPenyewa->name .' telah dibayar. Berikut link rincian penyewaan <a href="'. rawurlencode('http://'.$_SERVER['SERVER_NAME'].':8000/pemilik-lapangan/dashboard?tanggalSewa='.$request->tglBooking.'&penggunaPenyewaId='.Auth::user()->id.'&court=1&pembayaranId='.$dataPembayaran->pembayaran_id) .'">klik disini</a>. Mohon untuk diperiksa kelengkapan pembayaran dan mengubah status. Terima kasih!';
