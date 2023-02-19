@@ -524,7 +524,7 @@
             if(statusPembayaran === 'Proses' || statusPembayaran === 'DP' || statusPembayaran === 'Lunas'){
                 linkFotoBuktiBayar = "{{route('pemilikLapangan.getFileBuktiPembayaran', ':pembayaran_id')}}";
                 linkFotoBuktiBayar = linkFotoBuktiBayar.replace(":pembayaran_id", pembayaranId);
-
+                $('.photo-proof-payment-not-found').remove();
                 $("#foto-bukti-pembayaran-full").show();
                 $("#foto-bukti-pembayaran-full").attr("href", linkFotoBuktiBayar);
                 $("#foto-bukti-pembayaran-thumbnail").attr("src", linkFotoBuktiBayar);
@@ -532,7 +532,7 @@
 
             if(statusPembayaran === 'Belum Lunas'){
                 $("#foto-bukti-pembayaran-full").hide();
-                $("#foto-bukti-pembayaran-full").after('Belum Memasukan Foto Nota Pembayaran')
+                $("#foto-bukti-pembayaran-full").after('<p class="photo-proof-payment-not-found">Belum Memasukan Foto Nota Pembayaran</p>')
             }
 
             $('#data-profil-penyewa-modal').find('.modal-footer').children('button').after('\
