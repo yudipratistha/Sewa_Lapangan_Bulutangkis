@@ -251,7 +251,6 @@
                                         <a id="foto-bukti-pembayaran-full" href="" itemprop="contentUrl" data-size="1600x950">
                                             <img id="foto-bukti-pembayaran-thumbnail" class="img-thumbnail" src="" itemprop="thumbnail" alt="Image description">
                                         </a>
-                                        <figcaption itemprop="caption description">Image caption  1</figcaption>
                                     </figure>
                                 </div>
                             </div>
@@ -531,8 +530,9 @@
             }
 
             if(statusPembayaran === 'Belum Lunas'){
+                $('.photo-proof-payment-not-found').remove();
                 $("#foto-bukti-pembayaran-full").hide();
-                $("#foto-bukti-pembayaran-full").after('<p class="photo-proof-payment-not-found">Belum Memasukan Foto Nota Pembayaran</p>')
+                $("#foto-bukti-pembayaran-full").after('<p class="photo-proof-payment-not-found">Belum Memasukan Foto Bukti Pembayaran</p>')
             }
 
             $('#data-profil-penyewa-modal').find('.modal-footer').children('button').after('\
