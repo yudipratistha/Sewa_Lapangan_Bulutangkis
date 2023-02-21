@@ -491,6 +491,9 @@
             $('#biaya-sewa').empty().append(formatter.format(totalBiaya));
             $('#total-biaya-sewa').empty().append(formatter.format(totalBiaya));
 
+            linkFotoBuktiBayar = "{{route('pemilikLapangan.getFileBuktiPembayaran', ':pembayaran_id')}}";
+            linkFotoBuktiBayar = linkFotoBuktiBayar.replace(":pembayaran_id", pembayaranId);
+
             if(statusPembayaran === 'DP' || statusPembayaran === 'Lunas'){
                 $("#update-status-pembayaran").val(statusPembayaran).change();
             }
@@ -499,20 +502,24 @@
                 $("#update-status-pembayaran").val(statusPembayaran).change();
             }
 
-            if(statusPembayaran === 'Proses' || statusPembayaran === 'DP' || statusPembayaran === 'Lunas'){
-                linkFotoBuktiBayar = "{{route('pemilikLapangan.getFileBuktiPembayaran', ':pembayaran_id')}}";
-                linkFotoBuktiBayar = linkFotoBuktiBayar.replace(":pembayaran_id", pembayaranId);
-                $('.photo-proof-payment-not-found').remove();
-                $("#foto-bukti-pembayaran-full").show();
-                $("#foto-bukti-pembayaran-full").attr("href", linkFotoBuktiBayar);
-                $("#foto-bukti-pembayaran-thumbnail").attr("src", linkFotoBuktiBayar);
-            }
-
-            if(statusPembayaran === 'Belum Lunas'){
-                $('.photo-proof-payment-not-found').remove();
-                $("#foto-bukti-pembayaran-full").hide();
-                $("#foto-bukti-pembayaran-full").after('<p class="photo-proof-payment-not-found">Belum Memasukan Foto Bukti Pembayaran</p>')
-            }
+            $.ajax({
+                url:linkFotoBuktiBayar,
+                success: function () {
+                    $('.photo-proof-payment-not-found').remove();
+                    $("#foto-bukti-pembayaran-full").show();
+                    $("#foto-bukti-pembayaran-full").attr("href", linkFotoBuktiBayar);
+                    $("#foto-bukti-pembayaran-thumbnail").attr("src", linkFotoBuktiBayar);
+                },
+                error: function (jqXHR, status, er) {
+                    if (jqXHR.status === 404) {
+                        $("#foto-bukti-pembayaran-full").attr("href", '');
+                        $("#foto-bukti-pembayaran-thumbnail").attr("src", '');
+                        $('.photo-proof-payment-not-found').remove();
+                        $("#foto-bukti-pembayaran-full").hide();
+                        $("#foto-bukti-pembayaran-full").after('<p class="photo-proof-payment-not-found">Belum Memasukan Foto Bukti Pembayaran</p>')
+                    }
+                }
+            });
 
             $('#data-profil-penyewa-modal').find('.modal-footer').children('button').after('\
                 <button type="button" onclick="tolakPenyewaan('+pembayaranId+')" class="btn btn-square btn-outline-warning">Tolak</button>\

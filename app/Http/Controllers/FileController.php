@@ -24,7 +24,7 @@ class FileController extends Controller
             ->where('tb_lapangan.id_pengguna', Auth::user()->id)
             ->first();
 
-        if(isset($dataPembayaran)){
+        if(isset($dataPembayaran->foto_bukti_pembayaran)){
             $namaFile = explode('/', $dataPembayaran->foto_bukti_pembayaran)[7];
 
             $fullpath="app/bukti_bayar/".strtolower(str_replace(' ', '_', $dataPembayaran->nama_lapangan))."/{$dataPembayaran->id_pengguna_booking}/{$dataPembayaran->tgl_booking}/{$dataPembayaran->id_pembayaran}/{$namaFile}";
