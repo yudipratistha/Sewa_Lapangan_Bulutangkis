@@ -63,7 +63,6 @@ class PembayaranLimitTimeJob implements ShouldQueue
                     $status = false;
                     return $this->release(1);
                 }
-
             }
         }else if($this->attempts() < 3){
             $status = true;
@@ -73,7 +72,7 @@ class PembayaranLimitTimeJob implements ShouldQueue
                 $now->addMinute(0);
                 $timeNow  = $now->format('H:i:s');
                 $pembayaranGetBukti = Pembayaran::find($this->pembayaran->id);
-                if($timeNow >= $pembayaranTimeLimit || date('Y-m-d') >= $pembayaranCreated){
+                if($timeNow >= $pembayaranTimeLimit && date('Y-m-d') >= $pembayaranCreated){
                     echo "batal";
                     if(!isset($pembayaranGetBukti->foto_bukti_pembayaran)){
                         $riwayatPembayaranStatus = new RiwayatStatusPembayaran;
