@@ -56,12 +56,18 @@ class PembayaranLimitTimeJob implements ShouldQueue
                 $now->addMinute(0);
                 $timeNow  = $now->format('H:i:s');
                 if($timeNow === date('H:i:s', strtotime('-15 minute', strtotime($pembayaranTimeLimit)))){
-                    $pesanToPengguna = $this->pesanToPengguna;
-                    $sendto = env('TELEGRAM_API_URL').env('TELEGRAM_BOT_TOKEN')."/sendmessage?chat_id=".$pesanToPengguna->chat_id."&text=".$pesanToPengguna->pesan."&parse_mode=html";
-                    file_get_contents($sendto);
-                    echo "Message was sent to ".$sendto."\n";
-                    $status = false;
-                    return $this->release(1);
+                    $pembayaranGetBukti = Pembayaran::find($this->pembayaran->id);
+
+                    if(!isset($pembayaranGetBukti->foto_bukti_pembayaran)){
+                        $pesanToPengguna = $this->pesanToPengguna;
+                        $sendto = env('TELEGRAM_API_URL').env('TELEGRAM_BOT_TOKEN')."/sendmessage?chat_id=".$pesanToPengguna->chat_id."&text=".$pesanToPengguna->pesan."&parse_mode=html";
+                        file_get_contents($sendto);
+                        echo "Message was sent to ".$sendto."\n";
+                        $status = false;
+                        return $this->release(1);
+                    }else {
+                        return true;
+                    }
                 }
             }
         }else if($this->attempts() < 3){
@@ -71,8 +77,9 @@ class PembayaranLimitTimeJob implements ShouldQueue
                 $now = Carbon::now('Asia/Singapore');
                 $now->addMinute(0);
                 $timeNow  = $now->format('H:i:s');
-                $pembayaranGetBukti = Pembayaran::find($this->pembayaran->id);
+
                 if($timeNow >= $pembayaranTimeLimit && date('Y-m-d') >= $pembayaranCreated){
+                    $pembayaranGetBukti = Pembayaran::find($this->pembayaran->id);
                     echo "batal";
                     if(!isset($pembayaranGetBukti->foto_bukti_pembayaran)){
                         $riwayatPembayaranStatus = new RiwayatStatusPembayaran;
