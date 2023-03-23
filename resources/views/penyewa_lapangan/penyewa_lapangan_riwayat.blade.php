@@ -175,6 +175,31 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-sm-12">
+                                    <div class="card" style="border: 0;margin-bottom: 7px;">
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <p>Potongan Diskon</p>
+                                            </div>
+                                            <div>
+                                                <p><span id="potongan-diskon">-</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="card" style="border: 0;margin-bottom: 7px;">
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <p>Total Harga Setelah Diskon</p>
+                                            </div>
+                                            <div>
+                                                <p><span id="total-harga-setelah-diskon">-</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -426,6 +451,9 @@
                     var alamatLapangan = orderDataArr.alamat_lapangan;
                     var namaPenyewa = orderDataArr.nama_penyewa;
                     var nomorTeleponPenyewa = orderDataArr.nomor_telepon_penyewa;
+                    var totalBiayaDiskon = orderDataArr.total_biaya_diskon;
+                    var totalDiskonPersen = orderDataArr.total_diskon_persen;
+                    var kodeKupon = orderDataArr.kode_kupon;
 
                     if(index2 === 0 || Object.keys(bookingArr).includes((orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]).toString()) === false){
                         courtStatus = true;
@@ -490,6 +518,14 @@
             $('#status-pembayaran').empty().append(statusPembayaran);
             $('#biaya-sewa').empty().append(formatter.format(totalBiaya));
             $('#total-biaya-sewa').empty().append(formatter.format(totalBiaya));
+            $('#kode-promo').removeAttr('style');
+            $('#invalid-promo').remove();
+            if(kodeKupon !== ''){
+                $('#potongan-diskon').empty().append('('+kodeKupon+') '+ totalDiskonPersen + '%');
+                $('#total-biaya-sewa').css('text-decoration', ' line-through');
+                $('#total-harga-setelah-diskon').empty().append(formatter.format(totalBiayaDiskon));
+            }
+
             $('#modal-booking-counting').modal('show');
         }
     }

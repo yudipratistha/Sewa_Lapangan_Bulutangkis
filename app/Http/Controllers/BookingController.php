@@ -4,16 +4,17 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Kupon;
 use App\Models\Pesan;
 use App\Models\Booking;
 use App\Models\Lapangan;
 use App\Models\Pembayaran;
-use App\Jobs\TelegramBotJob;
 
+use App\Jobs\TelegramBotJob;
 use Illuminate\Http\Request;
 use App\Models\DetailBooking;
-use App\Models\StatusLapangan;
 
+use App\Models\StatusLapangan;
 use App\Jobs\TelegramSenderBotJob;
 use Illuminate\Support\Facades\DB;
 use App\Events\PembayaranLimitTime;
@@ -54,6 +55,11 @@ class BookingController extends Controller
                     ->whereRaw('tb_riwayat_status_pembayaran.id IN (SELECT MAX(tb_riwayat_status_pembayaran.id) FROM tb_riwayat_status_pembayaran GROUP BY tb_riwayat_status_pembayaran.id_pembayaran)');
                 })
                 ->where('tb_lapangan.id', $request->lapanganId)
+                ->first();
+
+            $kupons= Kupon::where('id_lapangan', $request->lapanganId)
+                ->where('kode_kupon', $request->kode_kupon)
+                ->whereRaw('tb_kupon.`tgl_berlaku_dari` <= "'.date('Y-m-d').'" AND tb_kupon.`tgl_berlaku_sampai` >= "'.date('Y-m-d').'"')
                 ->first();
 
             if($dataLapangan->status_pembayaran === 'Belum Lunas'){
@@ -110,6 +116,9 @@ class BookingController extends Controller
                 $pembayaran->id_daftar_jenis_pembayaran = $request->pilihPembayaran;
                 $pembayaran->jenis_booking = 'per_jam';
                 $pembayaran->total_biaya = $totalHargaBookingLapangan;
+                $pembayaran->total_biaya_diskon = $totalHargaBookingLapangan - $kupons->total_diskon_persen;
+                $pembayaran->total_diskon_persen = $kupons->total_diskon_persen;
+                $pembayaran->kode_kupon = $kupons->kode_kupon;
                 $pembayaran->save();
 
                 $riwayatStatusPembayaran = new RiwayatStatusPembayaran;
@@ -169,12 +178,12 @@ class BookingController extends Controller
                 if(isset($chatIdLapangan)){
                     $pesanToPemilik = new Pesan;
                     $pesanToPemilik->chat_id = $chatIdLapangan->chat_id;
-                    $pesanToPemilik->pesan = 'Terdapat transaksi penyewaan baru atas nama '. $dataPenyewa->name .' pada tanggal '. date('d-m-Y') .'. Berikut link rincian penyewaan <a href="'. rawurlencode('http://'.$_SERVER['SERVER_NAME'].'/pemilik-lapangan/dashboard?tanggalSewa='.$request->tglBooking.'&penggunaPenyewaId='.Auth::user()->id.'&court=1&pembayaranId='.$pembayaran->id) .'">klik disini</a>. Mohon untuk diperiksa. Terima kasih!';
+                    $pesanToPemilik->pesan = 'Terdapat transaksi penyewaan baru atas nama '. $dataPenyewa->name .' pada tanggal '. date('d-m-Y') .'. Berikut link rincian penyewaan <a href="'. rawurlencode('https://'.$_SERVER['SERVER_NAME'].'/pemilik-lapangan/dashboard?tanggalSewa='.$request->tglBooking.'&penggunaPenyewaId='.Auth::user()->id.'&court=1&pembayaranId='.$pembayaran->id) .'">klik disini</a>. Mohon untuk diperiksa. Terima kasih!';
                     $pesanToPemilik->save();
 
                     $pesanToPengguna = new Pesan;
                     $pesanToPengguna->chat_id = $dataPenyewa->pengguna_chat_id;
-                    $pesanToPengguna->pesan = 'Hi '.$dataPenyewa->name .', mohon segera lunasi transaksi anda pada tanggal '. date('d-m-Y') .'. Anda miliki waktu kurang dari 15 menit untuk melunasi transaksi anda. Berikut link transaksi penyewaan <a href="'. rawurlencode('http://'.$_SERVER['SERVER_NAME'].'/penyewa-lapangan/menunggu-pembayaran') .'">klik disini</a>. Terima kasih!';
+                    $pesanToPengguna->pesan = 'Hi '.$dataPenyewa->name .', mohon segera lunasi transaksi anda pada tanggal '. date('d-m-Y') .'. Anda miliki waktu kurang dari 15 menit untuk melunasi transaksi anda. Berikut link transaksi penyewaan <a href="'. rawurlencode('https://'.$_SERVER['SERVER_NAME'].'/penyewa-lapangan/menunggu-pembayaran') .'">klik disini</a>. Terima kasih!';
                     $pesanToPengguna->save();
 
                     PembayaranLimitTimeJob::dispatch($pembayaran, $pesanToPengguna)->onConnection('paymentConnection');
@@ -231,6 +240,11 @@ class BookingController extends Controller
                 ->where('tb_lapangan.id', $request->lapanganId)
                 ->first();
 
+            $kupons= Kupon::where('id_lapangan', $request->lapanganId)
+                ->where('kode_kupon', $request->kode_kupon)
+                ->whereRaw('tb_kupon.`tgl_berlaku_dari` <= "'.date('Y-m-d').'" AND tb_kupon.`tgl_berlaku_sampai` >= "'.date('Y-m-d').'"')
+                ->first();
+
             if($dataLapangan->status_pembayaran === 'Belum Lunas'){
                 return response()->json(['error' => "Ada data pembayaran belum lunas"], 400);
             }
@@ -240,6 +254,9 @@ class BookingController extends Controller
                 $pembayaran->id_daftar_jenis_pembayaran = $request->pilihPembayaran;
                 $pembayaran->jenis_booking = 'bulanan';
                 $pembayaran->total_biaya = (isset($dataLapangan->harga_promo) ? $dataLapangan->harga_promo : $dataLapangan->harga_normal);
+                $pembayaran->total_biaya_diskon = (isset($dataLapangan->harga_promo) ? $dataLapangan->harga_promo - $kupons->total_diskon_persen : $dataLapangan->harga_normal - $kupons->total_diskon_persen);
+                $pembayaran->total_diskon_persen = $kupons->total_diskon_persen;
+                $pembayaran->kode_kupon = $kupons->kode_kupon;
                 $pembayaran->save();
 
                 $riwayatStatusPembayaran = new RiwayatStatusPembayaran;
@@ -279,7 +296,7 @@ class BookingController extends Controller
 
                 $pesan = new Pesan;
                 $pesan->chat_id = $chatIdLapangan->chat_id;
-                $pesan->pesan = 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa->name .' pada tanggal '. date('d-m-Y', strtotime($request->tglBooking)) .'. Berikut link rincian penyewaan <a href="'. rawurlencode('http://'.$_SERVER['SERVER_NAME'].'/pemilik-lapangan/dashboard?tanggalSewa='.$request->tglBooking.'&penggunaPenyewaId='.Auth::user()->id.'&court=1&pembayaranId='.$pembayaran->id) .'">klik disini</a>. Mohon untuk diperiksa. Terima kasih!';
+                $pesan->pesan = 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa->name .' pada tanggal '. date('d-m-Y', strtotime($request->tglBooking)) .'. Berikut link rincian penyewaan <a href="'. rawurlencode('https://'.$_SERVER['SERVER_NAME'].'/pemilik-lapangan/dashboard?tanggalSewa='.$request->tglBooking.'&penggunaPenyewaId='.Auth::user()->id.'&court=1&pembayaranId='.$pembayaran->id) .'">klik disini</a>. Mohon untuk diperiksa. Terima kasih!';
                 $pesan->save();
 
                 PembayaranLimitTimeJob::dispatch($pembayaran, $pesan);

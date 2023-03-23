@@ -291,7 +291,7 @@ class RiwayatController extends Controller
     public function getPenyewaLapanganInvoice(Request $request){
 
         $getPenyewaLapanganInvoice = DB::table('tb_pengguna')->select('tb_lapangan.id AS lapangan_id', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_booking.tgl_booking', 'tb_detail_booking.jam_mulai', 'tb_detail_booking.jam_selesai', 'tb_courts.nomor_court', 'tb_detail_booking.harga_per_jam',
-            'tb_pengguna.name', 'tb_pembayaran.jenis_booking', 'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_pembayaran.total_biaya', 'tb_pembayaran.id AS pembayaran_id', 'tb_riwayat_status_pembayaran.status_pembayaran')
+            'tb_pengguna.name', 'tb_pembayaran.jenis_booking', 'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_pembayaran.total_biaya', 'tb_pembayaran.id AS pembayaran_id', 'tb_riwayat_status_pembayaran.status_pembayaran', 'tb_pembayaran.total_biaya_diskon', 'tb_pembayaran.kode_kupon', 'tb_pembayaran.total_diskon_persen')
             ->leftJoin('tb_booking', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
             ->leftJoin('tb_detail_booking', 'tb_detail_booking.id_booking', '=', 'tb_booking.id')
             ->leftJoin('tb_courts', 'tb_courts.id', '=', 'tb_booking.id_court')

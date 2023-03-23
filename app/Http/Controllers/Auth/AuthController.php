@@ -98,7 +98,7 @@ class AuthController extends Controller
         if ($request->hasFile('foto_lapangan_1')) {
             $userPath = 'file/'.$user->id.'/';
             Storage::disk('public')->makeDirectory($userPath);
-            $fotoLapanganPath = $userPath.$request->nama_lapangan_pemilik_lapangan;
+            $fotoLapanganPath = $userPath.strtolower(str_replace(' ', '_', $request->nama_lapangan_pemilik_lapangan));
             Storage::disk('public')->makeDirectory($fotoLapanganPath);
             $pathFotoLapangan_1 = $request->file('foto_lapangan_1')->storeAs(
                 $fotoLapanganPath, "foto_lapangan_1.jpg", 'public'
@@ -108,7 +108,7 @@ class AuthController extends Controller
         if ($request->hasFile('foto_lapangan_2')) {
             $userPath = 'file/'.$user->id.'/';
             Storage::disk('public')->makeDirectory($userPath);
-            $fotoLapanganPath = $userPath.$request->nama_lapangan_pemilik_lapangan;
+            $fotoLapanganPath = $userPath.strtolower(str_replace(' ', '_', $request->nama_lapangan_pemilik_lapangan));
             Storage::disk('public')->makeDirectory($fotoLapanganPath);
             $pathFotoLapangan_2 = $request->file('foto_lapangan_2')->storeAs(
                 $fotoLapanganPath, "foto_lapangan_2.jpg", 'public'
@@ -118,7 +118,7 @@ class AuthController extends Controller
         if ($request->hasFile('foto_lapangan_3')) {
             $userPath = 'file/'.$user->id.'/';
             Storage::disk('public')->makeDirectory($userPath);
-            $fotoLapanganPath = $userPath.$request->nama_lapangan_pemilik_lapangan;
+            $fotoLapanganPath = $userPath.strtolower(str_replace(' ', '_', $request->nama_lapangan_pemilik_lapangan));
             Storage::disk('public')->makeDirectory($fotoLapanganPath);
             $pathFotoLapangan_3 = $request->file('foto_lapangan_3')->storeAs(
                 $fotoLapanganPath, "foto_lapangan_3.jpg", 'public'

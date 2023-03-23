@@ -213,6 +213,52 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-sm-12">
+                                    <div class="card" style="border: 0;margin-bottom: 7px;">
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <p>Potongan Diskon</p>
+                                            </div>
+                                            <div>
+                                                <p><span id="potongan-diskon">-</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="card" style="border: 0;margin-bottom: 7px;">
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <p>Total Harga Setelah Diskon</p>
+                                            </div>
+                                            <div>
+                                                <p><span id="total-harga-setelah-diskon">-</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body mt-4" style="-webkit-box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5);box-shadow: 0 4px 14px rgba(174, 197, 231, 0.5)">
+                        <h6 class="mb-0">Pakai Promo</h6>
+                        <hr style="border-top: 1px dashed;">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card" style="border: 0;margin-bottom: 7px;">
+                                    <div class="media">
+                                        <div class="media-body">
+                                           <div class="form-group">
+                                                <label>Masukan Kode Promo</label>
+                                                <div class="input-group">
+                                                    <input id="kode-promo" class="form-control" placeholder="Masukan Kode Promo" type="text" name="kode_promo">
+                                                    <button class="btn btn-primary btn-sm m-l-15 btn-submit-promo" style="height: 35px;margin-top: 0px;" type="button">Submit</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -589,7 +635,8 @@
                         "orderData": orderData,
                         "tglBooking": date,
                         "pilihPembayaran": pilihPembayaran,
-                        "lapanganId": {{$dataLapangan->lapangan_id}}
+                        "lapanganId": {{$dataLapangan->lapangan_id}},
+                        "kode_kupon": $('#kode-promo').val()
                     },
                     success: function(data){
 
@@ -630,6 +677,38 @@
 
         $(".pilih-pembayaran-card").removeClass("invalid-pilih-pembayaran-card");
         $(".pilih-pembayaran").removeClass("invalid-pilih-pembayaran");
+    });
+
+    $('.btn-submit-promo').on('click', function() {
+        $.ajax({
+           type: 'POST',
+           url: "{{route('penyewaLapangan.checkKupon')}}",
+           datatype: 'json',
+           data: {
+                "_token": "{{ csrf_token() }}",
+                "lapanganId": {{$dataLapangan->lapangan_id}},
+                "kode_kupon": $('#kode-promo').val(),
+           },
+           success: function(data, textStatus, jqXHR) {
+                if(jqXHR.status === 200){
+                    $('#kode-promo').removeAttr('style');
+                    $('#invalid-promo').remove();
+                    $('#potongan-diskon').empty().append('('+data.kode_promo+') '+ data.potongan_diskon + '%');
+                    $('#total-biaya-sewa').css('text-decoration', ' line-through');
+                    $('#total-harga-setelah-diskon').empty().append(formatter.format(total_biaya - data.potongan_diskon));
+                }else if(jqXHR.status === 204){
+                    $('#kode-promo').css('border-color', 'red');
+                    $('#invalid-promo').remove();
+                    $('#kode-promo').parent().parent().append('<p id="invalid-promo" style="color: red;"> Promo Tidak Tersedia </p>');
+                    $('#potongan-diskon').empty().append('-');
+                    $('#total-biaya-sewa').removeAttr('style');
+                    $('#total-harga-setelah-diskon').empty().append('-');
+                }
+           },
+           error: function(data) {
+
+           }
+        });
     });
 
     // $.ajax({

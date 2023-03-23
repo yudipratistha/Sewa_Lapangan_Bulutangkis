@@ -85,7 +85,7 @@ class PembayaranController extends Controller
     public function menungguPembayaranPenyewaIndex(){
         $dataMenungguPembayaran = DB::table('tb_booking')->select('tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_lapangan.foto_lapangan_1', 'tb_pengguna.name',
         'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_daftar_jenis_pembayaran.atas_nama', 'tb_daftar_jenis_pembayaran.no_rekening', 'tb_booking.tgl_booking', 'tb_pembayaran.id AS pembayaran_id',
-        'tb_pembayaran.total_biaya', 'tb_pembayaran.created_at AS pembayaran_created_at')
+        'tb_pembayaran.total_biaya', 'tb_pembayaran.total_biaya_diskon', 'tb_pembayaran.created_at AS pembayaran_created_at')
         ->leftJoin('tb_detail_booking', 'tb_detail_booking.id_booking', '=', 'tb_booking.id')
         ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
         ->leftJoin('tb_courts', 'tb_courts.id', '=', 'tb_booking.id_court')
@@ -118,7 +118,7 @@ class PembayaranController extends Controller
 
     public function getPembayaranDetail(){
         $dataPembayaran = DB::table('tb_booking')->select('tb_lapangan.id AS lapangan_id', 'tb_lapangan.nama_lapangan', 'tb_lapangan.alamat_lapangan', 'tb_booking.tgl_booking', 'tb_detail_booking.jam_mulai', 'tb_detail_booking.jam_selesai', 'tb_courts.nomor_court', 'tb_detail_booking.harga_per_jam',
-            'tb_pengguna.name', 'tb_pembayaran.jenis_booking', 'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_pembayaran.total_biaya', 'tb_pembayaran.id AS pembayaran_id', 'tb_riwayat_status_pembayaran.status_pembayaran')
+            'tb_pengguna.name', 'tb_pembayaran.jenis_booking', 'tb_daftar_jenis_pembayaran.nama_jenis_pembayaran', 'tb_pembayaran.total_biaya', 'tb_pembayaran.id AS pembayaran_id', 'tb_riwayat_status_pembayaran.status_pembayaran', 'tb_pembayaran.total_biaya_diskon', 'tb_pembayaran.kode_kupon', 'tb_pembayaran.total_diskon_persen')
             ->leftJoin('tb_detail_booking', 'tb_detail_booking.id_booking', '=', 'tb_booking.id')
             ->leftJoin('tb_pengguna', 'tb_booking.id_pengguna', '=', 'tb_pengguna.id')
             ->leftJoin('tb_courts', 'tb_courts.id', '=', 'tb_booking.id_court')
@@ -200,7 +200,7 @@ class PembayaranController extends Controller
             if(isset($chatIdLapangan)){
                 $pesanToPemilik = new Pesan;
                 $pesanToPemilik->chat_id = $chatIdLapangan->chat_id;
-                $pesanToPemilik->pesan = 'Transaksi oleh '. $namaPenyewa->name .' telah dibayar. Berikut link rincian penyewaan <a href="'. rawurlencode('http://'.$_SERVER['SERVER_NAME'].'/pemilik-lapangan/dashboard?tanggalSewa='.$request->tglBooking.'&penggunaPenyewaId='.Auth::user()->id.'&court=1&pembayaranId='.$dataPembayaran->pembayaran_id) .'">klik disini</a>. Mohon untuk diperiksa kelengkapan pembayaran dan mengubah status. Terima kasih!';
+                $pesanToPemilik->pesan = 'Transaksi oleh '. $namaPenyewa->name .' telah dibayar. Berikut link rincian penyewaan <a href="'. rawurlencode('https://'.$_SERVER['SERVER_NAME'].'/pemilik-lapangan/dashboard?tanggalSewa='.$request->tglBooking.'&penggunaPenyewaId='.Auth::user()->id.'&court=1&pembayaranId='.$dataPembayaran->pembayaran_id) .'">klik disini</a>. Mohon untuk diperiksa kelengkapan pembayaran dan mengubah status. Terima kasih!';
                 $pesanToPemilik->save();
 
                 // DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdLapangan[0]->chat_id, 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa[0]->name .' pada tanggal '. $request->tglBooking .'. Mohon untuk diperiksa. Terima kasih!']);
@@ -243,11 +243,11 @@ class PembayaranController extends Controller
         if(isset($chatIdPenyewa)){
             $pesanToPengguna = new Pesan;
             $pesanToPengguna->chat_id = $chatIdPenyewa->chat_id;
-            $pesanToPengguna->pesan = 'Pesanan penyewaan lapangan '. $chatIdPenyewa->nama_lapangan .' telah diupdate. Berikut link rincian penyewaan <a href="'. rawurlencode('http://'.$_SERVER['SERVER_NAME'].'/penyewa-lapangan/riwayat-penyewaan?pembayaranId='.$request->pembayaranId .'&tglPenyewaan='. date('d-m-Y', strtotime($dataBooking->tgl_booking))) .'">klik disini</a>. Mohon untuk di periksa. Terima kasih!';
+            $pesanToPengguna->pesan = 'Pesanan penyewaan lapangan '. $chatIdPenyewa->nama_lapangan .' telah diupdate. Berikut link rincian penyewaan <a href="'. rawurlencode('https://'.$_SERVER['SERVER_NAME'].'/penyewa-lapangan/riwayat-penyewaan?pembayaranId='.$request->pembayaranId .'&tglPenyewaan='. date('d-m-Y', strtotime($dataBooking->tgl_booking))) .'">klik disini</a>. Mohon untuk di periksa. Terima kasih!';
 
             $pesanToPengguna->save();
 
-            // $pesanToPemilik->pesan = 'Transaksi oleh '. $namaPenyewa->name .' telah dibayar. Berikut link rincian penyewaan <a href="'. rawurlencode('http://'.$_SERVER['SERVER_NAME'].'/pemilik-lapangan/dashboard?tanggalSewa='.$request->tglBooking.'&penggunaPenyewaId='.Auth::user()->id.'&court=1&pembayaranId='.$dataPembayaran->pembayaran_id) .'">klik disini</a>. Mohon untuk diperiksa kelengkapan pembayaran dan mengubah status. Terima kasih!';
+            // $pesanToPemilik->pesan = 'Transaksi oleh '. $namaPenyewa->name .' telah dibayar. Berikut link rincian penyewaan <a href="'. rawurlencode('https://'.$_SERVER['SERVER_NAME'].'/pemilik-lapangan/dashboard?tanggalSewa='.$request->tglBooking.'&penggunaPenyewaId='.Auth::user()->id.'&court=1&pembayaranId='.$dataPembayaran->pembayaran_id) .'">klik disini</a>. Mohon untuk diperiksa kelengkapan pembayaran dan mengubah status. Terima kasih!';
 
             // DB::insert('insert into tb_pesan (chat_id, pesan) values (?, ?)', [$chatIdLapangan[0]->chat_id, 'Terdapat transaksi penyewaan baru atas nama '. $namaPenyewa[0]->name .' pada tanggal '. $request->tglBooking .'. Mohon untuk diperiksa. Terima kasih!']);
 

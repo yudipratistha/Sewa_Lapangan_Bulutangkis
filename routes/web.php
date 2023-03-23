@@ -164,6 +164,13 @@ Route::group(['prefix' => 'pemilik-lapangan/'], function(){
 
         Route::get('manajemen-booking-limit-time', 'LapanganController@manajemenBookingLimitTime')->name('pemilikLapangan.manajemenBookingLimitTime');
         Route::post('update-or-create-limit-booking-time', 'LapanganController@pemilikLapanganUpdateOrCreateLimitBookingTime')->name('pemilikLapangan.updateOrCreateLimitBookingTime');
+
+        Route::get('kupon-dashboard', 'KuponController@kuponDashboard')->name('pemilikLapangan.kuponDashboard');
+        Route::post('get-data-kupon', 'KuponController@getDataKuponLapangan')->name('pemilikLapangan.getDataKuponLapangan');
+        Route::post('create-data-kupon', 'KuponController@createManajemenKuponLapangan')->name('pemilikLapangan.createKuponLapangan');
+        Route::post('edit-data-kupon', 'KuponController@editManajemenKuponLapangan')->name('pemilikLapangan.editKuponLapangan');
+        Route::post('update-data-kupon', 'KuponController@updateManajemenKuponLapangan')->name('pemilikLapangan.updateKuponLapangan');
+        Route::post('destroy-data-kupon', 'KuponController@destroyManajemenKuponLapangan')->name('pemilikLapangan.destroyKuponLapangan');
     });
 });
 
@@ -204,5 +211,7 @@ Route::group(['prefix' => 'penyewa-lapangan/'], function(){
         Route::post('data-riwayat-penyewaan', 'RiwayatController@getDataRiwayatPenyewaLapangan')->name('penyewaLapangan.getDataRiwayatPenyewaLapangan');
 
         Route::get('get-invoice/{pembayaranId}', 'RiwayatController@getPenyewaLapanganInvoice')->name('penyewaLapangan.getInvoice');
+
+        Route::get('check-kupon', 'KuponController@checkKupon')->name('penyewaLapangan.checkKupon');
     });
 });

@@ -80,7 +80,7 @@
                                                             <div class="col-sm-5 b-r-light"><span>Nomor Rekening</span>
                                                                 <h4>{{$dataMenungguPembayaran->no_rekening}}</h4>
                                                             </div><div class="col-sm-4"><span>Total Bayar</span>
-                                                                <h4>Rp{{$dataMenungguPembayaran->total_biaya}}</h4>
+                                                                <h4>Rp @if(isset($dataMenungguPembayaran->total_biaya_diskon)) {{$dataMenungguPembayaran->total_biaya_diskon}} @else {{$dataMenungguPembayaran->total_biaya}} @endif</h4>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -196,6 +196,30 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-sm-12">
+                                    <div class="card" style="border: 0;margin-bottom: 7px;">
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <p>Potongan Diskon</p>
+                                            </div>
+                                            <div>
+                                                <p><span id="potongan-diskon">-</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="card" style="border: 0;margin-bottom: 7px;">
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <p>Total Harga Setelah Diskon</p>
+                                            </div>
+                                            <div>
+                                                <p><span id="total-harga-setelah-diskon">-</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -244,7 +268,7 @@
                             <div class="row g-3">
                                 <div class="col-sm-10 mb-3">
                                     <span style="font-size: 0.857143rem;line-height: 18px;color: var(--N700,rgba(49,53,59,0.68));">Total Bayar</span>
-                                    <h6>Rp{{$dataMenungguPembayaran->total_biaya}}</h6>
+                                    <h6>Rp @if(isset($dataMenungguPembayaran->total_biaya_diskon)) {{$dataMenungguPembayaran->total_biaya_diskon}} @else {{$dataMenungguPembayaran->total_biaya}} @endif</h6>
                                 </div>
                                 <div class="col-sm-2 mb-3" style="display: flex;align-items: center;">
                                     <span style="font-size: 0.857143rem;line-height: 18px;color: var(--N700,rgba(49,53,59,0.68));">Salin <i class="icofont icofont-ui-copy"></i></span>
@@ -408,6 +432,9 @@
                             var totalBiaya = orderDataArr.total_biaya;
                             var namaLapangan = orderDataArr.nama_lapangan;
                             var alamatLapangan = orderDataArr.alamat_lapangan;
+                            var totalBiayaDiskon = orderDataArr.total_biaya_diskon;
+                            var totalDiskonPersen = orderDataArr.total_diskon_persen;
+                            var kodeKupon = orderDataArr.kode_kupon;
 
                             if(index2 === 0 || Object.keys(bookingArr).includes((orderDataArr.nomor_court+'-'+Object.keys(orderDataSort)[index]).toString()) === false){
                                 courtStatus = true;
@@ -473,6 +500,14 @@
                     $('#status-pembayaran').empty().append(statusPembayaran);
                     $('#biaya-sewa').empty().append(formatter.format(totalBiaya));
                     $('#total-biaya-sewa').empty().append(formatter.format(totalBiaya));
+                    $('#kode-promo').removeAttr('style');
+                    $('#invalid-promo').remove();
+                    if(kodeKupon !== ''){
+                        $('#potongan-diskon').empty().append('('+kodeKupon+') '+ totalDiskonPersen + '%');
+                        $('#total-biaya-sewa').css('text-decoration', ' line-through');
+                        $('#total-harga-setelah-diskon').empty().append(formatter.format(totalBiayaDiskon));
+                    }
+
                     $('#modal-booking-counting').modal('show');
                 }
 
